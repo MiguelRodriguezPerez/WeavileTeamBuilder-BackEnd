@@ -22,6 +22,11 @@ public class AbilityService implements AbilityInterface {
     }
 
     @Override
+    public void deleteAllAbilities() {
+        repo.deleteAll();
+    }
+
+    @Override
     public AbilityData findAbilityByName(String name){
         return repo.findByName(name);
     }
@@ -68,20 +73,20 @@ public class AbilityService implements AbilityInterface {
         
         return resultado;
     }
-    
 
-    // TODO: Obtener todas las habilidades responsablemente. Borrar BD
+    @Override
+    public boolean requestAllAbilities() {
 
-    public boolean requestSeveralAbilities(int number_start_ability, int number_end_ability) {
+        final int numero_habilidades = 307;
 
-        if(number_end_ability < number_start_ability) 
-            throw new RuntimeException("Params are equal or number_end_ability is greater than number_start_ability");
+        for (int i = 1; i <= numero_habilidades; i++) {
 
-        for(int i = number_start_ability; i <= number_end_ability; i++) {
-            AbilityData currentAbility = this.requestAbilityToPokeApi(i);
-            if(this.findAbilityByName(currentAbility.getName()) == null) this.saveAbility(currentAbility);
+            AbilityData ab = this.requestAbilityToPokeApi(i);
+            if(ab != null) this.saveAbility(ab);
+            else throw new RuntimeException("Error al recibir la habilidad numero " + i);
+            
         }
-
+        
         return true;
     }
 }
