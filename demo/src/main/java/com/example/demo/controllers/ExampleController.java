@@ -6,13 +6,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.services.implementations.AbilityService;
+import com.example.demo.services.implementations.AbilityData_Service;
 
 @RestController
 public class ExampleController {
 
     @Autowired
-    AbilityService habilidadService;
+    AbilityData_Service habilidadService;
 
     @GetMapping("/")
     public ResponseEntity<String> getMethodName() {

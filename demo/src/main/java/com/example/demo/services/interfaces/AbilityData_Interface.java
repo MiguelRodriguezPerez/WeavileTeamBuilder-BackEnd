@@ -1,9 +1,9 @@
 package com.example.demo.services.interfaces;
 
-import com.example.demo.domain.abilities.AbilityData;
+import com.example.demo.domain.AbilityData;
 
-public interface AbilityInterface {
-    
+public interface AbilityData_Interface {
+
     AbilityData saveAbility(AbilityData ab);
     void deleteAllAbilities();
     AbilityData findAbilityByName(String name);
