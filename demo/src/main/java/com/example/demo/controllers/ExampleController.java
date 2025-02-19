@@ -17,7 +17,7 @@ public class ExampleController {
     @GetMapping("/")
     public ResponseEntity<String> getMethodName() {
 
-        habilidadService.requestSeveralAbilities(5, 8);
+        habilidadService.requestSeveralAbilities(9, 9);
 
         return new ResponseEntity<>("hola", HttpStatus.OK);
 
