@@ -6,16 +6,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.services.implementations.AbilityData_Service;
+import com.example.demo.services.implementations.MoveData_Service;
 
 @RestController
 public class ExampleController {
 
     @Autowired
-    AbilityData_Service habilidadService;
+    MoveData_Service moveData_Service;
 
     @GetMapping("/")
     public ResponseEntity<String> getMethodName() {
+        moveData_Service.requestAllMoves();
+
         return new ResponseEntity<>("hola", HttpStatus.OK);
 
     }

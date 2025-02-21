@@ -5,7 +5,9 @@ import org.springframework.stereotype.Repository;
 
 import com.example.demo.domain.movements.MoveData;
 
+
 @Repository
 public interface MoveData_Repository extends JpaRepository<MoveData,Long> {
     
+    MoveData findByName(String name);
 }

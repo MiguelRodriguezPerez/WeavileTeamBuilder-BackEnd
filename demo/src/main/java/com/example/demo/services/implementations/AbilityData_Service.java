@@ -3,7 +3,7 @@ package com.example.demo.services.implementations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.config.ApiRequestManager;
+import com.example.demo.config.ApiRequestManager;
 import com.example.demo.domain.AbilityData;
 import com.example.demo.repositories.AbilityData_Repository;
 import com.example.demo.services.interfaces.AbilityData_Interface;

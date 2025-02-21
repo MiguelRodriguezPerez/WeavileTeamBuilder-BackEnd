@@ -1,5 +1,7 @@
 package com.example.demo.domain.movements;
 
+import com.example.demo.domain.PokemonType;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,17 +24,23 @@ public class MoveData {
 
     private String name;
 
-    private MoveType move_Type;
+    private MoveType move_type;
+
+    private PokemonType pokemon_type;
 
     private byte accuracy;
 
     private String description;
 
-    public MoveData(String name, MoveType move_Type, byte accuracy, String description) {
+    // TODO: Calc max pp by multiplying api request * 160%;
+    private byte pp;
+
+    public MoveData(String name, MoveType move_Type, byte accuracy, String description, byte pp) {
         this.name = name;
-        this.move_Type = move_Type;
+        this.move_type = move_Type;
         this.accuracy = accuracy;
         this.description = description;
+        this.pp = pp;
     }
 
 }
