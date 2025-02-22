@@ -91,13 +91,9 @@ public class AbilityData_Service implements AbilityData_Interface {
         final int numero_habilidades = 307;
 
         for (int i = 1; i <= numero_habilidades; i++) {
-
             AbilityData ab = this.requestAbilityToPokeApi(i);
-            if (ab != null)
-                this.saveAbility(ab);
-            else
-                throw new RuntimeException("Error al recibir la habilidad numero " + i);
-
+            if (ab != null) this.saveAbility(ab);
+            else throw new RuntimeException("Error al recibir la habilidad numero " + i);
         }
 
         return true;
