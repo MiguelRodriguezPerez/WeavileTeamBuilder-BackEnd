@@ -10,6 +10,10 @@ import java.net.URL;
 
 import org.springframework.stereotype.Component;
 
+/* El objetivo de esta clase es abstraer todo el boilerplate que se necesitaría para descargar 
+una imagen de la url del json que luego se usaría en item.setImage() */
+
+// TODO: Comentar clase
 @Component
 public class ImageDownloader {
     

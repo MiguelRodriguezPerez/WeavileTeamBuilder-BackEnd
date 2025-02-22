@@ -21,6 +21,11 @@ public class ItemData_Service implements ItemData_Interface {
     }
 
     @Override
+    public ItemData getItemById(long id) {
+        return repo.findById(id).orElse(null);
+    }
+
+    @Override
     public void deleteAllItemData() {
         repo.deleteAll();
     }
@@ -35,39 +40,49 @@ public class ItemData_Service implements ItemData_Interface {
        
         ItemData resultado = new ItemData();
         JsonNode item_source = ApiRequestManager.callGetRequest("https://pokeapi.co/api/v2/item/" + number);
-
-        resultado.setName(item_source.get("name").asText());
         
-        if(item_source.get("effect_entries").isEmpty()) {
-            for(JsonNode flavor_text_entry: item_source.get("flavor_text_entries")) {
-                if(flavor_text_entry.get("language").get("name").asText().equals("en")) {
-                    resultado.setDescription(flavor_text_entry.get("text").asText());
+        if(item_source != null) {
+
+            resultado.setName(item_source.get("name").asText());
+
+            if(item_source.get("effect_entries").isEmpty()) {
+                for(JsonNode flavor_text_entry: item_source.get("flavor_text_entries")) {
+                    if(flavor_text_entry.get("language").get("name").asText().equals("en")) {
+                        resultado.setDescription(flavor_text_entry.get("text").asText());
+                    }
                 }
             }
-        }
-        else {
-            resultado.setDescription(item_source.get("effect_entries")
-            .get(0)
-            .get("short_effect").asText());
+            else {
+                resultado.setDescription(item_source.get("effect_entries")
+                .get(0)
+                .get("short_effect").asText());
+            }
+
+            /* Abstraido al constructor a través de ImageDownloader */
+            // Algunas imágenes no tienen url para la imagen
+            if(item_source.get("sprites").get("default").asText().equals("null")) return null;
+            else resultado.setImage_sprite(item_source.get("sprites").get("default").asText());
+
+            return resultado;
         }
 
-        /* Abstraido al constructor a través de ImageDownloader */
-        resultado.setImage_sprite(item_source.get("sprites").get("default").asText());
-
-        return resultado;
+       else return null;
     }
 
     @Override
     public boolean requestAllItems() {
-        
+                
         final int total_items = 1203;
 
-        for(int i = 1; i < 4; i++) {
+        for(int i = 1; i <= total_items; i++) {
             System.out.println("Objeto actual: " + i);
-            this.saveItemData(this.requestItemToPokeApi(i));
+
+            ItemData item = this.requestItemToPokeApi(i);
+            if(item != null) this.saveItemData(item);
         }
 
         return true;
     }
+
     
 }
