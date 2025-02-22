@@ -9,4 +9,5 @@ public interface MoveData_Interface {
     MoveData findMoveByName(String name);
     MoveData requestMoveToPokeApi(int number);
     boolean requestAllMoves();
+    
 }
