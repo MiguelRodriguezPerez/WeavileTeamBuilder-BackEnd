@@ -1,11 +1,17 @@
 package com.example.demo.domain.movements;
 
+
+import java.util.Set;
+
+import com.example.demo.domain.PokemonData;
 import com.example.demo.domain.PokemonType;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -34,6 +40,9 @@ public class MoveData {
 
     // TODO: Calc max pp by multiplying api request * 160%;
     private byte pp;
+
+    @ManyToMany(mappedBy = "move_list", fetch = FetchType.EAGER)
+    private Set<PokemonData> pokemon_list;
 
     public MoveData(String name, MoveType move_Type, byte accuracy, String description, byte pp) {
         this.name = name;
