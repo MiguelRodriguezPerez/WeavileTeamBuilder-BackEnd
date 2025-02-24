@@ -26,7 +26,7 @@ public class AbilityData_Service implements AbilityData_Interface {
     }
 
     @Override
-    public AbilityData findAbilityByName(String name) {
+    public AbilityData getAbilityByName(String name) {
         return repo.findByName(name);
     }
 
@@ -92,8 +92,10 @@ public class AbilityData_Service implements AbilityData_Interface {
 
         for (int i = 1; i <= numero_habilidades; i++) {
             AbilityData ab = this.requestAbilityToPokeApi(i);
-            if (ab != null) this.saveAbility(ab);
-            else throw new RuntimeException("Error al recibir la habilidad numero " + i);
+            if (ab != null)
+                this.saveAbility(ab);
+            else
+                throw new RuntimeException("Error al recibir la habilidad numero " + i);
         }
 
         return true;

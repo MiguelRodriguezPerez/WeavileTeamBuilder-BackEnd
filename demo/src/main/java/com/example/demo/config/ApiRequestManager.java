@@ -28,7 +28,7 @@ public class ApiRequestManager {
 
                 return resultado_final;
             }
-
+            
             else return null;
         }
         catch (URISyntaxException | IOException e) {

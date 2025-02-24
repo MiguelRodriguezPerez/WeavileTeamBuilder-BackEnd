@@ -27,7 +27,7 @@ public class ExampleController {
     public ResponseEntity<byte[]> verImagen() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "image/png");
-        return new ResponseEntity<>(itemData_Service.getItemByName("assault-vest").getImage_sprite(), headers, HttpStatus.OK);
+        return new ResponseEntity<>(itemData_Service.getItemById(300).getImage_sprite(), headers, HttpStatus.OK);
     }
 
 }
