@@ -39,6 +39,7 @@ public class PokemonData {
     private int base_special_defense;
     private int base_speed;
 
+
     private byte[] front_default_sprite;
     private byte[] pc_sprite;
 

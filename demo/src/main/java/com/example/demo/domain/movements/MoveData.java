@@ -44,7 +44,8 @@ public class MoveData {
     @ManyToMany(mappedBy = "move_list", fetch = FetchType.EAGER)
     private Set<PokemonData> pokemon_list;
 
-    public MoveData(String name, MoveType move_Type, int accuracy, String description, int pp) {
+
+    public MoveData(String name, MoveType move_Type, byte accuracy, String description, int pp) {
         this.name = name;
         this.move_type = move_Type;
         this.accuracy = accuracy;
