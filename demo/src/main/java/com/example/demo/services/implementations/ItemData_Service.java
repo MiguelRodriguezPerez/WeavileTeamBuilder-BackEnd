@@ -51,7 +51,8 @@ public class ItemData_Service implements ItemData_Interface {
                         resultado.setDescription(flavor_text_entry.get("text").asText());
                     }
                 }
-            } else {
+            } 
+            else {
                 resultado.setDescription(item_source.get("effect_entries")
                         .get(0)
                         .get("short_effect").asText());

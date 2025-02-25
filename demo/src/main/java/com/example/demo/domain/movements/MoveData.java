@@ -1,6 +1,7 @@
 package com.example.demo.domain.movements;
 
 
+import java.util.HashSet;
 import java.util.Set;
 
 import com.example.demo.domain.PokemonData;
@@ -15,9 +16,7 @@ import jakarta.persistence.ManyToMany;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
 @AllArgsConstructor
 @Data
 @EqualsAndHashCode(of = "id")
@@ -44,13 +43,10 @@ public class MoveData {
     @ManyToMany(mappedBy = "move_list", fetch = FetchType.EAGER)
     private Set<PokemonData> pokemon_list;
 
-
-    public MoveData(String name, MoveType move_Type, byte accuracy, String description, int pp) {
-        this.name = name;
-        this.move_type = move_Type;
-        this.accuracy = accuracy;
-        this.description = description;
-        this.pp = pp;
+    /* WARNING: Esta no es la manera correcta de usar un HashSet.
+    Usaste este constructor porque java no permite añadir valores a Set nulos.
+    Ya lo hiciste antes sin esta "cosa". Averigua como arreglarlo*/
+    public MoveData() {
+        this.pokemon_list = new HashSet<>();
     }
-
 }

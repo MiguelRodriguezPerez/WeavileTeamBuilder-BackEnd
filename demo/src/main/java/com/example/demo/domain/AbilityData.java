@@ -1,5 +1,6 @@
 package com.example.demo.domain;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -16,7 +17,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@NoArgsConstructor
 @AllArgsConstructor
 @Data
 @EqualsAndHashCode(of = "id")
@@ -36,9 +36,11 @@ public class AbilityData {
     @ManyToMany(mappedBy = "ability_list", fetch = FetchType.EAGER)
     private Set<PokemonData> pokemon_list;
 
-    public AbilityData(String name, String description) {
-        this.name = name;
-        this.description = description;
+    /* WARNING: Esta no es la manera correcta de usar un HashSet.
+    Usaste este constructor porque java no permite añadir valores a Set nulos.
+    Ya lo hiciste antes sin esta "cosa". Averigua como arreglarlo*/
+    public AbilityData(){
+        this.pokemon_list = new HashSet<>();
     }
 
     

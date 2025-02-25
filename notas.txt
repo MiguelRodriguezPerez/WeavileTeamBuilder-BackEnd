@@ -1,3 +1,6 @@
 No todos los objetos se pudieron descargar
 porque algunos eran json null y otros no tenían imagen
 Los generos son aleatorios porque pokeapi no los da y no se van a registrar aquí
+
+Actualmente no puedes acceder a los movs y habilidades de un pokemon por recursión o algo,
+pero se guardan bien. Comprobado en mysql
