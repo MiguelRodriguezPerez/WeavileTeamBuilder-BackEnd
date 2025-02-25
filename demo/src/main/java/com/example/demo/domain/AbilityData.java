@@ -3,8 +3,6 @@ package com.example.demo.domain;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -14,14 +12,13 @@ import jakarta.persistence.ManyToMany;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+@ToString(exclude = "pokemon_list")
 @AllArgsConstructor
 @Data
 @EqualsAndHashCode(of = "id")
 @Entity
-@ToString(exclude = "id")
 public class AbilityData {
     // TODO: Realizar relaciones entre entidades (movs,pokemon...)
 

@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +22,11 @@ public class ExampleController {
     @GetMapping("/")
     public ResponseEntity<Set<MoveData>> getMethodName() {
 
-        
-
-       return null;
+        Set<MoveData> lista = pokemonData_Service.getPokemonById((long) 52).getMove_list();
+        for (MoveData move: lista) {
+            System.out.println(move.toString());
+        }
+        return null;
 
     }
 

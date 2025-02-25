@@ -16,7 +16,9 @@ import jakarta.persistence.ManyToMany;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
+@ToString(exclude = "pokemon_list")
 @AllArgsConstructor
 @Data
 @EqualsAndHashCode(of = "id")
