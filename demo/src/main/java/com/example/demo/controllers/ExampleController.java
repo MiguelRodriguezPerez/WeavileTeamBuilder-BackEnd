@@ -20,12 +20,9 @@ public class ExampleController {
     PokemonData_Service pokemonData_Service;
 
     @GetMapping("/")
-    public ResponseEntity<Set<MoveData>> getMethodName() {
+    public ResponseEntity<?> getMethodName() {
 
-        Set<MoveData> lista = pokemonData_Service.getPokemonById((long) 52).getMove_list();
-        for (MoveData move: lista) {
-            System.out.println(move.toString());
-        }
+        pokemonData_Service.deleteAllPokemons();
         return null;
 
     }

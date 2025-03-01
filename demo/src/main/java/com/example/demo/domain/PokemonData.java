@@ -3,6 +3,8 @@ package com.example.demo.domain;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.hibernate.collection.spi.PersistentSet;
+
 import com.example.demo.domain.movements.MoveData;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -22,6 +24,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+@NoArgsConstructor
 @Data
 @EqualsAndHashCode(of = "id")
 @Entity
@@ -50,26 +53,24 @@ public class PokemonData {
     @Column(columnDefinition = "MEDIUMBLOB") // Para MySQL
     private byte[] pc_sprite;
 
-    private Set<PokemonType> type_list;
+    /* WARNING: Probablemente esta no es la manera correcta de usar un PersistentSet.
+    Usaste este constructor porque java no permite añadir valores a Set nulos.
+    Ya lo hiciste antes sin esta "cosa". Averigua como arreglarlo*/
+
+    private Set<PokemonType> type_list = new PersistentSet<>();
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "pokemonData-abilityData", 
         joinColumns = @JoinColumn(name = "pokemonData_id"), inverseJoinColumns = @JoinColumn(name = "abilityData_id"))
-    private Set<AbilityData> ability_list;
+    private Set<AbilityData> ability_list = new PersistentSet<>();
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "pokemonData-moveData",
         joinColumns = @JoinColumn(name = "pokemonData_id"), inverseJoinColumns = @JoinColumn(name = "moveData_id"))
-    private Set<MoveData> move_list;
+    private Set<MoveData> move_list = new PersistentSet<>();
 
-    /* WARNING: Esta no es la manera correcta de usar un HashSet.
-    Usaste este constructor porque java no permite añadir valores a Set nulos.
-    Ya lo hiciste antes sin esta "cosa". Averigua como arreglarlo*/
-    public PokemonData() {
-        this.type_list = new HashSet<>();
-        this.move_list = new HashSet<>();
-        this.ability_list = new HashSet<>();
-    }
+    
+
 
 
 }

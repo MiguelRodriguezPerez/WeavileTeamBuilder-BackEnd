@@ -39,7 +39,7 @@ public class PokemonData_Service implements PokemonData_Interface {
 
     @Override
     public void deleteAllPokemons() {
-        repo.deleteAll();
+        repo.deleteAllPokemonProcedure();
     }
 
     public PokemonData getPokemonById(Long id) {
@@ -81,7 +81,7 @@ public class PokemonData_Service implements PokemonData_Interface {
 
     }
 
-    public PokemonData assignPokemonDataStats(PokemonData pokemonData, JsonNode pokemon_json) {
+    private PokemonData assignPokemonDataStats(PokemonData pokemonData, JsonNode pokemon_json) {
 
         for (JsonNode pokemon_stat_object : pokemon_json.get("stats")) {
 
@@ -123,7 +123,7 @@ public class PokemonData_Service implements PokemonData_Interface {
         return pokemonData;
     }
 
-    public PokemonData assignPokemonDataAbilities(PokemonData pokemonData, JsonNode pokemon_json) {
+    private PokemonData assignPokemonDataAbilities(PokemonData pokemonData, JsonNode pokemon_json) {
 
         for (JsonNode ability_json : pokemon_json.get("abilities")) {
 
@@ -140,7 +140,7 @@ public class PokemonData_Service implements PokemonData_Interface {
         return pokemonData;
     }
 
-    public PokemonData assignPokemonDataMoves(PokemonData pokemonData, JsonNode pokemon_json) {
+    private PokemonData assignPokemonDataMoves(PokemonData pokemonData, JsonNode pokemon_json) {
 
         for (JsonNode move_json : pokemon_json.get("moves")) {
             String current_move_name = move_json.get("move").get("name").asText();
@@ -156,7 +156,7 @@ public class PokemonData_Service implements PokemonData_Interface {
         return pokemonData;
     }
 
-    public PokemonData assignPokemonDataSprites(PokemonData pokemonData, JsonNode pokemon_json) {
+    private PokemonData assignPokemonDataSprites(PokemonData pokemonData, JsonNode pokemon_json) {
         JsonNode sprites = pokemon_json.get("sprites");
 
         pokemonData.setFront_default_sprite(ImageDownloader.getImage(sprites.get("front_default").asText()));
@@ -168,7 +168,7 @@ public class PokemonData_Service implements PokemonData_Interface {
         return pokemonData;
     }
 
-    public PokemonData assignPokemonDataTypes(PokemonData pokemonData, JsonNode pokemon_json) {
+    private PokemonData assignPokemonDataTypes(PokemonData pokemonData, JsonNode pokemon_json) {
 
         for (JsonNode current_type : pokemon_json.get("types")) {
             String new_type = current_type.get("type").get("name").asText();
