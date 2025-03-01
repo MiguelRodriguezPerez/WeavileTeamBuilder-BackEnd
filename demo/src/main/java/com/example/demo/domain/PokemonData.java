@@ -8,6 +8,7 @@ import org.hibernate.collection.spi.PersistentSet;
 import com.example.demo.domain.movements.MoveData;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -28,9 +29,9 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(of = "id")
 @Entity
-@ToString(exclude = { "front_default_sprite" , "pc_sprite" , "ability_list" , "move_list" })
+@ToString(exclude = { "front_default_sprite", "pc_sprite", "ability_list", "move_list" })
 public class PokemonData {
-    
+
     @GeneratedValue
     @Id
     private Long id;
@@ -44,7 +45,6 @@ public class PokemonData {
     private int base_special_defense;
     private int base_speed;
 
-
     @Lob // Indica que es un campo grande (BLOB)
     @Column(columnDefinition = "MEDIUMBLOB") // Para MySQL
     private byte[] front_default_sprite;
@@ -53,24 +53,16 @@ public class PokemonData {
     @Column(columnDefinition = "MEDIUMBLOB") // Para MySQL
     private byte[] pc_sprite;
 
-    /* WARNING: Probablemente esta no es la manera correcta de usar un PersistentSet.
-    Usaste este constructor porque java no permite añadir valores a Set nulos.
-    Ya lo hiciste antes sin esta "cosa". Averigua como arreglarlo*/
+    private Set<PokemonType> type_list = new HashSet<>();
 
-    private Set<PokemonType> type_list = new PersistentSet<>();
-
+    @JsonManagedReference
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinTable(name = "pokemonData-abilityData", 
-        joinColumns = @JoinColumn(name = "pokemonData_id"), inverseJoinColumns = @JoinColumn(name = "abilityData_id"))
-    private Set<AbilityData> ability_list = new PersistentSet<>();
+    @JoinTable(name = "pokemonData-abilityData", joinColumns = @JoinColumn(name = "pokemonData_id"), inverseJoinColumns = @JoinColumn(name = "abilityData_id"))
+    private Set<AbilityData> ability_list = new HashSet<>();
 
+    @JsonManagedReference
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinTable(name = "pokemonData-moveData",
-        joinColumns = @JoinColumn(name = "pokemonData_id"), inverseJoinColumns = @JoinColumn(name = "moveData_id"))
-    private Set<MoveData> move_list = new PersistentSet<>();
-
-    
-
-
+    @JoinTable(name = "pokemonData-moveData", joinColumns = @JoinColumn(name = "pokemonData_id"), inverseJoinColumns = @JoinColumn(name = "moveData_id"))
+    private Set<MoveData> move_list = new HashSet<>();
 
 }

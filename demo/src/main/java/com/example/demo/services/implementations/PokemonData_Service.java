@@ -19,6 +19,8 @@ Si te preguntas porque los métodos no son estáticos es porque no puedes usar i
 
 Estoy complementamente convencido de que existe una manera más eficiente de gestionar estas tareas que con jpa*/
 
+import jakarta.transaction.Transactional;
+
 /* Para asegurarte de que las inyecciones funcionen tienes que anotar esta clase como un Component */
 @Service
 public class PokemonData_Service implements PokemonData_Interface {
@@ -68,19 +70,21 @@ public class PokemonData_Service implements PokemonData_Interface {
         throw new UnsupportedOperationException("Unimplemented method 'requestAllPokemons'");
     }
 
+  
     public PokemonData createPokemonDataFromJson(PokemonData pokemonData, JsonNode pokemon_json) {
 
         pokemonData.setName(pokemon_json.get("name").asText());
         pokemonData = this.assignPokemonDataSprites(pokemonData, pokemon_json);
-        pokemonData = this.assignPokemonDataTypes(pokemonData, pokemon_json);
         pokemonData = this.assignPokemonDataStats(pokemonData, pokemon_json);
         pokemonData = this.assignPokemonDataAbilities(pokemonData, pokemon_json);
         pokemonData = this.assignPokemonDataMoves(pokemonData, pokemon_json);
+        pokemonData = this.assignPokemonDataTypes(pokemonData, pokemon_json);
 
         return pokemonData;
 
     }
-
+    
+    
     private PokemonData assignPokemonDataStats(PokemonData pokemonData, JsonNode pokemon_json) {
 
         for (JsonNode pokemon_stat_object : pokemon_json.get("stats")) {

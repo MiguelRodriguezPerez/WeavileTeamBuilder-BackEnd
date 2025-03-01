@@ -5,6 +5,8 @@ import java.util.Set;
 
 import org.hibernate.collection.spi.PersistentSet;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -34,10 +36,14 @@ public class AbilityData {
 
     private String description;
 
-    /* WARNING: Probablemente esta no es la manera correcta de usar un PersistentSet.
-    Usaste este constructor porque java no permite añadir valores a Set nulos.
-    Ya lo hiciste antes sin esta "cosa". Averigua como arreglarlo*/
+    /*
+     * WARNING: Probablemente esta no es la manera correcta de usar un
+     * PersistentSet.
+     * Usaste este constructor porque java no permite añadir valores a Set nulos.
+     * Ya lo hiciste antes sin esta "cosa". Averigua como arreglarlo
+     */
+    @JsonBackReference
     @ManyToMany(mappedBy = "ability_list", fetch = FetchType.EAGER)
-    private Set<PokemonData> pokemon_list = new PersistentSet<>();
+    private Set<PokemonData> pokemon_list = new HashSet<>();
 
 }

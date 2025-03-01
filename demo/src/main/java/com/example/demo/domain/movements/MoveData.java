@@ -1,6 +1,5 @@
 package com.example.demo.domain.movements;
 
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -8,6 +7,7 @@ import org.hibernate.collection.spi.PersistentSet;
 
 import com.example.demo.domain.PokemonData;
 import com.example.demo.domain.PokemonType;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -46,10 +46,14 @@ public class MoveData {
     // TODO: Calc max pp by multiplying api request * 160%;
     private int pp;
 
-    /* WARNING: Probablemente esta no es la manera correcta de usar un PersistentSet.
-    Usaste este constructor porque java no permite añadir valores a Set nulos.
-    Ya lo hiciste antes sin esta "cosa". Averigua como arreglarlo*/
+    /*
+     * WARNING: Probablemente esta no es la manera correcta de usar un
+     * PersistentSet.
+     * Usaste este constructor porque java no permite añadir valores a Set nulos.
+     * Ya lo hiciste antes sin esta "cosa". Averigua como arreglarlo
+     */
 
+    @JsonBackReference
     @ManyToMany(mappedBy = "move_list", fetch = FetchType.EAGER)
-    private Set<PokemonData> pokemon_list = new PersistentSet<>();
+    private Set<PokemonData> pokemon_list = new HashSet<>();
 }
