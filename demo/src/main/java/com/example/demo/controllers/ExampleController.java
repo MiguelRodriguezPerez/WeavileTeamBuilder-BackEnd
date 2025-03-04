@@ -1,5 +1,8 @@
 package com.example.demo.controllers;
 
+import java.util.List;
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -7,7 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.domain.PokemonData;
+import com.example.demo.domain.ItemData;
+import com.example.demo.services.implementations.ItemData_Service;
 import com.example.demo.services.implementations.PokemonData_Service;
 
 @RestController
@@ -16,15 +20,14 @@ public class ExampleController {
     @Autowired
     PokemonData_Service pokemonData_Service;
 
+    @Autowired
+    ItemData_Service itemData_Service;
+
     @GetMapping("/")
-    public ResponseEntity<PokemonData> getMethodName() {
+    public Set<ItemData> getMethodName() {
 
-        PokemonData pokemonData = pokemonData_Service.savePokemon(pokemonData_Service.requestPokemonFromPokeApi(400));
-        
-        return new ResponseEntity<PokemonData>(pokemonData, HttpStatus.OK);
-
-        // pokemonData_Service.deleteAllPokemons();
-        // return null;
+        itemData_Service.requestAllItems();
+        return itemData_Service.getAllItems();
 
     }
 

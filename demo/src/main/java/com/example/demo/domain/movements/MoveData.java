@@ -43,15 +43,7 @@ public class MoveData {
 
     private String description;
 
-    // TODO: Calc max pp by multiplying api request * 160%;
     private int pp;
-
-    /*
-     * WARNING: Probablemente esta no es la manera correcta de usar un
-     * PersistentSet.
-     * Usaste este constructor porque java no permite añadir valores a Set nulos.
-     * Ya lo hiciste antes sin esta "cosa". Averigua como arreglarlo
-     */
 
     @JsonBackReference
     @ManyToMany(mappedBy = "move_list", fetch = FetchType.EAGER)

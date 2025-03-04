@@ -28,14 +28,4 @@ public class ItemData {
 
     private String name;
     private String description;
-
-    
-    public void setImage_sprite(String url_arg){
-        this.image_sprite = ImageDownloader.getImage(url_arg);
-    }
-
-    public void setImage_sprite(byte[] image_sprite) {
-        this.image_sprite = image_sprite;
-    }
-
 }

@@ -1,9 +1,12 @@
 package com.example.demo.services.implementations;
 
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.config.ApiRequestManager;
+import com.example.demo.config.ImageDownloader;
 import com.example.demo.domain.ItemData;
 import com.example.demo.repositories.ItemData_Repository;
 import com.example.demo.services.interfaces.ItemData_Interface;
@@ -47,7 +50,7 @@ public class ItemData_Service implements ItemData_Interface {
 
             if (item_source.get("effect_entries").isEmpty()) {
                 for (JsonNode flavor_text_entry : item_source.get("flavor_text_entries")) {
-                    if (flavor_text_entry.get("language").get("name").asText().equals("en")) {
+                    if (flavor_text_entry.at("/language/name").asText().equals("en")) {
                         resultado.setDescription(flavor_text_entry.get("text").asText());
                     }
                 }
@@ -60,10 +63,14 @@ public class ItemData_Service implements ItemData_Interface {
 
             /* Abstraido al constructor a través de ImageDownloader */
             // Algunas imágenes no tienen url para la imagen
-            if (item_source.get("sprites").get("default").asText().equals("null"))
+            if (item_source.at("/sprites/default").asText().equals("null"))
                 return null;
             else
-                resultado.setImage_sprite(item_source.get("sprites").get("default").asText());
+                resultado.setImage_sprite(
+                    ImageDownloader.getImage(
+                        item_source.at("/sprites/default").asText()
+                    )
+                );
 
             return resultado;
         }
@@ -81,11 +88,15 @@ public class ItemData_Service implements ItemData_Interface {
             System.out.println("Objeto actual: " + i);
 
             ItemData item = this.requestItemToPokeApi(i);
-            if (item != null)
-                this.saveItemData(item);
+            if (item != null) this.saveItemData(item);
         }
 
         return true;
     }
+
+    public Set<ItemData> getAllItems() {
+        return repo.findAllItemData();
+    }
+
 
 }
