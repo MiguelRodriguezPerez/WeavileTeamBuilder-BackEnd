@@ -1,5 +1,7 @@
 package com.example.demo.services.implementations;
 
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -66,14 +68,14 @@ public class AbilityData_Service implements AbilityData_Interface {
 
         if (!jsonSource.get("effect_entries").isEmpty()) {
             for (JsonNode effect_entry : jsonSource.get("effect_entries")) {
-                if (effect_entry.get("language").get("name").asText().equals("en"))
+                if (effect_entry.at("/language/name").asText().equals("en"))
                     resultado.setDescription(effect_entry.get("short_effect").asText());
             }
         }
 
         else {
             for (JsonNode flavor_entry : jsonSource.get("flavor_text_entries")) {
-                if (flavor_entry.get("language").get("name").asText().equals("en")) {
+                if (flavor_entry.at("/language/name").asText().equals("en")) {
                     resultado.setDescription(flavor_entry.get("flavor_text").asText());
                     // Algunas veces devuelve varias veces la misma respuesta, así que detengo el
                     // bucle
@@ -86,7 +88,7 @@ public class AbilityData_Service implements AbilityData_Interface {
     }
 
     @Override
-    public boolean requestAllAbilities() {
+    public boolean requestAllAbilitiesToApi() {
 
         final int numero_habilidades = 307;
 
@@ -99,5 +101,10 @@ public class AbilityData_Service implements AbilityData_Interface {
         }
 
         return true;
+    }
+
+    @Override
+    public Set<AbilityData> getAllAbilityData() {
+        return repo.getAllAbilityData();
     }
 }

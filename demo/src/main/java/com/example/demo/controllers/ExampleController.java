@@ -10,7 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.domain.AbilityData;
 import com.example.demo.domain.ItemData;
+import com.example.demo.services.implementations.AbilityData_Service;
 import com.example.demo.services.implementations.ItemData_Service;
 import com.example.demo.services.implementations.PokemonData_Service;
 
@@ -23,11 +25,14 @@ public class ExampleController {
     @Autowired
     ItemData_Service itemData_Service;
 
-    @GetMapping("/")
-    public Set<ItemData> getMethodName() {
+    @Autowired
+    AbilityData_Service abilityData_Service;
 
-        itemData_Service.requestAllItems();
-        return itemData_Service.getAllItems();
+    @GetMapping("/")
+    public Set<AbilityData> getMethodName() {
+
+        abilityData_Service.requestAllAbilitiesToApi();
+        return abilityData_Service.getAllAbilityData();
 
     }
 
@@ -37,7 +42,8 @@ public class ExampleController {
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "image/png");
-        return new ResponseEntity<>(pokemonData_Service.getPokemonById((long) 52).getFront_default_sprite(), headers, HttpStatus.OK);
+        return new ResponseEntity<>(pokemonData_Service.getPokemonById((long) 52).getFront_default_sprite(), headers,
+                HttpStatus.OK);
     }
 
 }
