@@ -23,19 +23,13 @@ public class MoveData {
     private Long id;
 
     private String name;
-
     private MoveType move_type;
-
     private PokemonType pokemon_type;
-
-    private byte accuracy;
-
+    private int accuracy;
     private String description;
+    private int pp;
 
-    // TODO: Calc max pp by multiplying api request * 160%;
-    private byte pp;
-
-    public MoveData(String name, MoveType move_Type, byte accuracy, String description, byte pp) {
+    public MoveData(String name, MoveType move_Type, int accuracy, String description, int pp) {
         this.name = name;
         this.move_type = move_Type;
         this.accuracy = accuracy;

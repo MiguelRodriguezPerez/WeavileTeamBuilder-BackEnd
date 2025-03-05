@@ -1,5 +1,7 @@
 package com.example.demo.services.implementations;
 
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,46 +42,53 @@ public class MoveData_Service implements MoveData_Interface {
         JsonNode move_root = ApiRequestManager.callGetRequest("https://pokeapi.co/api/v2/move/" + number);
 
         resultado.setName(move_root.get("name").asText());
-        resultado.setAccuracy((byte) move_root.get("accuracy").asInt());
+        resultado.setAccuracy(move_root.get("accuracy").asInt());
 
         // Usa como referencia el valor del string a mayúsculas para definir el enum
         resultado.setMove_type(MoveType.valueOf(
-            move_root.get("damage_class").get("name").asText().toUpperCase()
-            ));
+                move_root.at("/damage_class/name").asText().toUpperCase()));
         resultado.setPokemon_type(PokemonType.valueOf(
-            move_root.get("type").get("name").asText().toUpperCase()));
+                move_root.at("/type/name").asText().toUpperCase()));
 
         // La multiplicación debería dar exacto, pero por si acaso lo paso a absoluto
-        resultado.setPp((byte) Math.abs(
-            move_root.get("pp").asInt() * 1.6));
+        resultado.setPp((int) Math.abs(move_root.get("pp").asInt() * 1.6));
 
-        /* Algunos movimientos no tienen valores en effect_entries, y por tanto, no tienen short_effect.
-        (Que es la descripción ideal competitiva del movimiento)
-        En ese caso lo mejor que puedes hacer es coger la descripción del movimiento del juego en inglés */    
+        /*
+         * Algunos movimientos no tienen valores en effect_entries, y por tanto, no
+         * tienen short_effect.
+         * (Que es la descripción ideal competitiva del movimiento)
+         * En ese caso lo mejor que puedes hacer es coger la descripción del movimiento
+         * del juego en inglés
+         */
         if (move_root.get("effect_entries").isEmpty()) {
-            for(JsonNode flavor_text_entry: move_root.get("flavor_text_entries")) {
-                if(flavor_text_entry.get("language").get("name").asText().equals("en"))
+            for (JsonNode flavor_text_entry : move_root.get("flavor_text_entries")) {
+                if (flavor_text_entry.at("/language/name").asText().equals("en"))
                     resultado.setDescription(flavor_text_entry.get("flavor_text").asText());
             }
-        }
-        else {
-            resultado.setDescription(move_root.get("effect_entries").get(0)
-            .get("short_effect").asText());
+        } else {
+            resultado.setDescription(move_root.get("effect_entries")
+                    .get(0)
+                    .get("short_effect").asText());
         }
 
         return resultado;
     }
 
     @Override
-    public boolean requestAllMoves() {
+    public boolean requestAllMovesToApi() {
         final int totalMovs = 919;
- 
-        for(int i = 0; i <= totalMovs; i++) {
+
+        for (int i = 1; i <= totalMovs; i++) {
             System.out.println("Movimiento " + i);
             this.saveMove(this.requestMoveToPokeApi(i));
         }
 
         return true;
+    }
+
+    @Override
+    public Set<MoveData> getAllMoveData() {
+        return repo.getAllMoveData();
     }
 
 }

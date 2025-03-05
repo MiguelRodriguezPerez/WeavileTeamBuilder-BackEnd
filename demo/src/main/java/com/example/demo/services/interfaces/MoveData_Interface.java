@@ -1,12 +1,15 @@
 package com.example.demo.services.interfaces;
 
+import java.util.Set;
+
 import com.example.demo.domain.movements.MoveData;
 
 public interface MoveData_Interface {
-    
+
     MoveData saveMove(MoveData moveData);
     void deleteAllMoves();
     MoveData findMoveByName(String name);
     MoveData requestMoveToPokeApi(int number);
-    boolean requestAllMoves();
+    boolean requestAllMovesToApi();
+    Set<MoveData> getAllMoveData();
 }
