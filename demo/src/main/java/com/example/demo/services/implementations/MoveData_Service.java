@@ -1,5 +1,7 @@
 package com.example.demo.services.implementations;
 
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,7 +42,7 @@ public class MoveData_Service implements MoveData_Interface {
         JsonNode move_root = ApiRequestManager.callGetRequest("https://pokeapi.co/api/v2/move/" + number);
 
         resultado.setName(move_root.get("name").asText());
-        resultado.setAccuracy((byte) move_root.get("accuracy").asInt());
+        resultado.setAccuracy(move_root.get("accuracy").asInt());
 
         // Usa como referencia el valor del string a mayúsculas para definir el enum
         resultado.setMove_type(MoveType.valueOf(
@@ -53,7 +55,7 @@ public class MoveData_Service implements MoveData_Interface {
         );
 
         // La multiplicación debería dar exacto, pero por si acaso lo paso a absoluto
-        resultado.setPp((byte) Math.abs(
+        resultado.setPp((int) Math.abs(
                 move_root.at("/pp").asInt() * 1.6));
 
         /*
@@ -78,15 +80,20 @@ public class MoveData_Service implements MoveData_Interface {
     }
 
     @Override
-    public boolean requestAllMoves() {
+    public boolean requestAllMovesToApi() {
         final int totalMovs = 919;
 
-        for (int i = 0; i <= totalMovs; i++) {
+        for (int i = 1; i <= totalMovs; i++) {
             System.out.println("Movimiento " + i);
             this.saveMove(this.requestMoveToPokeApi(i));
         }
 
         return true;
+    }
+
+    @Override
+    public Set<MoveData> getAllMoveData() {
+        return repo.getAllMoveData();
     }
 
 }

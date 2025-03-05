@@ -34,15 +34,12 @@ public class MoveData {
     private Long id;
 
     private String name;
-
     private MoveType move_type;
-
     private PokemonType pokemon_type;
 
     private int accuracy;
 
     private String description;
-
     private int pp;
 
     @JsonBackReference
