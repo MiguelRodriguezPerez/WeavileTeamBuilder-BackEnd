@@ -25,17 +25,10 @@ public class ExampleController {
     @Autowired
     PokemonData_Service pokemonData_Service;
 
-    @Autowired
-    ItemData_Service itemData_Service;
-
-    @Autowired
-    AbilityData_Service abilityData_Service;
-
     @GetMapping("/")
     public Set<AbilityData> getMethodName() {
 
-        abilityData_Service.requestAllAbilitiesToApi();
-        return abilityData_Service.getAllAbilityData();
+        pokemonData_Service.requestAllPokemonsFromApi();
 
     }
 

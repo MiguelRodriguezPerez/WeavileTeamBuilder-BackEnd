@@ -12,14 +12,15 @@ import com.example.demo.domain.movements.MoveData;
 import com.example.demo.repositories.PokemonData_Repository;
 import com.example.demo.services.interfaces.PokemonData_Interface;
 import com.fasterxml.jackson.databind.JsonNode;
-/* Intente mover la construcción de PokemonData a una nueva clase, pero las inyecciones de spring (Concretamente una referencia circular)
+/* Intente mover la construcción de PokemonData a una nueva clase, 
+pero las inyecciones de spring (Concretamente una referencia circular)
 lo impidio
 
-Si te preguntas porque los métodos no son estáticos es porque no puedes usar instancias de inyecciones en métodos estáticos
+Si te preguntas porque los métodos no son estáticos 
+es porque no puedes usar instancias de inyecciones en métodos estáticos
 
-Estoy complementamente convencido de que existe una manera más eficiente de gestionar estas tareas que con jpa*/
-
-import jakarta.transaction.Transactional;
+Estoy complementamente convencido de que existe 
+una manera más eficiente de gestionar estas tareas que con jpa*/
 
 /* Para asegurarte de que las inyecciones funcionen tienes que anotar esta clase como un Component */
 @Service
@@ -65,12 +66,11 @@ public class PokemonData_Service implements PokemonData_Interface {
     }
 
     @Override
-    public boolean requestAllPokemons() {
+    public boolean requestAllPokemonsFromApi() {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'requestAllPokemons'");
     }
 
-  
     public PokemonData createPokemonDataFromJson(PokemonData pokemonData, JsonNode pokemon_json) {
 
         pokemonData.setName(pokemon_json.get("name").asText());
@@ -83,8 +83,7 @@ public class PokemonData_Service implements PokemonData_Interface {
         return pokemonData;
 
     }
-    
-    
+
     private PokemonData assignPokemonDataStats(PokemonData pokemonData, JsonNode pokemon_json) {
 
         for (JsonNode pokemon_stat_object : pokemon_json.get("stats")) {
