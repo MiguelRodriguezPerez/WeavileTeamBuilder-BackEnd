@@ -1,5 +1,7 @@
 package com.example.demo.services.implementations;
 
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,8 +15,12 @@ import com.example.demo.repositories.PokemonData_Repository;
 import com.example.demo.services.interfaces.PokemonData_Interface;
 import com.fasterxml.jackson.databind.JsonNode;
 /* Intente mover la construcción de PokemonData a una nueva clase, 
+<<<<<<< HEAD
 pero las inyecciones de spring (Concretamente una referencia circular)
 lo impidio
+=======
+pero las inyecciones de spring (Concretamente una referencia circular) lo impidio
+>>>>>>> pokemon_and_entity_relations
 
 Si te preguntas porque los métodos no son estáticos 
 es porque no puedes usar instancias de inyecciones en métodos estáticos
@@ -22,7 +28,6 @@ es porque no puedes usar instancias de inyecciones en métodos estáticos
 Estoy complementamente convencido de que existe 
 una manera más eficiente de gestionar estas tareas que con jpa*/
 
-/* Para asegurarte de que las inyecciones funcionen tienes que anotar esta clase como un Component */
 @Service
 public class PokemonData_Service implements PokemonData_Interface {
 
@@ -43,6 +48,11 @@ public class PokemonData_Service implements PokemonData_Interface {
     @Override
     public void deleteAllPokemons() {
         repo.deleteAllPokemonProcedure();
+    }
+
+    @Override
+    public Set<PokemonData> getAllPokemonData() {
+        return repo.getAllPokemonData();
     }
 
     public PokemonData getPokemonById(Long id) {
@@ -67,8 +77,16 @@ public class PokemonData_Service implements PokemonData_Interface {
 
     @Override
     public boolean requestAllPokemonsFromApi() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'requestAllPokemons'");
+        final int num_pokemon = 1025;
+
+        for (int i = 899; i <= num_pokemon; i++) {
+            System.out.println("Current pokemon: " + i);
+            PokemonData pokemon = this.requestPokemonFromPokeApi(i);
+            if (pokemon != null)
+                this.savePokemon(pokemon);
+        }
+
+        return true;
     }
 
     public PokemonData createPokemonDataFromJson(PokemonData pokemonData, JsonNode pokemon_json) {
@@ -84,12 +102,12 @@ public class PokemonData_Service implements PokemonData_Interface {
 
     }
 
-    private PokemonData assignPokemonDataStats(PokemonData pokemonData, JsonNode pokemon_json) {
+    public PokemonData assignPokemonDataStats(PokemonData pokemonData, JsonNode pokemon_json) {
 
-        for (JsonNode pokemon_stat_object : pokemon_json.get("stats")) {
+        for (JsonNode pokemon_stat_object : pokemon_json.at("/stats")) {
 
-            String current_type_stat = pokemon_stat_object.get("stat").get("name").asText();
-            int current_base_stat = pokemon_stat_object.get("base_stat").asInt();
+            String current_type_stat = pokemon_stat_object.at("/stat/name").asText();
+            int current_base_stat = pokemon_stat_object.at("/base_stat").asInt();
 
             switch (current_type_stat) {
 
@@ -126,11 +144,11 @@ public class PokemonData_Service implements PokemonData_Interface {
         return pokemonData;
     }
 
-    private PokemonData assignPokemonDataAbilities(PokemonData pokemonData, JsonNode pokemon_json) {
+    public PokemonData assignPokemonDataAbilities(PokemonData pokemonData, JsonNode pokemon_json) {
 
         for (JsonNode ability_json : pokemon_json.get("abilities")) {
 
-            String current_ability_json = ability_json.get("ability").get("name").asText();
+            String current_ability_json = ability_json.at("/ability/name").asText();
             AbilityData pokemonData_ability = abilityData_Service.getAbilityByName(current_ability_json);
 
             pokemonData.getAbility_list().add(pokemonData_ability);
@@ -143,10 +161,10 @@ public class PokemonData_Service implements PokemonData_Interface {
         return pokemonData;
     }
 
-    private PokemonData assignPokemonDataMoves(PokemonData pokemonData, JsonNode pokemon_json) {
+    public PokemonData assignPokemonDataMoves(PokemonData pokemonData, JsonNode pokemon_json) {
 
-        for (JsonNode move_json : pokemon_json.get("moves")) {
-            String current_move_name = move_json.get("move").get("name").asText();
+        for (JsonNode move_json : pokemon_json.at("/moves")) {
+            String current_move_name = move_json.at("/move/name").asText();
             MoveData current_MoveData = moveData_Service.getMoveByName(current_move_name);
 
             pokemonData.getMove_list().add(current_MoveData);
@@ -159,25 +177,32 @@ public class PokemonData_Service implements PokemonData_Interface {
         return pokemonData;
     }
 
-    private PokemonData assignPokemonDataSprites(PokemonData pokemonData, JsonNode pokemon_json) {
-        JsonNode sprites = pokemon_json.get("sprites");
+    public PokemonData assignPokemonDataSprites(PokemonData pokemonData, JsonNode pokemon_json) {
 
-        pokemonData.setFront_default_sprite(ImageDownloader.getImage(sprites.get("front_default").asText()));
-        pokemonData.setPc_sprite(ImageDownloader.getImage(sprites.get("versions")
-                .get("generation-viii")
-                .get("icons")
-                .get("front_default").asText()));
+        pokemonData.setFront_default_sprite(
+                ImageDownloader.getImage(
+                        pokemon_json.at("/sprites/front_default").asText()));
+
+        if (!pokemon_json.at("/sprites/versions/generation-viii/icons/front_default").asText()
+            .equals("null")) {
+                pokemonData.setPc_sprite(
+                    ImageDownloader.getImage(
+                            pokemon_json.at("/sprites/versions/generation-viii/icons/front_default").asText()));
+        }
+        
 
         return pokemonData;
     }
 
-    private PokemonData assignPokemonDataTypes(PokemonData pokemonData, JsonNode pokemon_json) {
-
+    public PokemonData assignPokemonDataTypes(PokemonData pokemonData, JsonNode pokemon_json) {
         for (JsonNode current_type : pokemon_json.get("types")) {
-            String new_type = current_type.get("type").get("name").asText();
-            pokemonData.getType_list().add(PokemonType.valueOf(new_type.toUpperCase()));
+            pokemonData.getType_list().add(
+                    PokemonType.valueOf(current_type.at("/type/name")
+                            .asText()
+                            .toUpperCase()));
         }
 
         return pokemonData;
     }
+
 }
