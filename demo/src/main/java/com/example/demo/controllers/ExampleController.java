@@ -1,5 +1,7 @@
 package com.example.demo.controllers;
 
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -17,14 +19,10 @@ public class ExampleController {
     PokemonData_Service pokemonData_Service;
 
     @GetMapping("/")
-    public ResponseEntity<PokemonData> getMethodName() {
+    public Set<PokemonData> getMethodName() {
 
-        PokemonData pokemonData = pokemonData_Service.savePokemon(pokemonData_Service.requestPokemonFromPokeApi(400));
-        
-        return new ResponseEntity<PokemonData>(pokemonData, HttpStatus.OK);
-
-        // pokemonData_Service.deleteAllPokemons();
-        // return null;
+        pokemonData_Service.requestAllPokemonsFromApi();
+        return pokemonData_Service.getAllPokemonData();
 
     }
 

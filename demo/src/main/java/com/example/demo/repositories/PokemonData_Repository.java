@@ -1,6 +1,9 @@
 package com.example.demo.repositories;
 
+import java.util.Set;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.stereotype.Repository;
 
@@ -13,4 +16,7 @@ public interface PokemonData_Repository extends JpaRepository<PokemonData, Long>
     // Info en el sql del procedure
     @Procedure(name = "deleteAllPokemonProcedure")
     void deleteAllPokemonProcedure();
+
+    @Query(value = "SELECT * FROM pokemon_data", nativeQuery = true)
+    Set<PokemonData> getAllPokemonData();
 }
