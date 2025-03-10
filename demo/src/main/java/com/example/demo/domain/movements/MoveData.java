@@ -45,4 +45,9 @@ public class MoveData {
     @JsonBackReference
     @ManyToMany(mappedBy = "move_list", fetch = FetchType.EAGER)
     private Set<PokemonData> pokemon_list = new HashSet<>();
+
+    @JsonBackReference
+    @ManyToMany(mappedBy = "pkmn_team_move_list", fetch = FetchType.EAGER)
+    private Set<PokemonData> pokemon_team_list = new HashSet<>();
+    
 }

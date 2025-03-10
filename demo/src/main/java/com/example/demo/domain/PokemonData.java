@@ -3,11 +3,7 @@ package com.example.demo.domain;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.hibernate.collection.spi.PersistentSet;
-
 import com.example.demo.domain.movements.MoveData;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
@@ -57,12 +53,20 @@ public class PokemonData {
 
     @JsonManagedReference
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinTable(name = "pokemonData-abilityData", joinColumns = @JoinColumn(name = "pokemonData_id"), inverseJoinColumns = @JoinColumn(name = "abilityData_id"))
+    @JoinTable(
+        name = "pokemonData-abilityData", 
+        joinColumns = @JoinColumn(name = "pokemonData_id"), 
+        inverseJoinColumns = @JoinColumn(name = "abilityData_id")
+    )
     private Set<AbilityData> ability_list = new HashSet<>();
 
     @JsonManagedReference
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinTable(name = "pokemonData-moveData", joinColumns = @JoinColumn(name = "pokemonData_id"), inverseJoinColumns = @JoinColumn(name = "moveData_id"))
+    @JoinTable(
+        name = "pokemonData-moveData", 
+        joinColumns = @JoinColumn(name = "pokemonData_id"), 
+        inverseJoinColumns = @JoinColumn(name = "moveData_id")
+    )
     private Set<MoveData> move_list = new HashSet<>();
 
 }

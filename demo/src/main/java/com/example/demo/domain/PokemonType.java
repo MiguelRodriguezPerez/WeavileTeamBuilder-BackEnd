@@ -20,5 +20,6 @@ public enum PokemonType {
     DARK,
     STEEL,
     FAIRY,
+    STELLAR,
     
 }
