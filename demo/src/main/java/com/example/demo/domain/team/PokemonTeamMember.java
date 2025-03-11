@@ -2,16 +2,21 @@ package com.example.demo.domain.team;
 
 import java.util.Set;
 
+import org.hibernate.validator.constraints.Range;
+
 import com.example.demo.domain.AbilityData;
 import com.example.demo.domain.ItemData;
+import com.example.demo.domain.NatureData;
 import com.example.demo.domain.PokemonType;
 import com.example.demo.domain.movements.MoveData;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import io.micrometer.common.lang.Nullable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -19,7 +24,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -28,12 +33,12 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @Data
-public class PokemonTeam {
-    
+public class PokemonTeamMember {
+
     @GeneratedValue
     @Id
     private Long id;
-    
+
     private String name;
 
     private int base_hp;
@@ -43,44 +48,59 @@ public class PokemonTeam {
     private int base_special_defense;
     private int base_speed;
 
+    @Range(min = 0, max = 252, message = "hp_ev must be between 0 and 252")
     private int hp_ev;
+    @Range(min = 0, max = 252, message = "attack_ev must be between 0 and 252")
     private int attack_ev;
+    @Range(min = 0, max = 252, message = "defense_ev must be between 0 and 252")
     private int defense_ev;
+    @Range(min = 0, max = 252, message = "special_attack_ev must be between 0 and 252")
     private int special_attack_ev;
+    @Range(min = 0, max = 252, message = "special_defense_ev must be between 0 and 252")
     private int special_defense_ev;
+    @Range(min = 0, max = 252, message = "speed_ev must be between 0 and 252")
     private int speed_ev;
 
+
+    @Range(min = 0, max = 31, message = "hp_iv must be between 0 and 31")
     private int hp_iv;
+    @Range(min = 0, max = 31, message = "attack_iv must be between 0 and 31")
     private int attack_iv;
+    @Range(min = 0, max = 31, message = "defense_iv must be between 0 and 31")
     private int defense_iv;
+    @Range(min = 0, max = 31, message = "special_attack_iv must be between 0 and 31")
     private int special_attack_iv;
+    @Range(min = 0, max = 31, message = "special_defense_iv must be between 0 and 31")
     private int special_defense_iv;
+    @Range(min = 0, max = 31, message = "speed_iv must be between 0 and 31")
     private int speed_iv;
 
-    /* Teóricamente  @ElementCollection y @Embedded 
-    sirven para cuando no necesitas que dicha entidad se 
-    almacene en otra tabla */
 
+    @Size(max = 4, min = 1)
     @JsonManagedReference
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinTable(
-        name = "pokemonTeam_moveData",
-        joinColumns = @JoinColumn(name = "pokemonTeam_id"),
-        inverseJoinColumns = @JoinColumn(name = "moveData_id")
-    )
+    @JoinTable(name = "pokemonTeam_moveData", joinColumns = @JoinColumn(name = "pokemonTeam_id"), inverseJoinColumns = @JoinColumn(name = "moveData_id"))
     private Set<MoveData> pkmn_team_move_list;
 
     @ManyToOne
     @JoinColumn(name = "ability_id")
     private AbilityData ability;
 
-    @Embedded
+    @Nullable
+    @ManyToOne
+    @JoinColumn(name = "itemData_id")
     private ItemData item;
 
     @ElementCollection
+    @Enumerated(EnumType.STRING)
+    @Size(min = 1, max = 2)
     private Set<PokemonType> type_list;
 
-    @Embedded
+    @Nullable
     private PokemonType tera_type;
-    
+
+    @ManyToOne
+    @JoinColumn(name = "natureData_id")
+    private NatureData nature;
+
 }

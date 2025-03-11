@@ -3,6 +3,7 @@ package com.example.demo.services.implementations;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.example.demo.config.ApiRequestManager;
 import com.example.demo.domain.NatureData;
@@ -10,6 +11,7 @@ import com.example.demo.repositories.NatureData_Repository;
 import com.example.demo.services.interfaces.NatureData_Interface;
 import com.fasterxml.jackson.databind.JsonNode;
 
+@Service
 public class NatureData_Service implements NatureData_Interface {
 
     @Autowired
@@ -27,8 +29,7 @@ public class NatureData_Service implements NatureData_Interface {
 
     @Override
     public void deleteAllNatureData() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteAllNatureData'");
+        repo.deleteAll();
     }
 
     @Override
@@ -42,7 +43,7 @@ public class NatureData_Service implements NatureData_Interface {
             natureData.setIncreased_stat(nature_json.at("/increased_stat/name").asText());
         
         if(nature_json.at("/decreased_stat") != null) 
-        natureData.setIncreased_stat(nature_json.at("/decreased_stat/name").asText());
+            natureData.setDecreased_stat(nature_json.at("/decreased_stat/name").asText());
 
         return natureData;
     }

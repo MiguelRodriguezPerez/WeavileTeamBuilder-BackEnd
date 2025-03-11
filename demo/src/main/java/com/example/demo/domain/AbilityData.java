@@ -3,7 +3,7 @@ package com.example.demo.domain;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.example.demo.domain.team.PokemonTeam;
+import com.example.demo.domain.team.PokemonTeamMember;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.CascadeType;
@@ -12,7 +12,9 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -47,7 +49,7 @@ public class AbilityData {
     @ManyToMany(mappedBy = "ability_list", fetch = FetchType.EAGER)
     private Set<PokemonData> pokemon_list = new HashSet<>();
 
-    @OneToMany(mappedBy = "pokemonTeam", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<PokemonTeam> pokemon_team_list = new HashSet<>();
+    @OneToMany(mappedBy = "ability", cascade = CascadeType.ALL, orphanRemoval = false)
+    private Set<PokemonTeamMember> pokemon_team_list = new HashSet<>();
 
 }

@@ -3,10 +3,9 @@ package com.example.demo.domain.movements;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.hibernate.collection.spi.PersistentSet;
-
 import com.example.demo.domain.PokemonData;
 import com.example.demo.domain.PokemonType;
+import com.example.demo.domain.team.PokemonTeamMember;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.Entity;
@@ -48,6 +47,6 @@ public class MoveData {
 
     @JsonBackReference
     @ManyToMany(mappedBy = "pkmn_team_move_list", fetch = FetchType.EAGER)
-    private Set<PokemonData> pokemon_team_list = new HashSet<>();
+    private Set<PokemonTeamMember> pokemon_team_list = new HashSet<>();
     
 }

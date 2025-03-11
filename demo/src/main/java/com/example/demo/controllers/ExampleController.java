@@ -3,16 +3,11 @@ package com.example.demo.controllers;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.domain.NatureData;
-import com.example.demo.domain.PokemonData;
 import com.example.demo.services.implementations.NatureData_Service;
-import com.example.demo.services.implementations.PokemonData_Service;
 
 @RestController
 public class ExampleController {
@@ -26,7 +21,6 @@ public class ExampleController {
 
         natureData_Service.requestAllNatures();
         return natureData_Service.getAllNatures();
-
 
     }
 
