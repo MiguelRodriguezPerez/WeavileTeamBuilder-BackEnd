@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.config.ApiRequestManager;
-import com.example.demo.domain.NatureData;
+import com.example.demo.domain.team.NatureData;
 import com.example.demo.repositories.NatureData_Repository;
 import com.example.demo.services.interfaces.NatureData_Interface;
 import com.fasterxml.jackson.databind.JsonNode;

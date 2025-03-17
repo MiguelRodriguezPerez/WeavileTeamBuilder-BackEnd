@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.domain.NatureData;
+import com.example.demo.domain.team.NatureData;
 import com.example.demo.services.implementations.NatureData_Service;
 
 @RestController

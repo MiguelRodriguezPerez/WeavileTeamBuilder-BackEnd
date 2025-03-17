@@ -2,7 +2,7 @@ package com.example.demo.services.interfaces;
 
 import java.util.Set;
 
-import com.example.demo.domain.NatureData;
+import com.example.demo.domain.team.NatureData;
 
 public interface NatureData_Interface {
 

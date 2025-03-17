@@ -14,9 +14,11 @@ import jakarta.persistence.OneToMany;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @EqualsAndHashCode(of = "id")
+@ToString(exclude = {"pokemon_team_list", "image_sprite"})
 @NoArgsConstructor
 @Entity
 public class ItemData {

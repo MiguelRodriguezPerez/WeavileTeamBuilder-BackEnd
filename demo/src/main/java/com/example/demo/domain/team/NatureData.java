@@ -1,8 +1,6 @@
-package com.example.demo.domain;
+package com.example.demo.domain.team;
 
 import java.util.Set;
-
-import com.example.demo.domain.team.PokemonTeamMember;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -12,9 +10,11 @@ import jakarta.persistence.OneToMany;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @EqualsAndHashCode(of = "id")
+@ToString(exclude = "pokemon_team_member_list")
 @NoArgsConstructor
 @Entity
 public class NatureData {
@@ -30,6 +30,6 @@ public class NatureData {
     private String decreased_stat;
 
     @OneToMany(mappedBy = "nature", cascade = CascadeType.ALL, orphanRemoval = false)
-    private Set<PokemonTeamMember> pokemon_team_list;
+    private Set<PokemonTeamMember> pokemon_team_member_list;
 
 }
