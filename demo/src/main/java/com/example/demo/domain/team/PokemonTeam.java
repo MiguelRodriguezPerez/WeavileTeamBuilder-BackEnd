@@ -9,6 +9,7 @@ public class PokemonTeam {
     
     // TODO: Persistir en lado servidor
 
+    private int id;
     private TeamType teamType;
     private Set<PokemonTeamMember> teamMembers;
 

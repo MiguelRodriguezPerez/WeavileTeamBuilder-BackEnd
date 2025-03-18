@@ -4,6 +4,7 @@ public enum TeamType {
 
     INDIVIDUAL,
     DOUBLE,
+    VGC,
     ONEVSONE,
     MONOTYPE
     
