@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.config.ApiRequestManager;
-import com.example.demo.domain.PokemonType;
 import com.example.demo.domain.movements.MoveData;
 import com.example.demo.domain.movements.MoveType;
+import com.example.demo.domain.pokemon.PokemonType;
 import com.example.demo.repositories.MoveData_Repository;
 import com.example.demo.services.interfaces.MoveData_Interface;
 import com.fasterxml.jackson.databind.JsonNode;

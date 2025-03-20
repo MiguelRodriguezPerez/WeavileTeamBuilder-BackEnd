@@ -6,8 +6,8 @@ import org.hibernate.validator.constraints.Range;
 
 import com.example.demo.domain.AbilityData;
 import com.example.demo.domain.ItemData;
-import com.example.demo.domain.PokemonType;
 import com.example.demo.domain.movements.MoveData;
+import com.example.demo.domain.pokemon.PokemonType;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import io.micrometer.common.lang.Nullable;

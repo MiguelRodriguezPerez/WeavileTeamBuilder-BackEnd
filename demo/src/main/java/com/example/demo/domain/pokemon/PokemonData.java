@@ -1,8 +1,9 @@
-package com.example.demo.domain;
+package com.example.demo.domain.pokemon;
 
 import java.util.HashSet;
 import java.util.Set;
 
+import com.example.demo.domain.AbilityData;
 import com.example.demo.domain.movements.MoveData;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 

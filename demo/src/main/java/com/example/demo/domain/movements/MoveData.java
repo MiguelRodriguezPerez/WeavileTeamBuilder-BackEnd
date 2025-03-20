@@ -3,8 +3,8 @@ package com.example.demo.domain.movements;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.example.demo.domain.PokemonData;
-import com.example.demo.domain.PokemonType;
+import com.example.demo.domain.pokemon.PokemonData;
+import com.example.demo.domain.pokemon.PokemonType;
 import com.example.demo.domain.team.PokemonTeamMember;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 

@@ -2,7 +2,7 @@ package com.example.demo.services.interfaces;
 
 import java.util.Set;
 
-import com.example.demo.domain.PokemonData;
+import com.example.demo.domain.pokemon.PokemonData;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public interface PokemonData_Interface {

@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.stereotype.Repository;
 
-import com.example.demo.domain.PokemonData;
+import com.example.demo.domain.pokemon.PokemonData;
 
 @Repository
 public interface PokemonData_Repository extends JpaRepository<PokemonData, Long> {

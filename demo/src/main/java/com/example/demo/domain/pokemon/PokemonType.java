@@ -1,4 +1,4 @@
-package com.example.demo.domain;
+package com.example.demo.domain.pokemon;
 
 public enum PokemonType {
 
