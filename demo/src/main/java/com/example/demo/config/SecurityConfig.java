@@ -88,8 +88,8 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
         configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE"));
         // ¿Realmente necesitas permitir credenciales en jwt? ¿Y el header?
-        configuration.setAllowCredentials(true);
-        configuration.addAllowedHeader("Authorization");
+        configuration.setAllowCredentials(false);
+        configuration.addAllowedHeader("*");
 
         /* Estas líneas aplican dicha configuración personalizade de CORS al ámbito de "pattern",
         en este caso a toda la aplicación */
@@ -116,6 +116,8 @@ public class SecurityConfig {
             http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/nonLoggedUsers/**").permitAll()
                 .anyRequest().authenticated());
+
+            http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
             /* En teoría es seguro desactivar csrf si llevas a cabo el login a través de jwt u oauth2,
             a no ser que uses "cookies de sesión?" */
