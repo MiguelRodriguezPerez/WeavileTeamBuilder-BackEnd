@@ -33,6 +33,26 @@ Además spring te obligo a definir usuarios logueados para poder implementar la 
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+
+    /* Un bean es un objeto configurado y gestionado por Spring que puedes usar en toda la aplicación.
+    @Component convierte una clase en un Bean sin configurar nada
+
+    La diferencia entre anotar una clase con bean o component es que en algunos casos
+    (como el de la seguridad de spring) necesitas una configuración más específica.
+
+    En esos casos, @Bean suele ir precedido de @Configuration (@Configuration se aplica a la clase
+    que envuelve al objeto de @Bean como en este archivo)
+
+    @Configuration
+    @EnableWebSecurity
+    @EnableMethodSecurity
+    public class SecurityConfig { ...
+        @Bean
+        AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+            return configuration.getAuthenticationManager();
+        }
+
+    Si tu clase no necesita configuraciones complicadas usa @Component */
     
     /* Este "bean" es el encargado de gestionar la autenticación del usuario. En concreto recibe las solicitudes
     de login y decide en que AuthenticationProvider delegar dicha tarea */
@@ -87,8 +107,11 @@ public class SecurityConfig {
 
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
         configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE"));
-        // ¿Realmente necesitas permitir credenciales en jwt? ¿Y el header?
+        /* setAllowCredentials permite o impide que el cliente realize solicitudes con credenciales
+        en caso de usar cookies de sesión (STATEFUL)*/
         configuration.setAllowCredentials(false);
+        /* Aquí defines la lista de headers que admitirás. Como esta aplicación no requiere logins
+        (de momento) los admites todos*/
         configuration.addAllowedHeader("*");
 
         /* Estas líneas aplican dicha configuración personalizade de CORS al ámbito de "pattern",
@@ -104,6 +127,7 @@ public class SecurityConfig {
     SecurityFilterChain filterChain(HttpSecurity http, AuthenticationProvider authenticationProvider,
         JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception{
 
+            /* Esta configuarción de protege de Clickjacking (algo sobre iframes) */
             http.headers(headersConfigurer -> headersConfigurer.frameOptions(frameOptions -> frameOptions.sameOrigin()));
 
             http.authenticationProvider(authenticationProvider)
@@ -117,6 +141,7 @@ public class SecurityConfig {
                 .requestMatchers("/nonLoggedUsers/**").permitAll()
                 .anyRequest().authenticated());
 
+            /* Asegura que tu configuración de cors se aplique */
             http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
             /* En teoría es seguro desactivar csrf si llevas a cabo el login a través de jwt u oauth2,
