@@ -1,5 +1,6 @@
 package com.example.demo.domain.team;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import lombok.Data;
@@ -12,7 +13,7 @@ public class PokemonTeam {
     private int id;
     private String nombre;
     private TeamType teamType;
-    private Set<PokemonTeamMember> teamMembers;
+    private Set<PokemonTeamMember> teamMembers = new HashSet<>();
 
     /* Para decidir la cantidad de pokemón que tiene un equipo según su modalidad
     creas un constructor que recibe un enum que será el tipo del equipo (Individual, 1vs1 ...)
@@ -22,7 +23,7 @@ public class PokemonTeam {
 
     // TODO: Validar que los pokemón no se repitan
 
-    public PokemonTeam(TeamType teamType) {
+    public PokemonTeam (TeamType teamType) {
 
         this.teamType = teamType;
 
