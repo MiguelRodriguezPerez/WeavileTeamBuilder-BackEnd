@@ -6,21 +6,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.domain.ItemData;
-import com.example.demo.services.implementations.ItemData_Service;
+import com.example.demo.domain.AbilityData;
+import com.example.demo.services.implementations.AbilityData_Service;
 
 @RestController
 public class ExampleController {
 
     @Autowired
-    ItemData_Service itemData_Service;
+    AbilityData_Service abilityData_Service;
 
     @GetMapping("/")
 
-    public Set<ItemData> getMethodName() {
+    public Set<AbilityData> getMethodName() {
 
-        itemData_Service.requestAllItems();
-        return itemData_Service.getAllItems();
+        abilityData_Service.requestAllAbilitiesToApi();
+        return abilityData_Service.getAllAbilityData();
     }
 
     // /* Prueba de que las imágenes van */
@@ -29,7 +29,7 @@ public class ExampleController {
 
     //     HttpHeaders headers = new HttpHeaders();
     //     headers.add("Content-Type", "image/png");
-    //     return new ResponseEntity<>(pokemonData_Service.getPokemonById((long) 52).getFront_default_sprite(), headers,
+    //     return new ResponseEntity<>(itemData_Service.getItemById((long) 52).getImage_sprite(), headers,
     //             HttpStatus.OK);
     // }
 
