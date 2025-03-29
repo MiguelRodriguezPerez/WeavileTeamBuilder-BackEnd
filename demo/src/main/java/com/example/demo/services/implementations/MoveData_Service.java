@@ -1,23 +1,35 @@
 package com.example.demo.services.implementations;
 
 import java.util.Set;
+import java.sql.PreparedStatement;
 
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.config.ApiRequestManager;
-import com.example.demo.domain.PokemonType;
 import com.example.demo.domain.movements.MoveData;
 import com.example.demo.domain.movements.MoveType;
 import com.example.demo.repositories.MoveData_Repository;
 import com.example.demo.services.interfaces.MoveData_Interface;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+
 @Service
 public class MoveData_Service implements MoveData_Interface {
 
     @Autowired
     MoveData_Repository repo;
+
+    @Autowired
+    PokemonType_Service pokemonType_Service;
+
+    @PersistenceContext
+    EntityManager entityManager;
 
     @Override
     public MoveData saveMove(MoveData moveData) {
@@ -35,22 +47,20 @@ public class MoveData_Service implements MoveData_Interface {
     }
 
     @Override
+    @Transactional
     public MoveData requestMoveToPokeApi(int number) {
-        // Failed at 749
-
         MoveData resultado = new MoveData();
         JsonNode move_root = ApiRequestManager.callGetRequest("https://pokeapi.co/api/v2/move/" + number);
 
         resultado.setName(move_root.get("name").asText());
         resultado.setAccuracy(move_root.get("accuracy").asInt());
-
-        // Usa como referencia el valor del string a mayúsculas para definir el enum
         resultado.setMove_type(MoveType.valueOf(
                 move_root.at("/damage_class/name").asText().toUpperCase()
             )
         );
-        resultado.setPokemon_type(PokemonType.valueOf(
-                move_root.at("/type/name").asText().toUpperCase()
+        resultado.setPokemon_type(
+            pokemonType_Service.getTypeByName(
+                move_root.at("/type/name").asText()
             )
         );
 
@@ -70,7 +80,8 @@ public class MoveData_Service implements MoveData_Interface {
                 if (flavor_text_entry.at("/language/name").asText().equals("en"))
                     resultado.setDescription(flavor_text_entry.at("/flavor_text").asText());
             }
-        } else {
+        } 
+        else {
             resultado.setDescription(move_root.get("effect_entries")
                     .get(0)
                     .get("short_effect").asText());
@@ -80,13 +91,32 @@ public class MoveData_Service implements MoveData_Interface {
     }
 
     @Override
+    @Transactional
+    @Modifying
     public boolean requestAllMovesToApi() {
+        // Sospechoso de fallar
+        String sqlQuery = "INSERT INTO move_data (name, move_type, accuracy, description, pp, pokemonType)"
+            + "VALUES (?, ?, ?, ?, ?, ?)";
         final int totalMovs = 919;
 
-        for (int i = 1; i <= totalMovs; i++) {
-            System.out.println("Movimiento " + i);
-            this.saveMove(this.requestMoveToPokeApi(i));
-        }
+        entityManager.unwrap(Session.class).doWork(connection -> {
+            try(PreparedStatement ps = connection.prepareStatement(sqlQuery)) {
+                for (int i = 1; i < totalMovs; i++) {
+                    System.out.println("Movimiento " + i);
+                    MoveData moveData = this.requestMoveToPokeApi(i);
+                    
+                    ps.setString(1,  moveData.getName());
+                    // Junto con el campo en la clase sospechoso de fallar
+                    ps.setString(2, moveData.getMove_type().toString().toUpperCase());
+                    ps.setInt(3, moveData.getAccuracy());
+                    ps.setString(4, moveData.getDescription());
+                    ps.setInt(4, moveData.getPp());
+                    ps.setLong(5, moveData.getPokemon_type().getId());
+                }
+
+                ps.executeBatch();
+            }
+        });
 
         return true;
     }

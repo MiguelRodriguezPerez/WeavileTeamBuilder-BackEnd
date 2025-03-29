@@ -195,14 +195,15 @@ public class PokemonData_Service implements PokemonData_Interface {
     }
 
     public PokemonData assignPokemonDataTypes(PokemonData pokemonData, JsonNode pokemon_json) {
-        for (JsonNode current_type : pokemon_json.get("types")) {
-            pokemonData.getType_list().add(
-                    PokemonType.valueOf(current_type.at("/type/name")
-                            .asText()
-                            .toUpperCase()));
-        }
+        // for (JsonNode current_type : pokemon_json.get("types")) {
+        //     pokemonData.getType_list().add(
+        //             PokemonType.valueOf(current_type.at("/type/name")
+        //                     .asText()
+        //                     .toUpperCase()));
+        // }
 
-        return pokemonData;
+        // return pokemonData;
+        return null;
     }
 
 }

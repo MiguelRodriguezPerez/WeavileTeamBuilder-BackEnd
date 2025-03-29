@@ -42,12 +42,7 @@ public class PokemonType {
     @JsonBackReference
     private Set<MoveData> move_list = new HashSet<>();
 
-    @ManyToMany
-    @JoinTable(
-        name = "pokemon_type-pokemon_data",
-        joinColumns = @JoinColumn(name = "pokemonType_id"),
-        inverseJoinColumns = @JoinColumn(name = "pokemonData_id")
-    )
+    @ManyToMany(mappedBy = "type_list")
     @JsonBackReference
     private Set<PokemonData> pokemonData_list = new HashSet<>();
 
