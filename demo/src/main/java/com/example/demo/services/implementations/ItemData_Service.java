@@ -1,9 +1,13 @@
 package com.example.demo.services.implementations;
 
+import java.sql.PreparedStatement;
 import java.util.Set;
 
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.config.ApiRequestManager;
 import com.example.demo.config.ImageDownloader;
@@ -12,11 +16,17 @@ import com.example.demo.repositories.ItemData_Repository;
 import com.example.demo.services.interfaces.ItemData_Interface;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+
 @Service
 public class ItemData_Service implements ItemData_Interface {
 
     @Autowired
     ItemData_Repository repo;
+
+    @PersistenceContext
+    EntityManager entityManager;
 
     @Override
     public ItemData saveItemData(ItemData itemData) {
@@ -39,6 +49,7 @@ public class ItemData_Service implements ItemData_Interface {
     }
 
     @Override
+    @Transactional
     public ItemData requestItemToPokeApi(int number) {
 
         ItemData resultado = new ItemData();
@@ -80,19 +91,32 @@ public class ItemData_Service implements ItemData_Interface {
     }
 
     @Override
+    @Transactional
+    @Modifying
     public boolean requestAllItems() {
-
         final int total_items = 1203;
+        String sql = "INSERT INTO item_data (name, description, image_sprite) VALUES (?, ?, ?)";
 
-        for (int i = 1; i <= total_items; i++) {
-            System.out.println("Objeto actual: " + i);
+        entityManager.unwrap(Session.class).doWork(connection -> {
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                for (int i = 2; i <= total_items; i++) {
+                    System.out.println("Objeto actual: " + i);
 
-            ItemData item = this.requestItemToPokeApi(i);
-            if (item != null) this.saveItemData(item);
-        }
+                    ItemData item = this.requestItemToPokeApi(i);
+                    if (item != null) {
+                        ps.setString(1, item.getName());
+                        ps.setString(2, item.getDescription());
+                        ps.setBytes(3, item.getImage_sprite()); // Insertar BLOB
+                        ps.addBatch(); // Agregar al batch
+                    }
+                }
+                ps.executeBatch(); // Ejecutar todas las inserciones en lote
+            }
+        });
 
         return true;
     }
+
 
     public Set<ItemData> getAllItems() {
         return repo.findAllItemData();

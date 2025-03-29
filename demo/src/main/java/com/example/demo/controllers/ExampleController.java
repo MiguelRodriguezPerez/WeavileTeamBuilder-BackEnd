@@ -6,22 +6,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.domain.team.NatureData;
-import com.example.demo.services.implementations.NatureData_Service;
+import com.example.demo.domain.ItemData;
+import com.example.demo.services.implementations.ItemData_Service;
 
 @RestController
 public class ExampleController {
 
     @Autowired
-    NatureData_Service natureData_Service;
+    ItemData_Service itemData_Service;
 
     @GetMapping("/")
 
-    public Set<NatureData> getMethodName() {
+    public Set<ItemData> getMethodName() {
 
-        natureData_Service.requestAllNatures();
-        return natureData_Service.getAllNatures();
-
+        itemData_Service.requestAllItems();
+        return itemData_Service.getAllItems();
     }
 
     // /* Prueba de que las imágenes van */
