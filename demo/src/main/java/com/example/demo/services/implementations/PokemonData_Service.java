@@ -1,9 +1,13 @@
 package com.example.demo.services.implementations;
 
+import java.sql.PreparedStatement;
 import java.util.Set;
 
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.config.ApiRequestManager;
 import com.example.demo.config.ImageDownloader;
@@ -15,18 +19,16 @@ import com.example.demo.repositories.PokemonData_Repository;
 import com.example.demo.services.interfaces.PokemonData_Interface;
 import com.fasterxml.jackson.databind.JsonNode;
 /* Intente mover la construcción de PokemonData a una nueva clase, 
-<<<<<<< HEAD
-pero las inyecciones de spring (Concretamente una referencia circular)
-lo impidio
-=======
 pero las inyecciones de spring (Concretamente una referencia circular) lo impidio
->>>>>>> pokemon_and_entity_relations
 
 Si te preguntas porque los métodos no son estáticos 
 es porque no puedes usar instancias de inyecciones en métodos estáticos
 
 Estoy complementamente convencido de que existe 
 una manera más eficiente de gestionar estas tareas que con jpa*/
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 @Service
 public class PokemonData_Service implements PokemonData_Interface {
@@ -39,6 +41,9 @@ public class PokemonData_Service implements PokemonData_Interface {
 
     @Autowired
     MoveData_Service moveData_Service;
+
+    @PersistenceContext
+    EntityManager entityManager;
 
     @Override
     public PokemonData savePokemon(PokemonData pokemon) {
@@ -64,7 +69,25 @@ public class PokemonData_Service implements PokemonData_Interface {
         return repo.findByName(name);
     }
 
+    
+
     @Override
+    @Transactional
+    public boolean requestAllPokemonsFromApi() {
+        final int num_pokemon = 1025;
+
+        for (int i = 1; i <= num_pokemon; i++) {
+            System.out.println("Current pokemon: " + i);
+            PokemonData pokemon = this.requestPokemonFromPokeApi(i);
+            if (pokemon != null)
+                this.savePokemon(pokemon);
+        }
+
+        return true;
+    }
+
+    @Override
+    @Transactional
     public PokemonData requestPokemonFromPokeApi(int number) {
 
         PokemonData resultado = new PokemonData();
@@ -75,31 +98,50 @@ public class PokemonData_Service implements PokemonData_Interface {
         return resultado;
     }
 
-    @Override
-    public boolean requestAllPokemonsFromApi() {
-        final int num_pokemon = 1025;
-
-        for (int i = 899; i <= num_pokemon; i++) {
-            System.out.println("Current pokemon: " + i);
-            PokemonData pokemon = this.requestPokemonFromPokeApi(i);
-            if (pokemon != null)
-                this.savePokemon(pokemon);
-        }
-
-        return true;
-    }
-
+    @Transactional
+    @Modifying
     public PokemonData createPokemonDataFromJson(PokemonData pokemonData, JsonNode pokemon_json) {
 
+        /* Divide esta función en dos partes. La primera únicamente cogerá datos del json
+        y se los aplicará a la entidad. Después guardará una nueva entidad con dichos datos*/
+
+        // TODO: Guardar entidad
+
+        /* Casi garantizado que fallará */
         pokemonData.setName(pokemon_json.get("name").asText());
         pokemonData = this.assignPokemonDataSprites(pokemonData, pokemon_json);
         pokemonData = this.assignPokemonDataStats(pokemonData, pokemon_json);
+    
+        entityManager.persist(pokemonData);
+        entityManager.flush();
+
+        /* La segunda parte se encargará de crear las relaciones manytomany entre pokemonData
+        y las demás entidades */
+
         pokemonData = this.assignPokemonDataAbilities(pokemonData, pokemon_json);
         pokemonData = this.assignPokemonDataMoves(pokemonData, pokemon_json);
         pokemonData = this.assignPokemonDataTypes(pokemonData, pokemon_json);
 
         return pokemonData;
 
+    }
+    /* No puedes asignar las relaciones ahora mismo porque no conoces los nombres de las tablas */
+
+    public PokemonData assignPokemonDataSprites(PokemonData pokemonData, JsonNode pokemon_json) {
+
+        pokemonData.setFront_default_sprite(
+                ImageDownloader.getImage(
+                        pokemon_json.at("/sprites/front_default").asText()));
+
+        if (!pokemon_json.at("/sprites/versions/generation-viii/icons/front_default").asText()
+            .equals("null")) {
+                pokemonData.setPc_sprite(
+                    ImageDownloader.getImage(
+                            pokemon_json.at("/sprites/versions/generation-viii/icons/front_default").asText()));
+        }
+        
+
+        return pokemonData;
     }
 
     public PokemonData assignPokemonDataStats(PokemonData pokemonData, JsonNode pokemon_json) {
@@ -173,23 +215,6 @@ public class PokemonData_Service implements PokemonData_Interface {
             this.savePokemon(pokemonData);
             moveData_Service.saveMove(current_MoveData);
         }
-
-        return pokemonData;
-    }
-
-    public PokemonData assignPokemonDataSprites(PokemonData pokemonData, JsonNode pokemon_json) {
-
-        pokemonData.setFront_default_sprite(
-                ImageDownloader.getImage(
-                        pokemon_json.at("/sprites/front_default").asText()));
-
-        if (!pokemon_json.at("/sprites/versions/generation-viii/icons/front_default").asText()
-            .equals("null")) {
-                pokemonData.setPc_sprite(
-                    ImageDownloader.getImage(
-                            pokemon_json.at("/sprites/versions/generation-viii/icons/front_default").asText()));
-        }
-        
 
         return pokemonData;
     }
