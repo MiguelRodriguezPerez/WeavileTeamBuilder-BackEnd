@@ -7,13 +7,17 @@ import com.example.demo.domain.PokemonData;
 import com.example.demo.domain.PokemonType;
 import com.example.demo.domain.team.PokemonTeamMember;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -34,12 +38,16 @@ public class MoveData {
 
     private String name;
     private MoveType move_type;
-    private PokemonType pokemon_type;
 
     private int accuracy;
 
     private String description;
     private int pp;
+
+    @ManyToOne
+    @JoinColumn(name = "pokemon_type_id")
+    @JsonManagedReference
+    private PokemonType pokemon_type;
 
     @JsonBackReference
     @ManyToMany(mappedBy = "move_list", fetch = FetchType.EAGER)

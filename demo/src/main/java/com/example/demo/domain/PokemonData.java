@@ -25,7 +25,7 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(of = "id")
 @Entity
-@ToString(exclude = { "front_default_sprite", "pc_sprite", "ability_list", "move_list" })
+@ToString(exclude = { "front_default_sprite", "pc_sprite" })
 public class PokemonData {
 
     @GeneratedValue
@@ -49,6 +49,9 @@ public class PokemonData {
     @Column(columnDefinition = "MEDIUMBLOB") // Para MySQL
     private byte[] pc_sprite;
 
+
+    @ManyToMany(mappedBy = "pokemonData_list")
+    @JsonManagedReference
     private Set<PokemonType> type_list = new HashSet<>();
 
     @JsonManagedReference
