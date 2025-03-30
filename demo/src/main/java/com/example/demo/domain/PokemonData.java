@@ -50,13 +50,13 @@ public class PokemonData {
     private byte[] pc_sprite;
 
 
-    @ManyToMany
-    @JoinTable(
-        name = "pokemon_type_pokemon_data",
-        joinColumns = @JoinColumn(name = "pokemonType_id"),
-        inverseJoinColumns = @JoinColumn(name = "pokemonData_id")
-    )
     @JsonManagedReference
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "pokemonType_pokemonData",
+        joinColumns = @JoinColumn(name = "pokemonData_id"),
+        inverseJoinColumns = @JoinColumn(name = "pokemonType_id")
+    )
     private Set<PokemonType> type_list = new HashSet<>();
 
     @JsonManagedReference

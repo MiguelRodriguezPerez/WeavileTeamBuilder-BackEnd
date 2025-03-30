@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -42,7 +43,7 @@ public class PokemonType {
     @JsonBackReference
     private Set<MoveData> move_list = new HashSet<>();
 
-    @ManyToMany(mappedBy = "type_list")
+    @ManyToMany(mappedBy = "type_list", fetch = FetchType.EAGER)
     @JsonBackReference
     private Set<PokemonData> pokemonData_list = new HashSet<>();
 
