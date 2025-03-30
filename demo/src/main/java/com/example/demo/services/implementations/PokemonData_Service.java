@@ -125,7 +125,8 @@ public class PokemonData_Service implements PokemonData_Interface {
         return pokemonData;
 
     }
-    /* No puedes asignar las relaciones ahora mismo porque no conoces los nombres de las tablas */
+    /* No puedes asignar las relaciones ahora mismo porque no conoces los nombres de las tablas
+    y recuerda asignar sv*/
 
     public PokemonData assignPokemonDataSprites(PokemonData pokemonData, JsonNode pokemon_json) {
 

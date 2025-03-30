@@ -40,7 +40,6 @@ public class MoveData {
 
     private String name;
 
-    @Enumerated(EnumType.STRING)
     private MoveType move_type;
 
     private int accuracy;
