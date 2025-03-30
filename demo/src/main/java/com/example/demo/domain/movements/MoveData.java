@@ -48,7 +48,7 @@ public class MoveData {
     private int pp;
 
     @ManyToOne
-    @JoinColumn(name = "pokemon_type_id")
+    @JoinColumn(name = "pokemonType_id")
     @JsonManagedReference
     private PokemonType pokemon_type;
 

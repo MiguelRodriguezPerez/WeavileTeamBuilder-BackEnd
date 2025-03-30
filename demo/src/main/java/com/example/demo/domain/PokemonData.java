@@ -53,8 +53,8 @@ public class PokemonData {
     @ManyToMany
     @JoinTable(
         name = "pokemon_type_pokemon_data",
-        joinColumns = @JoinColumn(name = "pokemon_type_id"),
-        inverseJoinColumns = @JoinColumn(name = "pokemon_data_id")
+        joinColumns = @JoinColumn(name = "pokemonType_id"),
+        inverseJoinColumns = @JoinColumn(name = "pokemonData_id")
     )
     @JsonManagedReference
     private Set<PokemonType> type_list = new HashSet<>();
