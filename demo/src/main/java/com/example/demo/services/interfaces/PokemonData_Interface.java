@@ -11,7 +11,6 @@ public interface PokemonData_Interface {
     void deleteAllPokemons();
     Set<PokemonData> getAllPokemonData();
     PokemonData getPokemonByName(String name);
-    JsonNode requestPokemonFromPokeApi(int number);
     boolean requestAllPokemonsFromApi();
 
     PokemonData assignPokemonDataStats(PokemonData pokemonData, JsonNode pokemon_json);

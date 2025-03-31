@@ -30,7 +30,7 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(of = "id")
 @Entity
-@ToString(exclude = { "front_default_sprite", "pc_sprite", "ability_list", "move_list" })
+@ToString(exclude = { "front_default_sprite", "pc_sprite" })
 public class PokemonData {
 
     @Id

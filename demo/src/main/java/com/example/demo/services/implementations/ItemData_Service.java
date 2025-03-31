@@ -99,7 +99,7 @@ public class ItemData_Service implements ItemData_Interface {
 
         entityManager.unwrap(Session.class).doWork(connection -> {
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
-                for (int i = 2; i <= total_items; i++) {
+                for (int i = 1; i <= total_items; i++) {
                     System.out.println("Objeto actual: " + i);
 
                     ItemData item = this.requestItemToPokeApi(i);

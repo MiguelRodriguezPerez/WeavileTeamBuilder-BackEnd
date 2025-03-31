@@ -19,16 +19,15 @@ import com.example.demo.config.CsvFileReader;
 import com.example.demo.config.ImageDownloader;
 import com.example.demo.domain.AbilityData;
 import com.example.demo.domain.PokemonData;
-import com.example.demo.domain.PokemonType;
 import com.example.demo.domain.movements.MoveData;
 import com.example.demo.repositories.PokemonData_Repository;
 import com.example.demo.services.interfaces.PokemonData_Interface;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
+
 
 @Service
 public class PokemonData_Service implements PokemonData_Interface {
@@ -74,21 +73,14 @@ public class PokemonData_Service implements PokemonData_Interface {
 
     @Override
     @Transactional
-    public JsonNode requestPokemonFromPokeApi(int number) {
-        JsonNode json_pokemon = ApiRequestManager.callGetRequest("https://pokeapi.co/api/v2/pokemon/" + number);
-        return json_pokemon;
-    }
-
-    @Override
-    @Transactional
     @Modifying
     public boolean requestAllPokemonsFromApi() {
         final int num_pokemon = 1025;
         
-        for (int i = 4; i <= num_pokemon; i++) {
+        for (int i = 1; i <= num_pokemon; i++) {
             System.out.println("Current pokemon: " + i);
             
-            JsonNode pokemonJson = this.requestPokemonFromPokeApi(i);
+            JsonNode pokemonJson = ApiRequestManager.callGetRequest("https://pokeapi.co/api/v2/pokemon/" + i);
             PokemonData pokemon = this.savePokemonDataFromJson(pokemonJson);
 
             this.createPokemonDataRelations(pokemon, pokemonJson);
