@@ -58,19 +58,20 @@ public class NatureData_Service implements NatureData_Interface {
     @Transactional
     @Modifying
     public boolean requestAllNatures() {
-        String sqlQuery = "INSERT INTO nature_data (name, increased_stat, decreased_stat) VALUES (? ,? ,?)";
+        String sqlQuery = "INSERT INTO nature_data (id,name, increased_stat, decreased_stat) VALUES (?, ? ,? ,?)";
         final int nature_number = 25;
 
         entityManager.unwrap(Session.class).doWork(connection -> {
             try(PreparedStatement ps = connection.prepareStatement(sqlQuery)) {
 
-                for (int i = 1; i < nature_number; i++) {
+                for (int i = 3; i <= nature_number; i++) {
                     System.out.println("Naturaleza " + i);
 
                     NatureData natureData = this.requestNatureToPokeApi(i);
-                    ps.setString(1, natureData.getName());
-                    ps.setString(2, natureData.getIncreased_stat());
-                    ps.setString(3, natureData.getDecreased_stat());
+                    ps.setInt(1, i);
+                    ps.setString(2, natureData.getName());
+                    ps.setString(3, natureData.getIncreased_stat());
+                    ps.setString(4, natureData.getDecreased_stat());
 
                     ps.addBatch();
                 }

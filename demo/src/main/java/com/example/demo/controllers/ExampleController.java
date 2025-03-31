@@ -11,21 +11,18 @@ import com.example.demo.domain.PokemonData;
 import com.example.demo.domain.movements.MoveData;
 import com.example.demo.services.implementations.AbilityData_Service;
 import com.example.demo.services.implementations.MoveData_Service;
+import com.example.demo.services.implementations.NatureData_Service;
 import com.example.demo.services.implementations.PokemonData_Service;
 
 @RestController
 public class ExampleController {
 
     @Autowired
-    PokemonData_Service pokemonData_Service;
-    @Autowired
-    MoveData_Service moveData_Service;
-    @Autowired
-    AbilityData_Service abilityData_Service;
+    NatureData_Service natureData_Service;
 
     @GetMapping("/")
-    public Set<PokemonData> getMethodName() {
-        return pokemonData_Service.assignPokemonAvailableInSV();
+    public void getMethodName() {
+        natureData_Service.requestAllNatures();
     }
 
     // /* Prueba de que las imágenes van */
