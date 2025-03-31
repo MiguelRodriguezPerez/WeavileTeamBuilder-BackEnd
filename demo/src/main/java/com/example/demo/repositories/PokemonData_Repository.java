@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository;
 
 import com.example.demo.domain.pokemon.PokemonData;
 
+import jakarta.transaction.Transactional;
+
 @Repository
 public interface PokemonData_Repository extends JpaRepository<PokemonData, Long> {
     PokemonData findByName(String name);
@@ -19,4 +21,8 @@ public interface PokemonData_Repository extends JpaRepository<PokemonData, Long>
 
     @Query(value = "SELECT * FROM pokemon_data", nativeQuery = true)
     Set<PokemonData> getAllPokemonData();
+
+    @Query(value = "SELECT * FROM pokemon_data pok WHERE pok.available_in_sv = true", nativeQuery = true)
+    Set<PokemonData> getPokemonAvaliableInSV();
+    
 }

@@ -6,8 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.domain.team.NatureData;
+import com.example.demo.domain.AbilityData;
+import com.example.demo.domain.movements.MoveData;
+import com.example.demo.services.implementations.AbilityData_Service;
+import com.example.demo.services.implementations.MoveData_Service;
 import com.example.demo.services.implementations.NatureData_Service;
+import com.example.demo.services.implementations.PokemonData_Service;
 
 @RestController
 public class ExampleController {
@@ -16,12 +20,8 @@ public class ExampleController {
     NatureData_Service natureData_Service;
 
     @GetMapping("/")
-
-    public Set<NatureData> getMethodName() {
-
+    public void getMethodName() {
         natureData_Service.requestAllNatures();
-        return natureData_Service.getAllNatures();
-
     }
 
     // /* Prueba de que las imágenes van */
@@ -30,7 +30,7 @@ public class ExampleController {
 
     //     HttpHeaders headers = new HttpHeaders();
     //     headers.add("Content-Type", "image/png");
-    //     return new ResponseEntity<>(pokemonData_Service.getPokemonById((long) 52).getFront_default_sprite(), headers,
+    //     return new ResponseEntity<>(itemData_Service.getItemById((long) 52).getImage_sprite(), headers,
     //             HttpStatus.OK);
     // }
 

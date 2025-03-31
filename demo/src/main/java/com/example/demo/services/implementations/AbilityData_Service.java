@@ -1,9 +1,14 @@
 package com.example.demo.services.implementations;
 
+import java.sql.PreparedStatement;
+import java.util.List;
 import java.util.Set;
 
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.config.ApiRequestManager;
 import com.example.demo.domain.AbilityData;
@@ -11,11 +16,17 @@ import com.example.demo.repositories.AbilityData_Repository;
 import com.example.demo.services.interfaces.AbilityData_Interface;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+
 @Service
 public class AbilityData_Service implements AbilityData_Interface {
 
     @Autowired
     AbilityData_Repository repo;
+
+    @PersistenceContext
+    EntityManager entityManager;
 
     @Override
     public AbilityData saveAbility(AbilityData ability) {
@@ -43,6 +54,7 @@ public class AbilityData_Service implements AbilityData_Interface {
      */
 
     @Override
+    @Transactional
     public AbilityData requestAbilityToPokeApi(int num) {
 
         AbilityData resultado = new AbilityData();
@@ -88,17 +100,27 @@ public class AbilityData_Service implements AbilityData_Interface {
     }
 
     @Override
+    @Transactional
+    @Modifying
     public boolean requestAllAbilitiesToApi() {
+        final int numero_habilidades = 307; //307
+        String query = "INSERT INTO ability_data (name,description) VALUES (?, ?)";
 
-        final int numero_habilidades = 307;
+        entityManager.unwrap(Session.class).doWork(connection -> {
+            try (PreparedStatement ps = connection.prepareStatement(query)) {
+                for (int i = 1; i <= numero_habilidades; i++) {
+                    System.out.println("Habilidad " + i);
 
-        for (int i = 1; i <= numero_habilidades; i++) {
-            AbilityData ab = this.requestAbilityToPokeApi(i);
-            if (ab != null)
-                this.saveAbility(ab);
-            else
-                throw new RuntimeException("Error al recibir la habilidad numero " + i);
-        }
+                    AbilityData currentAbility = this.requestAbilityToPokeApi(i);
+                    if (currentAbility != null) {
+                        ps.setString(1, currentAbility.getName());
+                        ps.setString(2,currentAbility.getDescription());
+                        ps.addBatch();
+                    }
+                }
+                ps.executeBatch();
+            }
+        });
 
         return true;
     }
@@ -106,5 +128,10 @@ public class AbilityData_Service implements AbilityData_Interface {
     @Override
     public Set<AbilityData> getAllAbilityData() {
         return repo.getAllAbilityData();
+    }
+
+    @Transactional
+    public Set<AbilityData> getAblitySetFromStringList(List<String> abilityList) {
+        return repo.getAblitySetFromStringList(abilityList);
     }
 }
