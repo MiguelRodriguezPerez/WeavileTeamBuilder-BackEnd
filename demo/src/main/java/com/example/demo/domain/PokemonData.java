@@ -7,10 +7,15 @@ import com.example.demo.domain.movements.MoveData;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -28,8 +33,8 @@ import lombok.ToString;
 @ToString(exclude = { "front_default_sprite", "pc_sprite", "ability_list", "move_list" })
 public class PokemonData {
 
-    @GeneratedValue
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
@@ -49,6 +54,9 @@ public class PokemonData {
     @Column(columnDefinition = "MEDIUMBLOB") // Para MySQL
     private byte[] pc_sprite;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "pokemon_data_pokemon_type", joinColumns = @JoinColumn(name = "pokemonData_id"))
+    @Enumerated(EnumType.STRING)
     private Set<PokemonType> type_list = new HashSet<>();
 
     @JsonManagedReference
@@ -68,5 +76,7 @@ public class PokemonData {
         inverseJoinColumns = @JoinColumn(name = "moveData_id")
     )
     private Set<MoveData> move_list = new HashSet<>();
+
+    private Boolean available_in_sv;
 
 }

@@ -9,6 +9,8 @@ import com.example.demo.domain.team.PokemonTeamMember;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -33,7 +35,11 @@ public class MoveData {
     private Long id;
 
     private String name;
+    
+    @Enumerated(EnumType.STRING)
     private MoveType move_type;
+
+    @Enumerated(EnumType.STRING)
     private PokemonType pokemon_type;
 
     private int accuracy;

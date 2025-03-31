@@ -1,6 +1,7 @@
 package com.example.demo.services.implementations;
 
 import java.sql.PreparedStatement;
+import java.util.List;
 import java.util.Set;
 
 import org.hibernate.Session;
@@ -102,7 +103,7 @@ public class AbilityData_Service implements AbilityData_Interface {
     @Transactional
     @Modifying
     public boolean requestAllAbilitiesToApi() {
-        final int numero_habilidades = 307;
+        final int numero_habilidades = 307; //307
         String query = "INSERT INTO ability_data (name,description) VALUES (?, ?)";
 
         entityManager.unwrap(Session.class).doWork(connection -> {
@@ -127,5 +128,10 @@ public class AbilityData_Service implements AbilityData_Interface {
     @Override
     public Set<AbilityData> getAllAbilityData() {
         return repo.getAllAbilityData();
+    }
+
+    @Transactional
+    public Set<AbilityData> getAblitySetFromStringList(List<String> abilityList) {
+        return repo.getAblitySetFromStringList(abilityList);
     }
 }

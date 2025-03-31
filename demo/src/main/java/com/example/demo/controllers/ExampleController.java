@@ -7,20 +7,25 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.domain.AbilityData;
+import com.example.demo.domain.PokemonData;
+import com.example.demo.domain.movements.MoveData;
 import com.example.demo.services.implementations.AbilityData_Service;
+import com.example.demo.services.implementations.MoveData_Service;
+import com.example.demo.services.implementations.PokemonData_Service;
 
 @RestController
 public class ExampleController {
 
     @Autowired
+    PokemonData_Service pokemonData_Service;
+    @Autowired
+    MoveData_Service moveData_Service;
+    @Autowired
     AbilityData_Service abilityData_Service;
 
     @GetMapping("/")
-
-    public Set<AbilityData> getMethodName() {
-
-        abilityData_Service.requestAllAbilitiesToApi();
-        return abilityData_Service.getAllAbilityData();
+    public Set<PokemonData> getMethodName() {
+        return pokemonData_Service.assignPokemonAvailableInSV();
     }
 
     // /* Prueba de que las imágenes van */
