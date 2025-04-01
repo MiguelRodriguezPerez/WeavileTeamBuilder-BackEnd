@@ -77,6 +77,8 @@ public class PokemonData_Service implements PokemonData_Interface {
     public boolean requestAllPokemonsFromApi() {
         final int num_pokemon = 1025;
         
+        // TODO: Adaptar a inserciones en batch
+
         for (int i = 1; i <= num_pokemon; i++) {
             System.out.println("Current pokemon: " + i);
             

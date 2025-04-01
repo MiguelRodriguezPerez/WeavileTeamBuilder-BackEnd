@@ -7,8 +7,6 @@ import com.example.demo.domain.pokemon.PokemonData;
 import com.example.demo.domain.pokemon.PokemonType;
 import com.example.demo.domain.team.PokemonTeamMember;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.mysql.cj.xdevapi.Type;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -17,9 +15,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
