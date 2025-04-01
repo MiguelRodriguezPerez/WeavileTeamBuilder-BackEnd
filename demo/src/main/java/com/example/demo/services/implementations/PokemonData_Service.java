@@ -301,4 +301,8 @@ public class PokemonData_Service implements PokemonData_Interface {
 
         return repo.getPokemonAvaliableInSV();
     }
+
+    public Set<PokemonData> getAllSVPokemon() {
+        return repo.getPokemonAvaliableInSV();
+    }
 }

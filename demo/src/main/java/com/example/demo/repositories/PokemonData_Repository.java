@@ -9,8 +9,6 @@ import org.springframework.stereotype.Repository;
 
 import com.example.demo.domain.pokemon.PokemonData;
 
-import jakarta.transaction.Transactional;
-
 @Repository
 public interface PokemonData_Repository extends JpaRepository<PokemonData, Long> {
     PokemonData findByName(String name);
