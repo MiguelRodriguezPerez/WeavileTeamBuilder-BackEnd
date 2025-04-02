@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.domain.pokemon.PokemonData;
+import com.example.demo.domain.pokemon.MissignoGridDTO;
 import com.example.demo.services.implementations.PokemonData_Service;
 
 
@@ -20,9 +20,11 @@ public class PokemonDataController {
     @Autowired
     PokemonData_Service pokemonData_Service;
     
+    // Este endpoint tarda 6 segundos en mostrar la info. Seguro que hay una solución más rápida
     @GetMapping("/allSVPokemon")
-    public ResponseEntity<Set<PokemonData>> allSWPokemonEndpoint() {
-        return new ResponseEntity<>(pokemonData_Service.getAllSVPokemon(), HttpStatus.OK);
+    public ResponseEntity<Set<MissignoGridDTO>> allSWPokemonEndpoint() {
+        Set<MissignoGridDTO> resultado = pokemonData_Service.convertToMissignoGridDTO(pokemonData_Service.getAllSVPokemon());
+        return new ResponseEntity<>(resultado, HttpStatus.OK);
     }
     
 }

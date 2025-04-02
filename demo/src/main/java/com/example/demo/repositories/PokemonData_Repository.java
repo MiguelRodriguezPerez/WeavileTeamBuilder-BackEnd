@@ -1,5 +1,6 @@
 package com.example.demo.repositories;
 
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,7 +21,9 @@ public interface PokemonData_Repository extends JpaRepository<PokemonData, Long>
     @Query(value = "SELECT * FROM pokemon_data", nativeQuery = true)
     Set<PokemonData> getAllPokemonData();
 
+    // No esta muy claro que sea más rápida que findByAvailableInSv (EntityManager no es más rápido en este caso)
     @Query(value = "SELECT * FROM pokemon_data pok WHERE pok.available_in_sv = true", nativeQuery = true)
     Set<PokemonData> getPokemonAvaliableInSV();
     
+    // List<PokemonData> findByAvailableInSv(Boolean availableInSv);
 }

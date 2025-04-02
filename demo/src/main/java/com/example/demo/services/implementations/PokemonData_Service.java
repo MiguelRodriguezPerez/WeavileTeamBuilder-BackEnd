@@ -7,6 +7,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import com.example.demo.config.CsvFileReader;
 import com.example.demo.config.ImageDownloader;
 import com.example.demo.domain.AbilityData;
 import com.example.demo.domain.movements.MoveData;
+import com.example.demo.domain.pokemon.MissignoGridDTO;
 import com.example.demo.domain.pokemon.PokemonData;
 import com.example.demo.repositories.PokemonData_Repository;
 import com.example.demo.services.interfaces.PokemonData_Interface;
@@ -305,4 +307,29 @@ public class PokemonData_Service implements PokemonData_Interface {
     public Set<PokemonData> getAllSVPokemon() {
         return repo.getPokemonAvaliableInSV();
     }
+
+    public Set<MissignoGridDTO> convertToMissignoGridDTO(Set<PokemonData> pokemonDataSet) {
+    // Utilizando Java 8 Streams para la conversión de forma limpia
+    return pokemonDataSet.stream()
+        .map(pokemonData -> {
+            MissignoGridDTO missignoGridDTO = new MissignoGridDTO();
+            missignoGridDTO.setId(pokemonData.getId());
+            missignoGridDTO.setName(pokemonData.getName());
+            missignoGridDTO.setBase_hp(pokemonData.getBase_hp());
+            missignoGridDTO.setBase_attack(pokemonData.getBase_attack());
+            missignoGridDTO.setBase_defense(pokemonData.getBase_defense());
+            missignoGridDTO.setBase_special_attack(pokemonData.getBase_special_attack());
+            missignoGridDTO.setBase_special_defense(pokemonData.getBase_special_defense());
+            missignoGridDTO.setBase_speed(pokemonData.getBase_speed());
+            missignoGridDTO.setPc_sprite(pokemonData.getPc_sprite());
+
+            // Convertir las listas de tipo y habilidades a DTOs correspondientes (si es necesario)
+            missignoGridDTO.setType_list(pokemonData.getType_list());
+            missignoGridDTO.setAbility_list(pokemonData.getAbility_list());
+
+            return missignoGridDTO;
+        })
+        .collect(Collectors.toSet()); // Devuelve un Set<MissignoGridDTO>
+}
+
 }

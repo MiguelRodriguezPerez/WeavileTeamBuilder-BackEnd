@@ -5,6 +5,7 @@ import java.util.Set;
 
 import com.example.demo.domain.AbilityData;
 import com.example.demo.domain.movements.MoveData;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
@@ -69,6 +70,7 @@ public class PokemonData {
     )
     private Set<AbilityData> ability_list = new HashSet<>();
 
+    @JsonIgnore
     @JsonManagedReference
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(
@@ -78,6 +80,6 @@ public class PokemonData {
     )
     private Set<MoveData> move_list = new HashSet<>();
 
-    private Boolean available_in_sv;
+    private Boolean availableInSv;
 
 }
