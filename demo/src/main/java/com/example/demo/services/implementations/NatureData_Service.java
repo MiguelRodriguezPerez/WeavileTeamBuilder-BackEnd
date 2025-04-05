@@ -64,7 +64,7 @@ public class NatureData_Service implements NatureData_Interface {
         entityManager.unwrap(Session.class).doWork(connection -> {
             try(PreparedStatement ps = connection.prepareStatement(sqlQuery)) {
 
-                for (int i = 3; i <= nature_number; i++) {
+                for (int i = 1; i <= nature_number; i++) {
                     System.out.println("Naturaleza " + i);
 
                     NatureData natureData = this.requestNatureToPokeApi(i);
@@ -86,6 +86,11 @@ public class NatureData_Service implements NatureData_Interface {
     @Override
     public Set<NatureData> getAllNatures() {
         return repo.getAllNatures();
+    }
+
+    @Override
+    public NatureData getNatureByName(String name) {
+        return repo.findByName(name);
     }
     
 }

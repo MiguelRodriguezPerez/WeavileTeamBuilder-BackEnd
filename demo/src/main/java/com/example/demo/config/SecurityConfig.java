@@ -137,7 +137,7 @@ public class SecurityConfig {
             httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
             http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/nonLoggedUsers/**","/pokemonData/**").permitAll()
+                .requestMatchers("/nonLoggedUsers/**","/pokemonData/**","/natureData/**").permitAll()
                 .anyRequest().authenticated());
 
             /* Asegura que tu configuración de cors se aplique */
