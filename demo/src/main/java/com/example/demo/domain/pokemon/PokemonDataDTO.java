@@ -26,9 +26,9 @@ public class PokemonDataDTO {
     private int base_special_defense;
     private int base_speed;
 
-    private Set<String> types;
-    private Set<String> abilities;
-    private Set<String> moves;
+    private Set<String> type_list;
+    private Set<String> ability_list;
+    private Set<String> move_list;
 
      public PokemonDataDTO(PokemonData entity) {
         this.name = entity.getName();
@@ -39,15 +39,15 @@ public class PokemonDataDTO {
         this.base_special_defense = entity.getBase_special_defense();
         this.base_speed = entity.getBase_speed();
 
-        this.types = entity.getType_list().stream()
+        this.type_list = entity.getType_list().stream()
                 .map(Enum::name)
                 .collect(Collectors.toSet());
 
-        this.abilities = entity.getAbility_list().stream()
+        this.ability_list = entity.getAbility_list().stream()
                 .map(ability -> ability.getName())
                 .collect(Collectors.toSet());
 
-        this.moves = entity.getMove_list().stream()
+        this.move_list = entity.getMove_list().stream()
                 .map(move -> move.getName()) 
                 .collect(Collectors.toSet());
     }
