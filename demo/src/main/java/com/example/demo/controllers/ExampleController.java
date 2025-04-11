@@ -17,11 +17,11 @@ import com.example.demo.services.implementations.PokemonData_Service;
 public class ExampleController {
 
     @Autowired
-    NatureData_Service natureData_Service;
+    MoveData_Service moveData_Service;
 
     @GetMapping("/")
     public void getMethodName() {
-        natureData_Service.requestAllNatures();
+        // moveData_Service.updateMoveDataPower();
     }
 
     // /* Prueba de que las imágenes van */

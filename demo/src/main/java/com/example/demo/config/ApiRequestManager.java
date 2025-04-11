@@ -16,6 +16,8 @@ public class ApiRequestManager {
     
     public static JsonNode callGetRequest(String api_url) {
 
+        System.out.println(api_url + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+
         try {
             URL url = new URI(api_url).toURL();
             HttpURLConnection solicitud = (HttpURLConnection) url.openConnection();

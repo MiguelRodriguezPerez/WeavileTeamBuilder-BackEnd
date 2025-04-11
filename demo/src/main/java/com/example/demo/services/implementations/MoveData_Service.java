@@ -68,6 +68,8 @@ public class MoveData_Service implements MoveData_Interface {
         // La multiplicación debería dar exacto, pero por si acaso lo paso a absoluto
         resultado.setPp((int) Math.abs(
                 move_root.at("/pp").asInt() * 1.6));
+        
+        resultado.setPower(move_root.at("/power").asInt());
 
         /*
          * Algunos movimientos no tienen valores en effect_entries, y por tanto, no
@@ -97,8 +99,9 @@ public class MoveData_Service implements MoveData_Interface {
     public boolean requestAllMovesToApi() {
         final int totalMovs = 919;
         final String sqlQuery = "INSERT INTO move_data (name, move_type, pokemon_type, accuracy,"
-            + "description, pp) VALUES (?, ?, ?, ?, ?, ?)";
+            + "description, pp, power) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
+            // Sin testear
         entityManager.unwrap(Session.class).doWork(connection -> {
             try(PreparedStatement ps = connection.prepareStatement(sqlQuery)) {
                 for (int i = 1; i <= totalMovs; i++) {
@@ -112,10 +115,12 @@ public class MoveData_Service implements MoveData_Interface {
                         ps.setInt(4, currentMove.getAccuracy());
                         ps.setString(5, currentMove.getDescription());
                         ps.setInt(6, currentMove.getPp());
-
+                        ps.setInt(7, currentMove.getPower());
 
                         ps.addBatch();
                     }
+
+                    if (i % 100 == 0) ps.executeBatch();
                 }
 
                 ps.executeBatch();

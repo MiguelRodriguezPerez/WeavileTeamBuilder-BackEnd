@@ -3,6 +3,9 @@ package com.example.demo.domain.pokemon;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.example.demo.domain.AbilityData;
+import com.example.demo.domain.movements.MoveData;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -27,8 +30,8 @@ public class PokemonDataDTO {
     private int base_speed;
 
     private Set<String> type_list;
-    private Set<String> ability_list;
-    private Set<String> move_list;
+    private Set<AbilityData> ability_list;
+    private Set<MoveData> move_list;
 
      public PokemonDataDTO(PokemonData entity) {
         this.name = entity.getName();
@@ -43,13 +46,8 @@ public class PokemonDataDTO {
                 .map(Enum::name)
                 .collect(Collectors.toSet());
 
-        this.ability_list = entity.getAbility_list().stream()
-                .map(ability -> ability.getName())
-                .collect(Collectors.toSet());
-
-        this.move_list = entity.getMove_list().stream()
-                .map(move -> move.getName()) 
-                .collect(Collectors.toSet());
+        this.ability_list = entity.getAbility_list();
+        this.move_list = entity.getMove_list();
     }
 
 }

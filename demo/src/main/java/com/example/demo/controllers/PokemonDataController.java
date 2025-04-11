@@ -33,6 +33,7 @@ public class PokemonDataController {
 
     @GetMapping("/getPokemonByName/{name}")
     public ResponseEntity<PokemonDataDTO> getPokemonDataByNameEndpoint(@PathVariable String name) {
+        System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         PokemonData pokemonData = pokemonData_Service.getPokemonByName(name);
         return new ResponseEntity<>(new PokemonDataDTO(pokemonData), HttpStatus.OK);
     }
