@@ -101,7 +101,7 @@ public class MoveData_Service implements MoveData_Interface {
         final String sqlQuery = "INSERT INTO move_data (name, move_type, pokemon_type, accuracy,"
             + "description, pp, power) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-            // Sin testear
+        // Sin testear
         entityManager.unwrap(Session.class).doWork(connection -> {
             try(PreparedStatement ps = connection.prepareStatement(sqlQuery)) {
                 for (int i = 1; i <= totalMovs; i++) {

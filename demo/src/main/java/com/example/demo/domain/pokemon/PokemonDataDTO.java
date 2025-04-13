@@ -22,6 +22,9 @@ public class PokemonDataDTO {
     
     private String name;
 
+    private byte[] pc_sprite;
+    private byte[] front_default_sprite;
+
     private int base_hp;
     private int base_attack;
     private int base_defense;
@@ -35,6 +38,10 @@ public class PokemonDataDTO {
 
      public PokemonDataDTO(PokemonData entity) {
         this.name = entity.getName();
+
+        this.pc_sprite = entity.getPc_sprite();
+        this.front_default_sprite = entity.getFront_default_sprite();
+
         this.base_hp = entity.getBase_hp();
         this.base_attack = entity.getBase_attack();
         this.base_defense = entity.getBase_defense();

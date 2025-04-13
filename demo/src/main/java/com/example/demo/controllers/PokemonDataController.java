@@ -26,7 +26,7 @@ public class PokemonDataController {
     PokemonData_Service pokemonData_Service;
     
     @GetMapping("/allSVPokemon")
-    public ResponseEntity<Set<MissignoGridDTO>> allSWPokemonEndpoint() {
+    public ResponseEntity<Set<MissignoGridDTO>> getAllSWPokemonEndpoint() {
         Set<MissignoGridDTO> resultado = pokemonData_Service.convertToMissignoGridDTO(pokemonData_Service.getAllSVPokemon());
         return new ResponseEntity<>(resultado, HttpStatus.OK);
     }
