@@ -97,6 +97,8 @@ public class ItemData_Service implements ItemData_Interface {
         final int total_items = 1203;
         String sql = "INSERT INTO item_data (name, description, image_sprite) VALUES (?, ?, ?)";
 
+        // Le lleva 17 minutos y medio
+        // TODO: Borrar items abiertamente inútiles
         entityManager.unwrap(Session.class).doWork(connection -> {
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
                 for (int i = 1; i <= total_items; i++) {
@@ -106,11 +108,13 @@ public class ItemData_Service implements ItemData_Interface {
                     if (item != null) {
                         ps.setString(1, item.getName());
                         ps.setString(2, item.getDescription());
-                        ps.setBytes(3, item.getImage_sprite()); // Insertar BLOB
-                        ps.addBatch(); // Agregar al batch
+                        ps.setBytes(3, item.getImage_sprite());
+                        ps.addBatch(); 
                     }
+
+                    if (i % 100 == 0) ps.executeBatch();
                 }
-                ps.executeBatch(); // Ejecutar todas las inserciones en lote
+                ps.executeBatch(); 
             }
         });
 

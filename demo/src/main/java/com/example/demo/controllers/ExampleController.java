@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.domain.AbilityData;
 import com.example.demo.domain.movements.MoveData;
 import com.example.demo.services.implementations.AbilityData_Service;
+import com.example.demo.services.implementations.ItemData_Service;
 import com.example.demo.services.implementations.MoveData_Service;
 import com.example.demo.services.implementations.NatureData_Service;
 import com.example.demo.services.implementations.PokemonData_Service;
@@ -17,11 +18,11 @@ import com.example.demo.services.implementations.PokemonData_Service;
 public class ExampleController {
 
     @Autowired
-    MoveData_Service moveData_Service;
+    ItemData_Service itemData_Service;
 
     @GetMapping("/")
     public void getMethodName() {
-        // moveData_Service.updateMoveDataPower();
+        itemData_Service.requestAllItems();
     }
 
     // /* Prueba de que las imágenes van */

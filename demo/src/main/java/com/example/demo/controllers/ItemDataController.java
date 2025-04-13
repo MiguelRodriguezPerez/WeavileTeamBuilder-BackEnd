@@ -23,10 +23,7 @@ public class ItemDataController {
     
     @GetMapping("/allItems")
     public ResponseEntity<Set<ItemData>> getAllItemsEndpoint() {
-        Set<ItemData> aaa = itemData_Service.getAllItems();
-        System.out.println(aaa);
-
-        return new ResponseEntity<>(aaa, HttpStatus.OK);
+        return new ResponseEntity<>(itemData_Service.getAllItems(), HttpStatus.OK);
     }
     
 }
