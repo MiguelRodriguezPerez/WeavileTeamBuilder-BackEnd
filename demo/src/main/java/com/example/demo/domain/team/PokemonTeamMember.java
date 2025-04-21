@@ -1,5 +1,7 @@
 package com.example.demo.domain.team;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.hibernate.validator.constraints.Range;
@@ -25,12 +27,10 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /*Esta entidad representa un posible pokemón en un equipo */
 
 @Entity
-@NoArgsConstructor
 @Data
 public class PokemonTeamMember {
 
@@ -79,7 +79,9 @@ public class PokemonTeamMember {
     @JsonManagedReference
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "pokemonTeam_moveData", joinColumns = @JoinColumn(name = "pokemonTeam_id"), inverseJoinColumns = @JoinColumn(name = "moveData_id"))
-    private Set<MoveData> pkmn_team_move_list;
+    // Necesitas instanciarlo antes de llamar al constructor
+    // Tiene que ser un List porque al crear los movs Set considera movs nulos iguales
+    private List<MoveData> move_list = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "ability_id")
@@ -101,6 +103,13 @@ public class PokemonTeamMember {
     @ManyToOne
     @JoinColumn(name = "natureData_id")
     private NatureData nature;
+
+    
+    public PokemonTeamMember() {
+        for (int i = 0; i <= 3; i++) {
+            this.move_list.add(new MoveData());
+        }
+    }
 
     
 }
