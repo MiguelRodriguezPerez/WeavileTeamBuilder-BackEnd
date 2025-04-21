@@ -9,6 +9,8 @@ import com.example.demo.domain.team.NatureData;
 
 public interface NatureData_Repository extends JpaRepository<NatureData, Long>{
     
-    @Query( value = "SELECT * FROM nature_data", nativeQuery = true)
+    @Query(value = "SELECT * FROM nature_data", nativeQuery = true)
     Set<NatureData> getAllNatures();
+
+    NatureData findByName(String name);
 }

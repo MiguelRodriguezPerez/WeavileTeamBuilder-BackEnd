@@ -2,6 +2,8 @@ package com.example.demo.domain.team;
 
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -29,6 +31,7 @@ public class NatureData {
     private String increased_stat;
     private String decreased_stat;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "nature", cascade = CascadeType.ALL, orphanRemoval = false)
     private Set<PokemonTeamMember> pokemon_team_member_list;
 

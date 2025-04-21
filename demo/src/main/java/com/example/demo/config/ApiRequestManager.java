@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ApiRequestManager {
     
     public static JsonNode callGetRequest(String api_url) {
-
         try {
             URL url = new URI(api_url).toURL();
             HttpURLConnection solicitud = (HttpURLConnection) url.openConnection();

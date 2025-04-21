@@ -36,23 +36,19 @@ public class PokemonTeam {
         final int numMembers = this.setTeamSize(teamType);
 
         for(int i = 0; i < numMembers; i++){
-            this.teamMembers.add(new PokemonTeamMember());
+            PokemonTeamMember pokemonTeamMember = new PokemonTeamMember();
+            /* Tienes que fijar el id del miembro basándote en su posición en el array
+            para que el cliente no tenga problemas para manipularlo. Sospechoso de fallar */
+
+            pokemonTeamMember.setId((long) i);
+            this.teamMembers.add(pokemonTeamMember);
         }
 
     }
 
     private int setTeamSize(TeamType teamType) {
-
-        String choosenType = teamType.toString();
-
-        if (choosenType.equalsIgnoreCase("INDIVIDUAL")
-                || choosenType.equalsIgnoreCase("DOUBLE")    
-                || choosenType.equalsIgnoreCase("VGC")
-                || choosenType.equalsIgnoreCase("MONOTYPE")) return 6;
-        
-        if (choosenType.equalsIgnoreCase("1VS1")) return 1;
-
-        else throw new RuntimeException("TeamType unhandled: " + teamType.toString());
+        if (teamType.toString().equalsIgnoreCase("1VS1")) return 1;
+        else return 6;
     }
 
     /* Tienes que validar que los nombres de los pokemón no se repitan, pero si debes admitir nombres repetidos

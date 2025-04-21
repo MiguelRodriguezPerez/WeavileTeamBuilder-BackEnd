@@ -11,5 +11,6 @@ public interface NatureData_Interface {
     NatureData requestNatureToPokeApi(int number);
     boolean requestAllNatures();
     Set<NatureData> getAllNatures();
+    NatureData getNatureByName(String name);
 
 }

@@ -42,6 +42,8 @@ public class MoveData {
     @Enumerated(EnumType.STRING)
     private PokemonType pokemon_type;
 
+    private int power;
+
     private int accuracy;
 
     private String description;

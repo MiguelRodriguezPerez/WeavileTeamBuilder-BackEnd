@@ -3,6 +3,7 @@ package com.example.demo.domain;
 import java.util.Set;
 
 import com.example.demo.domain.team.PokemonTeamMember;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -35,6 +36,7 @@ public class ItemData {
     private String name;
     private String description;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = false)
     private Set<PokemonTeamMember> pokemon_team_list;
 

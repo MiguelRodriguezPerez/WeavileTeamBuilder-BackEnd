@@ -102,4 +102,5 @@ public class PokemonTeamMember {
     @JoinColumn(name = "natureData_id")
     private NatureData nature;
 
+    
 }

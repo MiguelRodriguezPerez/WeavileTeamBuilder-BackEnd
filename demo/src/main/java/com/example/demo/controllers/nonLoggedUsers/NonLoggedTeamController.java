@@ -25,7 +25,6 @@ public class NonLoggedTeamController {
     @PostMapping("/createNewTeam")
     public ResponseEntity<PokemonTeam> postMethodName(@RequestBody JsonNode jsonNode) {
         int teamTypeNumber = jsonNode.at("/teamType").asInt();
-
         return new ResponseEntity<>(new PokemonTeam(TeamType.fromValue(teamTypeNumber)),HttpStatus.CREATED);
     }
 
