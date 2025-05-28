@@ -7,8 +7,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class PokemonTeam {
     
     // TODO: Persistir en lado servidor
@@ -30,21 +32,6 @@ public class PokemonTeam {
     En el constructor hay una función que recibe el enum del tipo del equipo y que devuelve
     un int que decidirá cuantos miembros hay en ese equipo */
 
-
-    public PokemonTeam (TeamType teamType) {
-        this.teamType = teamType;
-        final int numMembers = this.setTeamSize(teamType);
-
-        for(int i = 0; i < numMembers; i++){
-            PokemonTeamMember pokemonTeamMember = new PokemonTeamMember();
-            /* Tienes que fijar el id del miembro basándote en su posición en el array
-            para que el cliente no tenga problemas para manipularlo. Sospechoso de fallar */
-
-            pokemonTeamMember.setId((long) i);
-            this.teamMembers.add(pokemonTeamMember);
-        }
-
-    }
 
     private int setTeamSize(TeamType teamType) {
         if (teamType.toString().equalsIgnoreCase("1VS1")) return 1;
