@@ -1,5 +1,7 @@
 package com.example.demo.controllers;
 
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.domain.team.NatureData;
 import com.example.demo.services.implementations.NatureData_Service;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 @RequestMapping("/natureData")
@@ -23,5 +27,11 @@ public class NatureDataController {
     public ResponseEntity<NatureData> getNatureByNameEndpoint(@PathVariable String name) {
         return new ResponseEntity<>(natureData_Service.getNatureByName(name), HttpStatus.OK);
     }
+
+    @GetMapping("/getAllNatures")
+    public ResponseEntity<Set<NatureData>> getAllNaturesEndpoint() {
+        return new ResponseEntity<Set<NatureData>>(natureData_Service.getAllNatures(), HttpStatus.OK);
+    }
+    
     
 }

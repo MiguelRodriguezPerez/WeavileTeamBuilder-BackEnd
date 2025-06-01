@@ -1,5 +1,6 @@
 package com.example.demo.domain.team;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.hibernate.validator.constraints.Range;
@@ -41,6 +42,9 @@ public class PokemonTeamMember {
     private Long id;
 
     private String name;
+
+    /* NOTA: Estos campos se modificaron a posteriori y no se actualizaron las funciones que manipulan esta entidad,
+    y por tanto, tampoco los campos de los sprites. Sospechoso de fallar */
 
     @Lob // Indica que es un campo grande (BLOB)
     @Column(columnDefinition = "MEDIUMBLOB") // Para MySQL
@@ -89,7 +93,7 @@ public class PokemonTeamMember {
     @JsonManagedReference
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "pokemonTeam_moveData", joinColumns = @JoinColumn(name = "pokemonTeam_id"), inverseJoinColumns = @JoinColumn(name = "moveData_id"))
-    private Set<MoveData> pkmn_team_move_list;
+    private Set<MoveData> move_list = new HashSet<MoveData>();
 
     @ManyToOne
     @JoinColumn(name = "ability_id")
@@ -103,7 +107,7 @@ public class PokemonTeamMember {
     @ElementCollection
     @Enumerated(EnumType.STRING)
     @Size(min = 1, max = 2)
-    private Set<PokemonType> type_list;
+    private Set<PokemonType> type_list = new HashSet<PokemonType>();
 
     @Nullable
     private PokemonType tera_type;

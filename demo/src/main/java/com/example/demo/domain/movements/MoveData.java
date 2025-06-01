@@ -49,12 +49,15 @@ public class MoveData {
     private String description;
     private int pp;
 
+    /* Aunque mappedBy lleva el mismo valor por nombre de campo, ese campo
+    es en dos entidades distintas así que no tendrás problemas */
+
     @JsonBackReference
     @ManyToMany(mappedBy = "move_list", fetch = FetchType.EAGER)
     private Set<PokemonData> pokemon_list = new HashSet<>();
 
     @JsonBackReference
-    @ManyToMany(mappedBy = "pkmn_team_move_list", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "move_list", fetch = FetchType.EAGER)
     private Set<PokemonTeamMember> pokemon_team_list = new HashSet<>();
     
 }
