@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.config.ApiRequestManager;
 import com.example.demo.config.ImageDownloader;
 import com.example.demo.domain.ItemData;
+import com.example.demo.domain.dto.ItemDataDto;
 import com.example.demo.repositories.ItemData_Repository;
 import com.example.demo.services.interfaces.ItemData_Interface;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -121,10 +122,17 @@ public class ItemData_Service implements ItemData_Interface {
         return true;
     }
 
-
-    public Set<ItemData> getAllItems() {
-        return repo.findAllItemData();
+    @Override
+    public Set<ItemDataDto> getAllItemsAsDto() {
+        return repo.findAllItemDataDto();
     }
 
-
+    @Override
+    public ItemDataDto convertItemDataToDto(ItemData item) {
+        return ItemDataDto.builder()
+                .image_sprite(item.getImage_sprite())
+                .name(item.getName())
+                .description(item.getDescription())
+                .build();
+    }
 }
