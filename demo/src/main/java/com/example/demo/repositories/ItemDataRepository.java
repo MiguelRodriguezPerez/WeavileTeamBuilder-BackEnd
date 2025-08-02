@@ -7,12 +7,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.example.demo.domain.ItemData;
-
+import com.example.demo.dto.ItemDto;
 
 @Repository
-public interface ItemData_Repository extends JpaRepository<ItemData, Long>{
+public interface ItemDataRepository extends JpaRepository<ItemData, Long> {
     ItemData findByName(String name);
 
-    @Query(value = "SELECT * FROM item_data", nativeQuery = true)
-    Set<ItemData> findAllItemData();
+    @Query("SELECT new com.example.demo.dto.ItemDto(idata.image_sprite, idata.name, idata.description) FROM ItemData idata")
+    Set<ItemDto> findAllItemDataDto();
+
 }

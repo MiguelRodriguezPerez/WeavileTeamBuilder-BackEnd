@@ -20,28 +20,28 @@ import com.example.demo.config.CsvFileReader;
 import com.example.demo.config.ImageDownloader;
 import com.example.demo.domain.AbilityData;
 import com.example.demo.domain.movements.MoveData;
-import com.example.demo.domain.pokemon.MissignoGridDTO;
 import com.example.demo.domain.pokemon.PokemonData;
-import com.example.demo.repositories.PokemonData_Repository;
-import com.example.demo.services.interfaces.PokemonData_Interface;
+import com.example.demo.dto.pokemon.MissignoGridDto;
+import com.example.demo.dto.pokemon.PokemonDto;
+import com.example.demo.repositories.PokemonDataRepository;
+import com.example.demo.services.interfaces.PokemonDataInterface;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 
-
 @Service
-public class PokemonData_Service implements PokemonData_Interface {
+public class PokemonDataService implements PokemonDataInterface {
 
     @Autowired
-    PokemonData_Repository repo;
+    PokemonDataRepository repo;
 
     @Autowired
-    AbilityData_Service abilityData_Service;
+    AbilityDataService abilityData_Service;
 
     @Autowired
-    MoveData_Service moveData_Service;
+    MoveDataService moveData_Service;
 
     @PersistenceContext
     EntityManager entityManager;
@@ -78,12 +78,12 @@ public class PokemonData_Service implements PokemonData_Interface {
     @Modifying
     public boolean requestAllPokemonsFromApi() {
         final int num_pokemon = 1025;
-        
+
         // TODO: Adaptar a inserciones en batch
 
         for (int i = 1; i <= num_pokemon; i++) {
             System.out.println("Current pokemon: " + i);
-            
+
             JsonNode pokemonJson = ApiRequestManager.callGetRequest("https://pokeapi.co/api/v2/pokemon/" + i);
             PokemonData pokemon = this.savePokemonDataFromJson(pokemonJson);
 
@@ -101,15 +101,15 @@ public class PokemonData_Service implements PokemonData_Interface {
         tempPokemonData.setName(pokemon_json.get("name").asText());
         tempPokemonData = this.assignPokemonDataSprites(tempPokemonData, pokemon_json);
         tempPokemonData = this.assignPokemonDataStats(tempPokemonData, pokemon_json);
-    
+
         final PokemonData pokemonData = tempPokemonData; // Variable final para usar en la lambda
 
-        final String firstQuery = "INSERT INTO pokemon_data (name, base_hp, base_attack, base_defense" 
-            + ", base_special_attack, base_special_defense, base_speed" 
-            + ", front_default_sprite, pc_sprite) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        
+        final String firstQuery = "INSERT INTO pokemon_data (name, base_hp, base_attack, base_defense"
+                + ", base_special_attack, base_special_defense, base_speed"
+                + ", front_default_sprite, pc_sprite) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
         entityManager.unwrap(Session.class).doWork(connection -> {
-            try(PreparedStatement ps = connection.prepareStatement(firstQuery, Statement.RETURN_GENERATED_KEYS)) {
+            try (PreparedStatement ps = connection.prepareStatement(firstQuery, Statement.RETURN_GENERATED_KEYS)) {
 
                 ps.setString(1, pokemonData.getName());
                 ps.setInt(2, pokemonData.getBase_hp());
@@ -121,11 +121,13 @@ public class PokemonData_Service implements PokemonData_Interface {
                 ps.setBytes(8, pokemonData.getFront_default_sprite());
                 ps.setBytes(9, pokemonData.getPc_sprite());
 
-                ps.executeUpdate(); 
+                ps.executeUpdate();
 
                 try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
-                    if (generatedKeys.next()) pokemonData.setId(generatedKeys.getLong(1)); // Asignamos el ID generado
-                    else throw new SQLException("Error al obtener el ID generado para pokemon_data");
+                    if (generatedKeys.next())
+                        pokemonData.setId(generatedKeys.getLong(1)); // Asignamos el ID generado
+                    else
+                        throw new SQLException("Error al obtener el ID generado para pokemon_data");
                 }
 
             }
@@ -137,7 +139,7 @@ public class PokemonData_Service implements PokemonData_Interface {
 
     @Transactional
     public PokemonData createPokemonDataRelations(PokemonData pokemonData, JsonNode pokemon_json) {
-        
+
         pokemonData = this.assignPokemonDataAbilities(pokemonData, pokemon_json);
         pokemonData = this.assignPokemonDataMoves(pokemonData, pokemon_json);
         pokemonData = this.assignPokemonDataTypes(pokemonData, pokemon_json);
@@ -196,12 +198,11 @@ public class PokemonData_Service implements PokemonData_Interface {
                         pokemon_json.at("/sprites/front_default").asText()));
 
         if (!pokemon_json.at("/sprites/versions/generation-viii/icons/front_default").asText()
-            .equals("null")) {
-                pokemonData.setPc_sprite(
+                .equals("null")) {
+            pokemonData.setPc_sprite(
                     ImageDownloader.getImage(
                             pokemon_json.at("/sprites/versions/generation-viii/icons/front_default").asText()));
         }
-        
 
         return pokemonData;
     }
@@ -236,7 +237,7 @@ public class PokemonData_Service implements PokemonData_Interface {
     @Transactional
     @Modifying
     public PokemonData assignPokemonDataAbilities(PokemonData pokemonData, JsonNode pokemon_json) {
-        
+
         List<String> abilityNameList = new ArrayList<>();
         for (JsonNode ability_json : pokemon_json.get("abilities")) {
             abilityNameList.add(ability_json.at("/ability/name").asText());
@@ -245,10 +246,10 @@ public class PokemonData_Service implements PokemonData_Interface {
         Set<AbilityData> definitiveAbilitySet = abilityData_Service.getAblitySetFromStringList(abilityNameList);
 
         String sqlQuery = "INSERT INTO `pokemon_data-ability_data` (pokemon_data_id, ability_data_id)"
-            + "VALUES (?,?)";
+                + "VALUES (?,?)";
 
         entityManager.unwrap(Session.class).doWork(connection -> {
-            try(PreparedStatement ps = connection.prepareStatement(sqlQuery)) {
+            try (PreparedStatement ps = connection.prepareStatement(sqlQuery)) {
                 for (AbilityData ability : definitiveAbilitySet) {
                     ps.setLong(1, pokemonData.getId());
                     ps.setLong(2, ability.getId());
@@ -262,7 +263,7 @@ public class PokemonData_Service implements PokemonData_Interface {
 
         return pokemonData;
     }
-    
+
     @Transactional
     @Modifying
     public PokemonData assignPokemonDataTypes(PokemonData pokemonData, JsonNode pokemon_json) {
@@ -281,7 +282,7 @@ public class PokemonData_Service implements PokemonData_Interface {
                     statement.executeUpdate();
                 }
             }
-    
+
         });
         return pokemonData;
     }
@@ -308,28 +309,67 @@ public class PokemonData_Service implements PokemonData_Interface {
         return repo.getPokemonAvaliableInSV();
     }
 
-    public Set<MissignoGridDTO> convertToMissignoGridDTO(Set<PokemonData> pokemonDataSet) {
-    // Utilizando Java 8 Streams para la conversión de forma limpia
-    return pokemonDataSet.stream()
-        .map(pokemonData -> {
-            MissignoGridDTO missignoGridDTO = new MissignoGridDTO();
-            missignoGridDTO.setId(pokemonData.getId());
-            missignoGridDTO.setName(pokemonData.getName());
-            missignoGridDTO.setBase_hp(pokemonData.getBase_hp());
-            missignoGridDTO.setBase_attack(pokemonData.getBase_attack());
-            missignoGridDTO.setBase_defense(pokemonData.getBase_defense());
-            missignoGridDTO.setBase_special_attack(pokemonData.getBase_special_attack());
-            missignoGridDTO.setBase_special_defense(pokemonData.getBase_special_defense());
-            missignoGridDTO.setBase_speed(pokemonData.getBase_speed());
-            missignoGridDTO.setPc_sprite(pokemonData.getPc_sprite());
+    public Set<MissignoGridDto> convertToMissignoGridDTO(Set<PokemonData> pokemonDataSet) {
+        // Utilizando Java 8 Streams para la conversión de forma limpia
+        return pokemonDataSet.stream()
+                .map(pokemonData -> {
+                    MissignoGridDto missignoGridDTO = new MissignoGridDto();
+                    missignoGridDTO.setId(pokemonData.getId());
+                    missignoGridDTO.setName(pokemonData.getName());
+                    missignoGridDTO.setBase_hp(pokemonData.getBase_hp());
+                    missignoGridDTO.setBase_attack(pokemonData.getBase_attack());
+                    missignoGridDTO.setBase_defense(pokemonData.getBase_defense());
+                    missignoGridDTO.setBase_special_attack(pokemonData.getBase_special_attack());
+                    missignoGridDTO.setBase_special_defense(pokemonData.getBase_special_defense());
+                    missignoGridDTO.setBase_speed(pokemonData.getBase_speed());
+                    missignoGridDTO.setPc_sprite(pokemonData.getPc_sprite());
 
-            // Convertir las listas de tipo y habilidades a DTOs correspondientes (si es necesario)
-            missignoGridDTO.setType_list(pokemonData.getType_list());
-            missignoGridDTO.setAbility_list(pokemonData.getAbility_list());
+                    // Convertir las listas de tipo y habilidades a DTOs correspondientes (si es
+                    // necesario)
+                    missignoGridDTO.setType_list(pokemonData.getType_list());
+                    missignoGridDTO.setAbility_list(
+                        pokemonData.getAbility_list().stream()
+                            .map(ability -> {
+                                return abilityData_Service.convertAbilityEntityToDto(ability);
+                            })
+                            .collect(Collectors.toSet())
+                    );
 
-            return missignoGridDTO;
-        })
-        .collect(Collectors.toSet()); // Devuelve un Set<MissignoGridDTO>
-}
+                    return missignoGridDTO;
+                })
+                .collect(Collectors.toSet()); // Devuelve un Set<MissignoGridDTO>
+    }
+
+    @Override
+    public PokemonDto convertPokemonDataToDto(PokemonData data) {
+        return PokemonDto.builder()
+                .name(data.getName())
+                .front_default_sprite(data.getFront_default_sprite())
+                .pc_sprite(data.getPc_sprite())
+                .base_hp(data.getBase_hp())
+                .base_attack(data.getBase_attack())
+                .base_defense(data.getBase_defense())
+                .base_special_attack(data.getBase_special_attack())
+                .base_special_defense(data.getBase_special_defense())
+                .base_speed(data.getBase_speed())
+                .type_list(
+                    data.getType_list().stream()
+                        .map(Enum::name) // convierte enum a String
+                        .collect(Collectors.toSet())
+                )
+                .ability_list(
+                    data.getAbility_list().stream()
+                        .map(ability -> {
+                            return abilityData_Service.convertAbilityEntityToDto(ability);
+                        }).collect(Collectors.toSet())
+                )
+                .move_list(
+                    data.getMove_list().stream()
+                        .map(move -> {
+                            return moveData_Service.convertMoveDataToDto(move);
+                        }).collect(Collectors.toSet())
+                )
+                .build();
+    }
 
 }

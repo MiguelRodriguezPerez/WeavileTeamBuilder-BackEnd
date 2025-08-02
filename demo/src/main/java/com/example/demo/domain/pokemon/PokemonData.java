@@ -5,7 +5,6 @@ import java.util.Set;
 
 import com.example.demo.domain.AbilityData;
 import com.example.demo.domain.movements.MoveData;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
@@ -63,24 +62,21 @@ public class PokemonData {
 
     @JsonManagedReference
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinTable(
-        name = "pokemonData-abilityData", 
-        joinColumns = @JoinColumn(name = "pokemonData_id"), 
-        inverseJoinColumns = @JoinColumn(name = "abilityData_id")
-    )
+    @JoinTable(name = "pokemonData-abilityData", joinColumns = @JoinColumn(name = "pokemonData_id"), inverseJoinColumns = @JoinColumn(name = "abilityData_id"))
     private Set<AbilityData> ability_list = new HashSet<>();
 
-    /*FetchType.LAZY es fundamental para el componente React MissignoGrid pueda cargar
-    los pokemón en una velocidad decente, ya que esta colección conlleva cargar muchas entidades.
-    Anteriormente MissignoGrid mostraba la info en 7.5 segundos con FetchType.EAGER,
-    ahora tarda 1.5 seg*/
+    /*
+     * FetchType.LAZY es fundamental para el componente React MissignoGrid pueda
+     * cargar
+     * los pokemón en una velocidad decente, ya que esta colección conlleva cargar
+     * muchas entidades.
+     * Anteriormente MissignoGrid mostraba la info en 7.5 segundos con
+     * FetchType.EAGER,
+     * ahora tarda 1.5 seg
+     */
     @JsonManagedReference
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "pokemonData-moveData", 
-        joinColumns = @JoinColumn(name = "pokemonData_id"), 
-        inverseJoinColumns = @JoinColumn(name = "moveData_id")
-    )
+    @JoinTable(name = "pokemonData-moveData", joinColumns = @JoinColumn(name = "pokemonData_id"), inverseJoinColumns = @JoinColumn(name = "moveData_id"))
     private Set<MoveData> move_list = new HashSet<>();
 
     private Boolean availableInSv;

@@ -12,18 +12,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.config.ApiRequestManager;
 import com.example.demo.domain.AbilityData;
-import com.example.demo.repositories.AbilityData_Repository;
-import com.example.demo.services.interfaces.AbilityData_Interface;
+import com.example.demo.dto.pokemon.AbilityDto;
+import com.example.demo.repositories.AbilityDataRepository;
+import com.example.demo.services.interfaces.AbilityDataInterface;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
 @Service
-public class AbilityData_Service implements AbilityData_Interface {
+public class AbilityDataService implements AbilityDataInterface {
 
     @Autowired
-    AbilityData_Repository repo;
+    AbilityDataRepository repo;
 
     @PersistenceContext
     EntityManager entityManager;
@@ -103,7 +104,7 @@ public class AbilityData_Service implements AbilityData_Interface {
     @Transactional
     @Modifying
     public boolean requestAllAbilitiesToApi() {
-        final int numero_habilidades = 307; //307
+        final int numero_habilidades = 307; // 307
         String query = "INSERT INTO ability_data (name,description) VALUES (?, ?)";
 
         entityManager.unwrap(Session.class).doWork(connection -> {
@@ -114,7 +115,7 @@ public class AbilityData_Service implements AbilityData_Interface {
                     AbilityData currentAbility = this.requestAbilityToPokeApi(i);
                     if (currentAbility != null) {
                         ps.setString(1, currentAbility.getName());
-                        ps.setString(2,currentAbility.getDescription());
+                        ps.setString(2, currentAbility.getDescription());
                         ps.addBatch();
                     }
                 }
@@ -126,12 +127,20 @@ public class AbilityData_Service implements AbilityData_Interface {
     }
 
     @Override
-    public Set<AbilityData> getAllAbilityData() {
-        return repo.getAllAbilityData();
+    public Set<AbilityDto> getAllAbilityDto() {
+        return repo.getAllAbilityDto();
     }
 
     @Transactional
     public Set<AbilityData> getAblitySetFromStringList(List<String> abilityList) {
         return repo.getAblitySetFromStringList(abilityList);
+    }
+
+    @Override
+    public AbilityDto convertAbilityEntityToDto(AbilityData abilityData) {
+        return AbilityDto.builder()
+                .name(abilityData.getName())
+                .description(abilityData.getDescription())
+                .build();
     }
 }

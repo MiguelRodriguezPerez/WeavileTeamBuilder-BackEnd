@@ -16,17 +16,19 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@ToString(exclude = {"pokemon_list", "pokemon_team_list"})
+@ToString(exclude = { "pokemon_list", "pokemon_team_list" })
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @EqualsAndHashCode(of = "id")
 @Entity
+@Builder
 public class AbilityData {
     // TODO: Realizar relaciones entre entidades (movs,pokemon...)
 

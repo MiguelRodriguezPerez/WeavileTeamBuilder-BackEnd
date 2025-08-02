@@ -12,18 +12,19 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.config.ApiRequestManager;
 import com.example.demo.config.ImageDownloader;
 import com.example.demo.domain.ItemData;
-import com.example.demo.repositories.ItemData_Repository;
-import com.example.demo.services.interfaces.ItemData_Interface;
+import com.example.demo.dto.ItemDto;
+import com.example.demo.repositories.ItemDataRepository;
+import com.example.demo.services.interfaces.ItemDataInterface;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
 @Service
-public class ItemData_Service implements ItemData_Interface {
+public class ItemDataService implements ItemDataInterface {
 
     @Autowired
-    ItemData_Repository repo;
+    ItemDataRepository repo;
 
     @PersistenceContext
     EntityManager entityManager;
@@ -65,8 +66,7 @@ public class ItemData_Service implements ItemData_Interface {
                         resultado.setDescription(flavor_text_entry.get("text").asText());
                     }
                 }
-            } 
-            else {
+            } else {
                 resultado.setDescription(item_source.get("effect_entries")
                         .get(0)
                         .get("short_effect").asText());
@@ -78,10 +78,8 @@ public class ItemData_Service implements ItemData_Interface {
                 return null;
             else
                 resultado.setImage_sprite(
-                    ImageDownloader.getImage(
-                        item_source.at("/sprites/default").asText()
-                    )
-                );
+                        ImageDownloader.getImage(
+                                item_source.at("/sprites/default").asText()));
 
             return resultado;
         }
@@ -109,22 +107,30 @@ public class ItemData_Service implements ItemData_Interface {
                         ps.setString(1, item.getName());
                         ps.setString(2, item.getDescription());
                         ps.setBytes(3, item.getImage_sprite());
-                        ps.addBatch(); 
+                        ps.addBatch();
                     }
 
-                    if (i % 100 == 0) ps.executeBatch();
+                    if (i % 100 == 0)
+                        ps.executeBatch();
                 }
-                ps.executeBatch(); 
+                ps.executeBatch();
             }
         });
 
         return true;
     }
 
-
-    public Set<ItemData> getAllItems() {
-        return repo.findAllItemData();
+    @Override
+    public Set<ItemDto> getAllItemsAsDto() {
+        return repo.findAllItemDataDto();
     }
 
-
+    @Override
+    public ItemDto convertItemDataToDto(ItemData item) {
+        return ItemDto.builder()
+                .image_sprite(item.getImage_sprite())
+                .name(item.getName())
+                .description(item.getDescription())
+                .build();
+    }
 }

@@ -1,14 +1,26 @@
 package com.example.demo.services.interfaces;
 
-import com.example.demo.domain.ItemData;
+import java.util.Set;
 
-public interface ItemData_Interface {
+import com.example.demo.domain.ItemData;
+import com.example.demo.dto.ItemDto;
+
+public interface ItemDataInterface {
 
     ItemData saveItemData(ItemData itemData);
+
     ItemData getItemById(long id);
+
     void deleteAllItemData();
+
     ItemData getItemByName(String name);
+
     ItemData requestItemToPokeApi(int number);
+
     boolean requestAllItems();
+
+    ItemDto convertItemDataToDto(ItemData itemData);
+
+    Set<ItemDto> getAllItemsAsDto();
 
 }

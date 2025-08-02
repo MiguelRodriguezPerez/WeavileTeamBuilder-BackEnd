@@ -10,33 +10,28 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.domain.pokemon.MissignoGridDTO;
-import com.example.demo.domain.pokemon.PokemonData;
-import com.example.demo.domain.pokemon.PokemonDataDTO;
-import com.example.demo.services.implementations.PokemonData_Service;
-import org.springframework.web.bind.annotation.RequestParam;
-
-
+import com.example.demo.dto.pokemon.MissignoGridDto;
+import com.example.demo.dto.pokemon.PokemonDto;
+import com.example.demo.services.implementations.PokemonDataService;
 
 @RequestMapping("/pokemonData")
 @RestController
 public class PokemonDataController {
 
     @Autowired
-    PokemonData_Service pokemonData_Service;
-    
+    PokemonDataService pokemonDataService;
+
     @GetMapping("/allSVPokemon")
-    public ResponseEntity<Set<MissignoGridDTO>> getAllSWPokemonEndpoint() {
-        Set<MissignoGridDTO> resultado = pokemonData_Service.convertToMissignoGridDTO(pokemonData_Service.getAllSVPokemon());
+    public ResponseEntity<Set<MissignoGridDto>> getAllSWPokemonEndpoint() {
+        Set<MissignoGridDto> resultado = pokemonDataService
+                .convertToMissignoGridDTO(pokemonDataService.getAllSVPokemon());
         return new ResponseEntity<>(resultado, HttpStatus.OK);
     }
 
     @GetMapping("/getPokemonByName/{name}")
-    public ResponseEntity<PokemonDataDTO> getPokemonDataByNameEndpoint(@PathVariable String name) {
-        System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-        PokemonData pokemonData = pokemonData_Service.getPokemonByName(name);
-        return new ResponseEntity<>(new PokemonDataDTO(pokemonData), HttpStatus.OK);
+    public ResponseEntity<PokemonDto> getPokemonDataByNameEndpoint(@PathVariable String name) {
+        PokemonDto dto = pokemonDataService.convertPokemonDataToDto(pokemonDataService.getPokemonByName(name));
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
-    
-    
+
 }

@@ -3,8 +3,9 @@ package com.example.demo.services.interfaces;
 import java.util.Set;
 
 import com.example.demo.domain.movements.MoveData;
+import com.example.demo.dto.MoveDto;
 
-public interface MoveData_Interface {
+public interface MoveDataInterface {
 
     MoveData saveMove(MoveData moveData);
     void deleteAllMoves();
@@ -12,4 +13,6 @@ public interface MoveData_Interface {
     MoveData requestMoveToPokeApi(int number);
     boolean requestAllMovesToApi();
     Set<MoveData> getAllMoveData();
+    MoveDto convertMoveDataToDto(MoveData moveData);
+
 }

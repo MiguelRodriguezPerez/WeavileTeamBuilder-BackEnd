@@ -49,7 +49,7 @@ public class PokemonTeam {
         TODO: Comprobar si este método válida bien y si existe una anotación que haga esto */
 
         List<PokemonTeamMember> filtrado = listArg.stream()
-            .filter(p -> p.getName() != null && !p.getName().isEmpty()) // Elimina null y ""
+            .filter(p -> p.getName() != null && !p.getName().equals("")) // Elimina null y ""
             .filter(p -> nombresVistos.add(p.getName())) // Deja pasar solo el primer nombre único
             .collect(Collectors.toList());
 
