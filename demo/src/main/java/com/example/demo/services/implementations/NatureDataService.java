@@ -11,18 +11,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.config.ApiRequestManager;
 import com.example.demo.domain.team.NatureData;
-import com.example.demo.repositories.NatureData_Repository;
-import com.example.demo.services.interfaces.NatureData_Interface;
+import com.example.demo.dto.NatureDto;
+import com.example.demo.repositories.NatureDataRepository;
+import com.example.demo.services.interfaces.NatureDataInterface;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
 @Service
-public class NatureData_Service implements NatureData_Interface {
+public class NatureDataService implements NatureDataInterface {
 
     @Autowired
-    NatureData_Repository repo;
+    NatureDataRepository repo;
 
     @PersistenceContext
     EntityManager entityManager;
@@ -45,10 +46,10 @@ public class NatureData_Service implements NatureData_Interface {
 
         natureData.setName(nature_json.at("/name").asText());
 
-        if(nature_json.at("/increased_stat") != null) 
+        if (nature_json.at("/increased_stat") != null)
             natureData.setIncreased_stat(nature_json.at("/increased_stat/name").asText());
-        
-        if(nature_json.at("/decreased_stat") != null) 
+
+        if (nature_json.at("/decreased_stat") != null)
             natureData.setDecreased_stat(nature_json.at("/decreased_stat/name").asText());
 
         return natureData;
@@ -62,7 +63,7 @@ public class NatureData_Service implements NatureData_Interface {
         final int nature_number = 25;
 
         entityManager.unwrap(Session.class).doWork(connection -> {
-            try(PreparedStatement ps = connection.prepareStatement(sqlQuery)) {
+            try (PreparedStatement ps = connection.prepareStatement(sqlQuery)) {
 
                 for (int i = 1; i <= nature_number; i++) {
                     System.out.println("Naturaleza " + i);
@@ -92,5 +93,21 @@ public class NatureData_Service implements NatureData_Interface {
     public NatureData getNatureByName(String name) {
         return repo.findByName(name);
     }
+
+    @Override
+    public NatureDto convertNatureDataToDto(NatureData data) {
+        return NatureDto.builder()
+                .name(data.getName())
+                .decreased_stat(data.getDecreased_stat())
+                .increased_stat(data.getIncreased_stat())
+                .build();
+    }
+
+    @Override
+    public Set<NatureDto> getAllNaturesAsDto() {
+        return repo.getAllNaturesAsDto();
+    }
+
     
+
 }

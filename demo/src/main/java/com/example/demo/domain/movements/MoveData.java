@@ -35,7 +35,7 @@ public class MoveData {
     private Long id;
 
     private String name;
-    
+
     @Enumerated(EnumType.STRING)
     private MoveType move_type;
 
@@ -49,8 +49,10 @@ public class MoveData {
     private String description;
     private int pp;
 
-    /* Aunque mappedBy lleva el mismo valor por nombre de campo, ese campo
-    es en dos entidades distintas así que no tendrás problemas */
+    /*
+     * Aunque mappedBy lleva el mismo valor por nombre de campo, ese campo
+     * es en dos entidades distintas así que no tendrás problemas
+     */
 
     @JsonBackReference
     @ManyToMany(mappedBy = "move_list", fetch = FetchType.EAGER)
@@ -59,5 +61,5 @@ public class MoveData {
     @JsonBackReference
     @ManyToMany(mappedBy = "move_list", fetch = FetchType.EAGER)
     private Set<PokemonTeamMember> pokemon_team_list = new HashSet<>();
-    
+
 }

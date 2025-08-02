@@ -43,8 +43,11 @@ public class PokemonTeamMember {
 
     private String name;
 
-    /* NOTA: Estos campos se modificaron a posteriori y no se actualizaron las funciones que manipulan esta entidad,
-    y por tanto, tampoco los campos de los sprites. Sospechoso de fallar */
+    /*
+     * NOTA: Estos campos se modificaron a posteriori y no se actualizaron las
+     * funciones que manipulan esta entidad,
+     * y por tanto, tampoco los campos de los sprites. Sospechoso de fallar
+     */
 
     @Lob // Indica que es un campo grande (BLOB)
     @Column(columnDefinition = "MEDIUMBLOB") // Para MySQL
@@ -74,7 +77,6 @@ public class PokemonTeamMember {
     @Range(min = 0, max = 252, message = "speed_ev must be between 0 and 252")
     private int speed_ev;
 
-
     @Range(min = 0, max = 31, message = "hp_iv must be between 0 and 31")
     private int hp_iv;
     @Range(min = 0, max = 31, message = "attack_iv must be between 0 and 31")
@@ -87,7 +89,6 @@ public class PokemonTeamMember {
     private int special_defense_iv;
     @Range(min = 0, max = 31, message = "speed_iv must be between 0 and 31")
     private int speed_iv;
-
 
     @Size(max = 4, min = 1)
     @JsonManagedReference
@@ -116,5 +117,4 @@ public class PokemonTeamMember {
     @JoinColumn(name = "natureData_id")
     private NatureData nature;
 
-    
 }

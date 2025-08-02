@@ -1,16 +1,18 @@
-package com.example.demo.domain.pokemon;
+package com.example.demo.dto.pokemon;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import com.example.demo.domain.AbilityData;
+import com.example.demo.domain.pokemon.PokemonType;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
-@EqualsAndHashCode(of = "name")
-public class MissignoGridDTO {
+@Getter
+@Setter
+@NoArgsConstructor
+public class MissignoGridDto {
 
     private Long id;
     private String name;
@@ -24,7 +26,8 @@ public class MissignoGridDTO {
 
     private byte[] pc_sprite;
 
+    // Sospechoso de fallar
     private Set<PokemonType> type_list = new HashSet<>();
-    private Set<AbilityData> ability_list = new HashSet<>();
-    
+    private Set<AbilityDto> ability_list = new HashSet<>();
+
 }

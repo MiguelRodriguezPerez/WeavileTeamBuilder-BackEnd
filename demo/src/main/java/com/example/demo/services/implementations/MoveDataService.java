@@ -14,18 +14,19 @@ import com.example.demo.config.ApiRequestManager;
 import com.example.demo.domain.movements.MoveData;
 import com.example.demo.domain.movements.MoveType;
 import com.example.demo.domain.pokemon.PokemonType;
-import com.example.demo.repositories.MoveData_Repository;
-import com.example.demo.services.interfaces.MoveData_Interface;
+import com.example.demo.dto.MoveDto;
+import com.example.demo.repositories.MoveDataRepository;
+import com.example.demo.services.interfaces.MoveDataInterface;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
 @Service
-public class MoveData_Service implements MoveData_Interface {
+public class MoveDataService implements MoveDataInterface {
 
     @Autowired
-    MoveData_Repository repo;
+    MoveDataRepository repo;
 
     @PersistenceContext
     EntityManager entityManager;
@@ -57,18 +58,14 @@ public class MoveData_Service implements MoveData_Interface {
 
         // Usa como referencia el valor del string a mayúsculas para definir el enum
         resultado.setMove_type(MoveType.valueOf(
-                move_root.at("/damage_class/name").asText().toUpperCase()
-            )
-        );
+                move_root.at("/damage_class/name").asText().toUpperCase()));
         resultado.setPokemon_type(PokemonType.valueOf(
-                move_root.at("/type/name").asText().toUpperCase()
-            )
-        );
+                move_root.at("/type/name").asText().toUpperCase()));
 
         // La multiplicación debería dar exacto, pero por si acaso lo paso a absoluto
         resultado.setPp((int) Math.abs(
                 move_root.at("/pp").asInt() * 1.6));
-        
+
         resultado.setPower(move_root.at("/power").asInt());
 
         /*
@@ -83,8 +80,7 @@ public class MoveData_Service implements MoveData_Interface {
                 if (flavor_text_entry.at("/language/name").asText().equals("en"))
                     resultado.setDescription(flavor_text_entry.at("/flavor_text").asText());
             }
-        } 
-        else {
+        } else {
             resultado.setDescription(move_root.get("effect_entries")
                     .get(0)
                     .get("short_effect").asText());
@@ -99,11 +95,11 @@ public class MoveData_Service implements MoveData_Interface {
     public boolean requestAllMovesToApi() {
         final int totalMovs = 919;
         final String sqlQuery = "INSERT INTO move_data (name, move_type, pokemon_type, accuracy,"
-            + "description, pp, power) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                + "description, pp, power) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         // Sin testear
         entityManager.unwrap(Session.class).doWork(connection -> {
-            try(PreparedStatement ps = connection.prepareStatement(sqlQuery)) {
+            try (PreparedStatement ps = connection.prepareStatement(sqlQuery)) {
                 for (int i = 1; i <= totalMovs; i++) {
                     System.out.println("Movimiento " + i);
 
@@ -120,13 +116,13 @@ public class MoveData_Service implements MoveData_Interface {
                         ps.addBatch();
                     }
 
-                    if (i % 100 == 0) ps.executeBatch();
+                    if (i % 100 == 0)
+                        ps.executeBatch();
                 }
 
                 ps.executeBatch();
             }
         });
-        
 
         return true;
     }
@@ -139,6 +135,19 @@ public class MoveData_Service implements MoveData_Interface {
     @Transactional
     public Set<MoveData> getMoveDataSetFromStringList(List<String> moveList) {
         return repo.getMoveDataSetFromStringList(moveList);
+    }
+
+    @Override
+    public MoveDto convertMoveDataToDto(MoveData moveData) {
+        return MoveDto.builder()
+                    .name(moveData.getName())
+                    .move_type(moveData.getMove_type().toString())
+                    .pokemon_type(moveData.getPokemon_type().toString())
+                    .power(moveData.getPower())
+                    .accuracy(moveData.getAccuracy())
+                    .description(moveData.getDescription())
+                    .pp(moveData.getPp())
+                    .build();
     }
 
 }

@@ -5,14 +5,13 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.domain.team.PokemonTeam;
 import com.example.demo.domain.team.PokemonTeamMember;
-import com.example.demo.services.interfaces.PokemonTeam_Interface;
-
+import com.example.demo.services.interfaces.PokemonTeamInterface;
 
 @Service
-public class PokemonTeam_Service implements PokemonTeam_Interface {
+public class PokemonTeam_Service implements PokemonTeamInterface {
 
     @Autowired
-    NatureData_Service nature_service;
+    NatureDataService nature_service;
 
     @Override
     public PokemonTeam generateNewTeam() {
@@ -20,10 +19,12 @@ public class PokemonTeam_Service implements PokemonTeam_Interface {
 
         final int numMembers = 6; // No soportar distintos tipos de equipo
 
-        for(int i = 0; i < numMembers; i++){
+        for (int i = 0; i < numMembers; i++) {
             PokemonTeamMember member = new PokemonTeamMember();
-            /* Tienes que fijar el id del miembro basándote en su posición en el array
-            para que el cliente no tenga problemas para manipularlo. Sospechoso de fallar */
+            /*
+             * Tienes que fijar el id del miembro basándote en su posición en el array
+             * para que el cliente no tenga problemas para manipularlo. Sospechoso de fallar
+             */
 
             member.setId((long) i);
             member.setNature(nature_service.getNatureByName("hardy"));
@@ -32,5 +33,5 @@ public class PokemonTeam_Service implements PokemonTeam_Interface {
 
         return team;
     }
-    
+
 }

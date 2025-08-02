@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import com.example.demo.domain.pokemon.PokemonData;
 
 @Repository
-public interface PokemonData_Repository extends JpaRepository<PokemonData, Long> {
+public interface PokemonDataRepository extends JpaRepository<PokemonData, Long> {
     PokemonData findByName(String name);
 
     // Info en el sql del procedure
@@ -21,9 +21,14 @@ public interface PokemonData_Repository extends JpaRepository<PokemonData, Long>
     @Query(value = "SELECT * FROM pokemon_data", nativeQuery = true)
     Set<PokemonData> getAllPokemonData();
 
-    // No esta muy claro que sea más rápida que findByAvailableInSv (EntityManager no es más rápido en este caso)
+    // No esta muy claro que sea más rápida que findByAvailableInSv (EntityManager)
+    /* No puedes solicitar el dto directamente porque este dto contiene colecciones que nacen 
+     * de relaciones con otras entidades. 
+     * Lo normal es lo que estas haciendo, obtener las entidades y convertirlas a dto 
+     * en el servicio
+     */
     @Query(value = "SELECT * FROM pokemon_data pok WHERE pok.available_in_sv = true", nativeQuery = true)
     Set<PokemonData> getPokemonAvaliableInSV();
-    
+
     // List<PokemonData> findByAvailableInSv(Boolean availableInSv);
 }

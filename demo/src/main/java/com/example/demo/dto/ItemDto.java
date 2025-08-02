@@ -1,4 +1,4 @@
-package com.example.demo.domain.dto;
+package com.example.demo.dto;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Lob;
@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class ItemDataDto {
+public class ItemDto {
 
     @Lob // Indica que es un campo grande (BLOB)
     @Column(columnDefinition = "MEDIUMBLOB") // Para MySQL
@@ -17,5 +17,5 @@ public class ItemDataDto {
 
     private String name;
     private String description;
-    
+
 }

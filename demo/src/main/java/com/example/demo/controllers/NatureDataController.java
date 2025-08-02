@@ -11,27 +11,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.domain.team.NatureData;
-import com.example.demo.services.implementations.NatureData_Service;
-import org.springframework.web.bind.annotation.RequestParam;
-
-
+import com.example.demo.dto.NatureDto;
+import com.example.demo.services.implementations.NatureDataService;
 
 @RequestMapping("/natureData")
 @RestController
 public class NatureDataController {
 
     @Autowired
-    NatureData_Service natureData_Service;
-    
+    NatureDataService natureDataService;
+
     @GetMapping("/getNatureByName/{name}")
-    public ResponseEntity<NatureData> getNatureByNameEndpoint(@PathVariable String name) {
-        return new ResponseEntity<>(natureData_Service.getNatureByName(name), HttpStatus.OK);
+    public ResponseEntity<NatureDto> getNatureByNameEndpoint(@PathVariable String name) {
+        return new ResponseEntity<>(
+            natureDataService.convertNatureDataToDto(natureDataService.getNatureByName(name)), HttpStatus.OK);
     }
 
     @GetMapping("/getAllNatures")
-    public ResponseEntity<Set<NatureData>> getAllNaturesEndpoint() {
-        return new ResponseEntity<Set<NatureData>>(natureData_Service.getAllNatures(), HttpStatus.OK);
+    public ResponseEntity<Set<NatureDto>> getAllNaturesEndpoint() {
+        return new ResponseEntity<Set<NatureDto>>(natureDataService.getAllNaturesAsDto(), HttpStatus.OK);
     }
-    
-    
+
 }
