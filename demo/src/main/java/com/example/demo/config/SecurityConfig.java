@@ -25,6 +25,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.example.demo.config.jwt.JwtAuthenticationFilter;
 import com.example.demo.config.jwt.WeavileUserDetailsImpl;
 
+import io.github.cdimascio.dotenv.Dotenv;
+
 /* Tuviste que definir obligatoriamente la seguridad de spring porque cors rechazaba solicitudes del cliente
 Además spring te obligo a definir usuarios logueados para poder implementar la seguridad */
 
@@ -103,8 +105,9 @@ public class SecurityConfig {
 
         /* Estas líneas crean una configuración personalizada de CORS */
         CorsConfiguration configuration = new CorsConfiguration();
+        Dotenv dotenv = Dotenv.load();
 
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+        configuration.setAllowedOrigins(Arrays.asList(dotenv.get("CLIENT_ALLOWED")));
         configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE"));
         /* setAllowCredentials permite o impide que el cliente realize solicitudes con credenciales
         en caso de usar cookies de sesión (STATEFUL)*/
@@ -113,7 +116,7 @@ public class SecurityConfig {
         (de momento) los admites todos*/
         configuration.addAllowedHeader("*");
 
-        /* Estas líneas aplican dicha configuración personalizade de CORS al ámbito de "pattern",
+        /* Estas líneas aplican dicha configuración personalizada de CORS al ámbito de "pattern",
         en este caso a toda la aplicación */
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**",configuration);
