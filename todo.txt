@@ -1,4 +1,0 @@
-Tienes que cambiar la manera de solicitar pokemonData
-para que en vez de escribir consultas sql a mano
-uses preparedStatement que previene inyección sql
-y va más rápido
