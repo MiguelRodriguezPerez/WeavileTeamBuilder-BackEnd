@@ -2,6 +2,7 @@ package com.example.demo.config;
 
 import java.util.Arrays;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -100,14 +101,18 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    // Funciona
+    @Value("${CLIENT_ALLOWED}")
+    private String client_allowed;
+
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
 
         /* Estas líneas crean una configuración personalizada de CORS */
         CorsConfiguration configuration = new CorsConfiguration();
-        Dotenv dotenv = Dotenv.configure().load();
-
-        configuration.setAllowedOrigins(Arrays.asList(dotenv.get("CLIENT_ALLOWED")));
+        
+        System.out.println(client_allowed);
+        configuration.setAllowedOrigins(Arrays.asList(client_allowed));
         configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE"));
         /* setAllowCredentials permite o impide que el cliente realize solicitudes con credenciales
         en caso de usar cookies de sesión (STATEFUL)*/
