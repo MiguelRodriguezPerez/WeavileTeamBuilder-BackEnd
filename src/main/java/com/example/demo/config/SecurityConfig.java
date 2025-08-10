@@ -105,7 +105,7 @@ public class SecurityConfig {
 
         /* Estas líneas crean una configuración personalizada de CORS */
         CorsConfiguration configuration = new CorsConfiguration();
-        Dotenv dotenv = Dotenv.configure().directory("demo/").load();
+        Dotenv dotenv = Dotenv.configure().load();
 
         configuration.setAllowedOrigins(Arrays.asList(dotenv.get("CLIENT_ALLOWED")));
         configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE"));

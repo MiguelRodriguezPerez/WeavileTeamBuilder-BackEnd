@@ -11,7 +11,7 @@ public class DemoApplication {
 	/* NOTA: Ejecuta este proyecto desde demo y no la carpeta WeavileTeamBuilder-Backend */
 
 	public static void main(String[] args) {
-		Dotenv dotenv = Dotenv.configure().directory("demo/").load();
+		Dotenv dotenv = Dotenv.configure().load();
 
         /* Por si solo Spring no recibe bien las variables. Concretamente:
 		 * - SERVER_PORT la recibe pero no la castea a string
