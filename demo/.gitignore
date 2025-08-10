@@ -34,4 +34,5 @@ build/
 
 # Project Files
 /.env
+/localEnv.txt
 src/main/java/com/example/demo/controllers/DummyController.java
