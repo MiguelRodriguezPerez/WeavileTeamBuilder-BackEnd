@@ -8,11 +8,10 @@ import io.github.cdimascio.dotenv.Dotenv;
 @SpringBootApplication
 public class DemoApplication {
 
-	/* NOTA: Ejecuta este proyecto desde demo y no la carpeta WeavileTeamBuilder-Backend */
-
 	public static void main(String[] args) {
-		Dotenv dotenv = Dotenv.configure().load();
+		Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
         dotenv.entries().forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
+
 		SpringApplication.run(DemoApplication.class, args);
 	}
 

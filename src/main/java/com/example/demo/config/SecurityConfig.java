@@ -101,18 +101,17 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // Funciona
-    @Value("${CLIENT_ALLOWED}")
-    private String client_allowed;
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
 
         /* Estas líneas crean una configuración personalizada de CORS */
         CorsConfiguration configuration = new CorsConfiguration();
+        /* System.getenv() no funciona en tu máquina local */
+
+        Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
         
-        System.out.println(client_allowed);
-        configuration.setAllowedOrigins(Arrays.asList(client_allowed));
+        configuration.setAllowedOrigins(Arrays.asList(dotenv.get("CLIENT_ALLOWED")));
         configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE"));
         /* setAllowCredentials permite o impide que el cliente realize solicitudes con credenciales
         en caso de usar cookies de sesión (STATEFUL)*/
