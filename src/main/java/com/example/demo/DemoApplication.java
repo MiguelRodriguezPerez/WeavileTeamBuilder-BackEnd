@@ -12,11 +12,6 @@ public class DemoApplication {
 
 	public static void main(String[] args) {
 		Dotenv dotenv = Dotenv.configure().load();
-
-        /* Por si solo Spring no recibe bien las variables. Concretamente:
-		 * - SERVER_PORT la recibe pero no la castea a string
-		 * - JWT_KEY ni siquiera la lee
-		 */
         dotenv.entries().forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
 		SpringApplication.run(DemoApplication.class, args);
 	}
