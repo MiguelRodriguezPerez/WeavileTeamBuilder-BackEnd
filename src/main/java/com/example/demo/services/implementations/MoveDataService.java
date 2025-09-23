@@ -59,7 +59,7 @@ public class MoveDataService implements MoveDataInterface {
         // Usa como referencia el valor del string a mayúsculas para definir el enum
         resultado.setMove_type(MoveType.valueOf(
                 move_root.at("/damage_class/name").asText().toUpperCase()));
-        resultado.setPokemon_type(PokemonType.valueOf(
+        resultado.setPokemon_type(
                 move_root.at("/type/name").asText().toUpperCase()));
 
         // La multiplicación debería dar exacto, pero por si acaso lo paso a absoluto
@@ -107,7 +107,7 @@ public class MoveDataService implements MoveDataInterface {
                     if (currentMove != null) {
                         ps.setString(1, currentMove.getName());
                         ps.setString(2, currentMove.getMove_type().toString());
-                        ps.setString(3, currentMove.getPokemon_type().toString());
+                        ps.setString(3, currentMove.getPokemonType().getNombre());
                         ps.setInt(4, currentMove.getAccuracy());
                         ps.setString(5, currentMove.getDescription());
                         ps.setInt(6, currentMove.getPp());
@@ -142,7 +142,7 @@ public class MoveDataService implements MoveDataInterface {
         return MoveDto.builder()
                     .name(moveData.getName())
                     .move_type(moveData.getMove_type().toString())
-                    .pokemon_type(moveData.getPokemon_type().toString())
+                    .pokemon_type(moveData.getPokemonType().getNombre())
                     .power(moveData.getPower())
                     .accuracy(moveData.getAccuracy())
                     .description(moveData.getDescription())

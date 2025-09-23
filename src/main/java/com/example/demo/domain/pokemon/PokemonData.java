@@ -55,14 +55,22 @@ public class PokemonData {
     @Column(columnDefinition = "MEDIUMBLOB") // Para MySQL
     private byte[] pc_sprite;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "pokemon_data_pokemon_type", joinColumns = @JoinColumn(name = "pokemonData_id"))
-    @Enumerated(EnumType.STRING)
+    @JsonManagedReference
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "pokemonData_pokemonType",
+        joinColumns = @JoinColumn(name = "pokemonData_id"),
+        inverseJoinColumns = @JoinColumn(name = "pokemonType_id")
+    )
     private Set<PokemonType> type_list = new HashSet<>();
 
     @JsonManagedReference
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinTable(name = "pokemonData-abilityData", joinColumns = @JoinColumn(name = "pokemonData_id"), inverseJoinColumns = @JoinColumn(name = "abilityData_id"))
+    @JoinTable(
+        name = "pokemonData_abilityData", 
+        joinColumns = @JoinColumn(name = "pokemonData_id"), 
+        inverseJoinColumns = @JoinColumn(name = "abilityData_id")
+    )
     private Set<AbilityData> ability_list = new HashSet<>();
 
     /*
@@ -76,9 +84,13 @@ public class PokemonData {
      */
     @JsonManagedReference
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "pokemonData-moveData", joinColumns = @JoinColumn(name = "pokemonData_id"), inverseJoinColumns = @JoinColumn(name = "moveData_id"))
+    @JoinTable(
+        name = "pokemonData_moveData", 
+        joinColumns = @JoinColumn(name = "pokemonData_id"), 
+        inverseJoinColumns = @JoinColumn(name = "moveData_id")
+    )
     private Set<MoveData> move_list = new HashSet<>();
 
-    private Boolean availableInSv;
+    private Boolean available_in_sv;
 
 }
