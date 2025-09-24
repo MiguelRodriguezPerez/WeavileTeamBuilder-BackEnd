@@ -1,8 +1,14 @@
 package com.example.demo.services.implementations;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import javax.sql.DataSource;
 
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +34,14 @@ public class MoveDataService implements MoveDataInterface {
     @Autowired
     MoveDataRepository repo;
 
+    @Autowired
+    PokemonTypeService pokemonTypeService;
+
     @PersistenceContext
     EntityManager entityManager;
+
+    @Autowired
+    private DataSource dataSource;
 
     @Override
     public MoveData saveMove(MoveData moveData) {
@@ -59,14 +71,15 @@ public class MoveDataService implements MoveDataInterface {
         // Usa como referencia el valor del string a mayúsculas para definir el enum
         resultado.setMove_type(MoveType.valueOf(
                 move_root.at("/damage_class/name").asText().toUpperCase()));
-        resultado.setPokemon_type(
-                move_root.at("/type/name").asText().toUpperCase()));
 
         // La multiplicación debería dar exacto, pero por si acaso lo paso a absoluto
         resultado.setPp((int) Math.abs(
                 move_root.at("/pp").asInt() * 1.6));
 
         resultado.setPower(move_root.at("/power").asInt());
+
+        resultado.setPokemon_type(
+                pokemonTypeService.getTypeByName(move_root.at("/type/name").asText().toLowerCase()));
 
         /*
          * Algunos movimientos no tienen valores en effect_entries, y por tanto, no
@@ -94,42 +107,67 @@ public class MoveDataService implements MoveDataInterface {
     @Modifying
     public boolean requestAllMovesToApi() {
         final int totalMovs = 919;
-        final String sqlQuery = "INSERT INTO move_data (name, move_type, pokemon_type, accuracy,"
+        final String sqlQuery = "INSERT INTO move_data (name, move_type, accuracy,"
                 + "description, pp, power) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        HashMap<MoveData, PokemonType> typeRelations = new HashMap<>();
 
-        // Sin testear
-        entityManager.unwrap(Session.class).doWork(connection -> {
-            try (PreparedStatement ps = connection.prepareStatement(sqlQuery)) {
-                for (int i = 1; i <= totalMovs; i++) {
-                    System.out.println("Movimiento " + i);
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            for (int i = 1; i <= totalMovs; i++) {
+                System.out.println("Movimiento " + i);
 
-                    MoveData currentMove = this.requestMoveToPokeApi(i);
-                    if (currentMove != null) {
-                        ps.setString(1, currentMove.getName());
-                        ps.setString(2, currentMove.getMove_type().toString());
-                        ps.setString(3, currentMove.getPokemonType().getNombre());
-                        ps.setInt(4, currentMove.getAccuracy());
-                        ps.setString(5, currentMove.getDescription());
-                        ps.setInt(6, currentMove.getPp());
-                        ps.setInt(7, currentMove.getPower());
+                MoveData currentMove = this.requestMoveToPokeApi(i);
+                if (currentMove != null) {
+                    preparedStatement.setString(1, currentMove.getName());
+                    preparedStatement.setString(2, currentMove.getMove_type().toString());
+                    preparedStatement.setInt(3, currentMove.getAccuracy());
+                    preparedStatement.setString(4, currentMove.getDescription());
+                    preparedStatement.setInt(5, currentMove.getPp());
+                    preparedStatement.setInt(6, currentMove.getPower());
 
-                        ps.addBatch();
-                    }
+                    preparedStatement.addBatch();
 
-                    if (i % 100 == 0)
-                        ps.executeBatch();
+                    typeRelations.put(currentMove, currentMove.getPokemon_type());
                 }
 
-                ps.executeBatch();
+                if (i % 100 == 0)
+                    preparedStatement.executeBatch();
             }
-        });
 
-        return true;
+            preparedStatement.executeBatch();
+
+            this.createMoveDataPokemonTypeRelationship(typeRelations);
+
+            return true;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return false;
+        }
+
     }
 
-    @Override
-    public Set<MoveData> getAllMoveData() {
-        return repo.getAllMoveData();
+    @Transactional
+    @Modifying
+    public boolean createMoveDataPokemonTypeRelationship(HashMap<MoveData, PokemonType> relationMap) {
+        String query = "INSERT INTO move_data_move_type (move_data_id, pokemon_type_id) VALUES (?,?)";
+
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+
+            for (Map.Entry<MoveData, PokemonType> entry : relationMap.entrySet()) {
+                preparedStatement.setLong(1, entry.getKey().getId());
+                preparedStatement.setLong(2, entry.getValue().getId());
+                preparedStatement.addBatch();
+            }
+
+            preparedStatement.executeBatch();
+
+            return true;
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return false;
+        }
     }
 
     @Transactional
@@ -140,14 +178,14 @@ public class MoveDataService implements MoveDataInterface {
     @Override
     public MoveDto convertMoveDataToDto(MoveData moveData) {
         return MoveDto.builder()
-                    .name(moveData.getName())
-                    .move_type(moveData.getMove_type().toString())
-                    .pokemon_type(moveData.getPokemonType().getNombre())
-                    .power(moveData.getPower())
-                    .accuracy(moveData.getAccuracy())
-                    .description(moveData.getDescription())
-                    .pp(moveData.getPp())
-                    .build();
+                .name(moveData.getName())
+                .move_type(moveData.getMove_type().toString())
+                .pokemon_type(moveData.getPokemon_type().getNombre())
+                .power(moveData.getPower())
+                .accuracy(moveData.getAccuracy())
+                .description(moveData.getDescription())
+                .pp(moveData.getPp())
+                .build();
     }
 
 }

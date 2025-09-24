@@ -12,7 +12,6 @@ public interface MoveDataInterface {
     MoveData getMoveByName(String name);
     MoveData requestMoveToPokeApi(int number);
     boolean requestAllMovesToApi();
-    Set<MoveData> getAllMoveData();
     MoveDto convertMoveDataToDto(MoveData moveData);
 
 }

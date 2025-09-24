@@ -2,10 +2,8 @@ package com.example.demo.domain.pokemon;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import com.example.demo.domain.movements.MoveData;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -24,7 +22,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class PokemonType {
-    
+
     @GeneratedValue
     @Id
     private Long id;
@@ -32,14 +30,9 @@ public class PokemonType {
     private String nombre;
 
     @JsonBackReference
-    @ManyToMany(mappedBy = "pokemonData_pokemonType", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "type_list", fetch = FetchType.LAZY)
     private Set<PokemonData> pokemon_list = new HashSet<>();
 
-    
-    @OneToMany(
-        mappedBy = "pokemonType_moveData", 
-        cascade = CascadeType.ALL, 
-        orphanRemoval = false
-    )
+    @OneToMany(mappedBy = "pokemon_type", cascade = CascadeType.ALL, orphanRemoval = false)
     private Set<MoveData> move_list = new HashSet<>();
 }

@@ -5,13 +5,11 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.Modifying;
@@ -21,8 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.config.ApiRequestManager;
 import com.example.demo.config.CsvFileReader;
 import com.example.demo.config.ImageDownloader;
-import com.example.demo.domain.AbilityData;
-import com.example.demo.domain.movements.MoveData;
 import com.example.demo.domain.pokemon.PokemonData;
 import com.example.demo.domain.pokemon.PokemonType;
 import com.example.demo.dto.pokemon.MissignoGridDto;
@@ -116,11 +112,10 @@ public class PokemonDataService implements PokemonDataInterface {
         try {
 
             Connection connection = DriverManager.getConnection(
-                environment.getProperty("spring.datasource.url"),
-                environment.getProperty("spring.datasource.password"),
-                environment.getProperty("spring.datasource.password")
-            );
-            
+                    environment.getProperty("spring.datasource.url"),
+                    environment.getProperty("spring.datasource.password"),
+                    environment.getProperty("spring.datasource.password"));
+
             PreparedStatement preparedStatement = connection.prepareStatement(firstQuery);
             preparedStatement.setString(1, resultado.getName());
             preparedStatement.setInt(2, resultado.getBase_hp());
@@ -228,16 +223,15 @@ public class PokemonDataService implements PokemonDataInterface {
 
         try {
             Connection connection = DriverManager.getConnection(
-                environment.getProperty("spring.datasource.url"),
-                environment.getProperty("spring.datasource.password"),
-                environment.getProperty("spring.datasource.password")
-            );
+                    environment.getProperty("spring.datasource.url"),
+                    environment.getProperty("spring.datasource.password"),
+                    environment.getProperty("spring.datasource.password"));
 
             /* Toda esta tontería es para pasarle la colección como argumento a la query */
 
             String inClause = moveNameList.stream()
-                .map(name -> "?")
-                .collect(Collectors.joining(","));
+                    .map(name -> "?")
+                    .collect(Collectors.joining(","));
             String selectMoveIds = "SELECT id FROM move_data WHERE move_name IN (" + inClause + ")";
 
             PreparedStatement psSelect = connection.prepareStatement(selectMoveIds);
@@ -281,15 +275,14 @@ public class PokemonDataService implements PokemonDataInterface {
         try {
             // Conexión JDBC
             Connection connection = DriverManager.getConnection(
-                environment.getProperty("spring.datasource.url"),
-                environment.getProperty("spring.datasource.username"),
-                environment.getProperty("spring.datasource.password")
-            );
+                    environment.getProperty("spring.datasource.url"),
+                    environment.getProperty("spring.datasource.username"),
+                    environment.getProperty("spring.datasource.password"));
 
             // Construir IN dinámico
             String inClause = abilityNameList.stream()
-                .map(name -> "?")
-                .collect(Collectors.joining(","));
+                    .map(name -> "?")
+                    .collect(Collectors.joining(","));
             String selectAbilityIds = "SELECT id FROM ability_data WHERE ability_name IN (" + inClause + ")";
 
             // Seleccionar IDs de abilities
@@ -304,7 +297,7 @@ public class PokemonDataService implements PokemonDataInterface {
             }
 
             // Insertar relación en tabla intermedia
-            String insertRelation = "INSERT INTO `pokemon_data-ability_data` (pokemon_data_id, ability_data_id) VALUES (?, ?)";
+            String insertRelation = "INSERT INTO pokemon_data_ability_data (pokemon_data_id, ability_data_id) VALUES (?, ?)";
             PreparedStatement psInsert = connection.prepareStatement(insertRelation);
 
             for (Long abilityId : abilityIds) {
@@ -321,7 +314,6 @@ public class PokemonDataService implements PokemonDataInterface {
 
         return pokemonData;
     }
-
 
     @Transactional
     @Modifying
@@ -371,7 +363,6 @@ public class PokemonDataService implements PokemonDataInterface {
         return pokemonData;
     }
 
-
     @Transactional
     @Modifying
     public Set<PokemonData> assignPokemonAvailableInSV() {
@@ -413,12 +404,11 @@ public class PokemonDataService implements PokemonDataInterface {
                     // necesario)
                     missignoGridDTO.setType_list(pokemonData.getType_list());
                     missignoGridDTO.setAbility_list(
-                        pokemonData.getAbility_list().stream()
-                            .map(ability -> {
-                                return abilityData_Service.convertAbilityEntityToDto(ability);
-                            })
-                            .collect(Collectors.toSet())
-                    );
+                            pokemonData.getAbility_list().stream()
+                                    .map(ability -> {
+                                        return abilityData_Service.convertAbilityEntityToDto(ability);
+                                    })
+                                    .collect(Collectors.toSet()));
 
                     return missignoGridDTO;
                 })
@@ -438,23 +428,20 @@ public class PokemonDataService implements PokemonDataInterface {
                 .base_special_defense(data.getBase_special_defense())
                 .base_speed(data.getBase_speed())
                 .type_list(
-                    data.getType_list() 
-                        .stream()
-                        .map(PokemonType::getNombre) 
-                        .collect(Collectors.toSet())
-                )
+                        data.getType_list()
+                                .stream()
+                                .map(PokemonType::getNombre)
+                                .collect(Collectors.toSet()))
                 .ability_list(
-                    data.getAbility_list().stream()
-                        .map(ability -> {
-                            return abilityData_Service.convertAbilityEntityToDto(ability);
-                        }).collect(Collectors.toSet())
-                )
+                        data.getAbility_list().stream()
+                                .map(ability -> {
+                                    return abilityData_Service.convertAbilityEntityToDto(ability);
+                                }).collect(Collectors.toSet()))
                 .move_list(
-                    data.getMove_list().stream()
-                        .map(move -> {
-                            return moveData_Service.convertMoveDataToDto(move);
-                        }).collect(Collectors.toSet())
-                )
+                        data.getMove_list().stream()
+                                .map(move -> {
+                                    return moveData_Service.convertMoveDataToDto(move);
+                                }).collect(Collectors.toSet()))
                 .build();
     }
 
