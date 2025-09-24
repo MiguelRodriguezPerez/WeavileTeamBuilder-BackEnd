@@ -32,14 +32,13 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@ToString(exclude = "pokemon_list")
+@ToString(exclude = {"type_list", "ability_list", "move_list"}) 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @EqualsAndHashCode(of = "id")
 @Entity
 public class PokemonData {
-
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -62,13 +61,17 @@ public class PokemonData {
     @Column(columnDefinition = "MEDIUMBLOB") // Para MySQL
     private byte[] pc_sprite;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "pokemon_data_pokemon_type", joinColumns = @JoinColumn(name = "pokemonData_id"))
-    @Enumerated(EnumType.STRING)
+    @ManyToMany
+    @JoinTable(
+        name="pokemon_data_pokemon_type_data",
+        joinColumns = @JoinColumn(name = "pokemon_data_id"),
+        inverseJoinColumns = @JoinColumn(name = "pokemon_type_id")
+    )
+    @JsonManagedReference
     private Set<PokemonType> type_list = new HashSet<>();
 
     @JsonManagedReference
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "pokemonData_abilityData", joinColumns = @JoinColumn(name = "pokemonData_id"), inverseJoinColumns = @JoinColumn(name = "abilityData_id"))
     private Set<AbilityData> ability_list = new HashSet<>();
 

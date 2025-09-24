@@ -53,16 +53,16 @@ public class MoveData {
      * es en dos entidades distintas así que no tendrás problemas
      */
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "pokemonType_id")
+    @ManyToOne(fetch = FetchType.EAGER ,targetEntity = PokemonType.class)
+    @JoinColumn(name = "pokemon_type_id")
     private PokemonType pokemon_type;
 
     @JsonBackReference
-    @ManyToMany(mappedBy = "move_list", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "move_list", fetch = FetchType.LAZY)
     private Set<PokemonData> pokemon_list = new HashSet<>();
 
     @JsonBackReference
-    @ManyToMany(mappedBy = "move_list", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "move_list", fetch = FetchType.LAZY)
     private Set<PokemonTeamMember> pokemon_team_list = new HashSet<>();
 
 }
