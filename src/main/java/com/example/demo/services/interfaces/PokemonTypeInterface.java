@@ -3,9 +3,11 @@ package com.example.demo.services.interfaces;
 import com.example.demo.domain.pokemon.PokemonType;
 
 public interface PokemonTypeInterface {
-    
-    void requestAllTypesToApi();
-    PokemonType requesTypeToApi(int number);
+
+    void requestAndSaveAllTypesFromApi();
+
+    PokemonType requestTypeToApi(int number);
+
     PokemonType getTypeByName(String name);
 
 }

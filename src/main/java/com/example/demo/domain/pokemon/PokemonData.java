@@ -63,7 +63,7 @@ public class PokemonData {
 
     @ManyToMany
     @JoinTable(
-        name="pokemon_data_pokemon_type_data",
+        name="pokemon_data_pokemon_type",
         joinColumns = @JoinColumn(name = "pokemon_data_id"),
         inverseJoinColumns = @JoinColumn(name = "pokemon_type_id")
     )
@@ -86,7 +86,7 @@ public class PokemonData {
      */
     @JsonManagedReference
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "pokemonData-moveData", joinColumns = @JoinColumn(name = "pokemonData_id"), inverseJoinColumns = @JoinColumn(name = "moveData_id"))
+    @JoinTable(name = "pokemonData_moveData", joinColumns = @JoinColumn(name = "pokemonData_id"), inverseJoinColumns = @JoinColumn(name = "moveData_id"))
     private Set<MoveData> move_list = new HashSet<>();
 
     private Boolean availableInSv;

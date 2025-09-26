@@ -79,7 +79,8 @@ public class MoveDataService implements MoveDataInterface {
         resultado.setPower(move_root.at("/power").asInt());
 
         resultado.setPokemon_type(
-                pokemonTypeService.getTypeByName(move_root.at("/type/name").asText().toLowerCase()));
+                pokemonTypeService.getTypeByName(move_root.at("/type/name").asText().toLowerCase())
+            );
 
         /*
          * Algunos movimientos no tienen valores en effect_entries, y por tanto, no
@@ -105,10 +106,10 @@ public class MoveDataService implements MoveDataInterface {
     @Override
     @Transactional
     @Modifying
-    public boolean requestAllMovesToApi() {
+    public boolean requestAndSaveAllMovesFromApi() {
         final int totalMovs = 919;
         final String sqlQuery = "INSERT INTO move_data (name, move_type, accuracy,"
-                + "description, pp, power) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                + "description, pp, power, pokemon_type_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
         HashMap<MoveData, PokemonType> typeRelations = new HashMap<>();
 
         try (Connection connection = dataSource.getConnection()) {
@@ -117,6 +118,7 @@ public class MoveDataService implements MoveDataInterface {
                 System.out.println("Movimiento " + i);
 
                 MoveData currentMove = this.requestMoveToPokeApi(i);
+
                 if (currentMove != null) {
                     preparedStatement.setString(1, currentMove.getName());
                     preparedStatement.setString(2, currentMove.getMove_type().toString());
@@ -124,6 +126,7 @@ public class MoveDataService implements MoveDataInterface {
                     preparedStatement.setString(4, currentMove.getDescription());
                     preparedStatement.setInt(5, currentMove.getPp());
                     preparedStatement.setInt(6, currentMove.getPower());
+                    preparedStatement.setLong(7, currentMove.getPokemon_type().getId());
 
                     preparedStatement.addBatch();
 
@@ -135,39 +138,13 @@ public class MoveDataService implements MoveDataInterface {
             }
 
             preparedStatement.executeBatch();
-
-            this.createMoveDataPokemonTypeRelationship(typeRelations);
-
-            return true;
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            return false;
-        }
-
-    }
-
-    @Transactional
-    @Modifying
-    public boolean createMoveDataPokemonTypeRelationship(HashMap<MoveData, PokemonType> relationMap) {
-        String query = "INSERT INTO move_data_move_type (move_data_id, pokemon_type_id) VALUES (?,?)";
-
-        try (Connection connection = dataSource.getConnection()) {
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-
-            for (Map.Entry<MoveData, PokemonType> entry : relationMap.entrySet()) {
-                preparedStatement.setLong(1, entry.getKey().getId());
-                preparedStatement.setLong(2, entry.getValue().getId());
-                preparedStatement.addBatch();
-            }
-
-            preparedStatement.executeBatch();
-
             return true;
 
         } catch (SQLException ex) {
             ex.printStackTrace();
             return false;
         }
+
     }
 
     @Transactional

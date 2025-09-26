@@ -6,11 +6,13 @@ import com.example.demo.domain.movements.MoveData;
 import com.example.demo.domain.team.PokemonTeamMember;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -33,6 +35,10 @@ public class PokemonType {
     private Long id;
 
     private String nombre;
+
+    @Lob // Indica que es un campo grande (BLOB)
+    @Column(columnDefinition = "MEDIUMBLOB") // Para MySQL
+    private byte[] sprite;
 
     @JsonBackReference
     @ManyToMany(mappedBy = "type_list", fetch = FetchType.LAZY)

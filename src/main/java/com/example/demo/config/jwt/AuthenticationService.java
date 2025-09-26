@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.domain.user.WeavileUser;
 import com.example.demo.domain.user.WeavileUserDto;
-import com.example.demo.repositories.WeavileUser_Repository;
+import com.example.demo.repositories.WeavileUserRepository;
 
 import jakarta.servlet.http.Cookie;
 
@@ -16,7 +16,7 @@ import jakarta.servlet.http.Cookie;
 public class AuthenticationService {
 
     @Autowired
-    WeavileUser_Repository repo;
+    WeavileUserRepository repo;
 
     @Autowired
     AuthenticationManager authenticationManager;
@@ -26,7 +26,8 @@ public class AuthenticationService {
 
     public WeavileUser authenticate(WeavileUserDto userRequest) {
         WeavileUser weavileUser = repo.findByUsername(userRequest.getUsername());
-        if(weavileUser == null) throw new RuntimeException("AAAAAAAAAAA");
+        if (weavileUser == null)
+            throw new RuntimeException("AAAAAAAAAAA");
 
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -50,4 +51,3 @@ public class AuthenticationService {
         SecurityContextHolder.clearContext();
     }
 }
-

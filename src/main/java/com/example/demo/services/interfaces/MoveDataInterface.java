@@ -8,10 +8,15 @@ import com.example.demo.dto.MoveDto;
 public interface MoveDataInterface {
 
     MoveData saveMove(MoveData moveData);
+
     void deleteAllMoves();
+
     MoveData getMoveByName(String name);
+
     MoveData requestMoveToPokeApi(int number);
-    boolean requestAllMovesToApi();
+
+    boolean requestAndSaveAllMovesFromApi();
+
     MoveDto convertMoveDataToDto(MoveData moveData);
 
 }

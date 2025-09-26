@@ -1,14 +1,16 @@
 package com.example.demo.services.implementations;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -27,10 +29,6 @@ import com.example.demo.repositories.PokemonDataRepository;
 import com.example.demo.services.interfaces.PokemonDataInterface;
 import com.fasterxml.jackson.databind.JsonNode;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
-
 @Service
 public class PokemonDataService implements PokemonDataInterface {
 
@@ -43,8 +41,8 @@ public class PokemonDataService implements PokemonDataInterface {
     @Autowired
     MoveDataService moveData_Service;
 
-    @PersistenceContext
-    EntityManager entityManager;
+    @Autowired
+    DataSource dataSource;
 
     @Autowired
     CsvFileReader csvFileReader;
@@ -80,7 +78,8 @@ public class PokemonDataService implements PokemonDataInterface {
     @Transactional
     @Modifying
     public boolean requestAllPokemonsFromApi() {
-        final int num_pokemon = 1025;
+        // 15:06:13
+        final int num_pokemon = 1025; // 1025
 
         // TODO: Adaptar a inserciones en batch
 
@@ -109,14 +108,9 @@ public class PokemonDataService implements PokemonDataInterface {
                 + ", base_special_attack, base_special_defense, base_speed"
                 + ", front_default_sprite, pc_sprite) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        try {
+        try (Connection connection = dataSource.getConnection()){
+            PreparedStatement preparedStatement = connection.prepareStatement(firstQuery, Statement.RETURN_GENERATED_KEYS);
 
-            Connection connection = DriverManager.getConnection(
-                    environment.getProperty("spring.datasource.url"),
-                    environment.getProperty("spring.datasource.password"),
-                    environment.getProperty("spring.datasource.password"));
-
-            PreparedStatement preparedStatement = connection.prepareStatement(firstQuery);
             preparedStatement.setString(1, resultado.getName());
             preparedStatement.setInt(2, resultado.getBase_hp());
             preparedStatement.setInt(3, resultado.getBase_attack());
@@ -138,15 +132,15 @@ public class PokemonDataService implements PokemonDataInterface {
         }
 
         return resultado;
-
     }
 
     @Transactional
     public PokemonData createPokemonDataRelations(PokemonData pokemonData, JsonNode pokemon_json) {
 
-        pokemonData = this.assignPokemonDataAbilities(pokemonData, pokemon_json);
-        pokemonData = this.assignPokemonDataMoves(pokemonData, pokemon_json);
-        pokemonData = this.assignPokemonDataTypes(pokemonData, pokemon_json);
+        this.assignPokemonDataAbilities(pokemonData, pokemon_json);
+        this.assignPokemonDataMoves(pokemonData, pokemon_json);
+        this.assignPokemonDataTypes(pokemonData, pokemon_json);
+        this.assignPokemonAvailableInSV(pokemonData);
 
         return pokemonData;
     }
@@ -221,18 +215,12 @@ public class PokemonDataService implements PokemonDataInterface {
             moveNameList.add(move_json.at("/move/name").asText());
         }
 
-        try {
-            Connection connection = DriverManager.getConnection(
-                    environment.getProperty("spring.datasource.url"),
-                    environment.getProperty("spring.datasource.password"),
-                    environment.getProperty("spring.datasource.password"));
-
+        try (Connection connection = dataSource.getConnection()) {
             /* Toda esta tontería es para pasarle la colección como argumento a la query */
-
             String inClause = moveNameList.stream()
                     .map(name -> "?")
                     .collect(Collectors.joining(","));
-            String selectMoveIds = "SELECT id FROM move_data WHERE move_name IN (" + inClause + ")";
+            String selectMoveIds = "SELECT id FROM move_data WHERE name IN (" + inClause + ")";
 
             PreparedStatement psSelect = connection.prepareStatement(selectMoveIds);
             for (int i = 0; i < moveNameList.size(); i++) {
@@ -272,18 +260,12 @@ public class PokemonDataService implements PokemonDataInterface {
             abilityNameList.add(ability_json.at("/ability/name").asText());
         }
 
-        try {
-            // Conexión JDBC
-            Connection connection = DriverManager.getConnection(
-                    environment.getProperty("spring.datasource.url"),
-                    environment.getProperty("spring.datasource.username"),
-                    environment.getProperty("spring.datasource.password"));
-
+        try (Connection connection = dataSource.getConnection()) {
             // Construir IN dinámico
             String inClause = abilityNameList.stream()
                     .map(name -> "?")
                     .collect(Collectors.joining(","));
-            String selectAbilityIds = "SELECT id FROM ability_data WHERE ability_name IN (" + inClause + ")";
+            String selectAbilityIds = "SELECT id FROM ability_data WHERE name IN (" + inClause + ")";
 
             // Seleccionar IDs de abilities
             PreparedStatement psSelect = connection.prepareStatement(selectAbilityIds);
@@ -325,17 +307,13 @@ public class PokemonDataService implements PokemonDataInterface {
             typeListString.add(current_type.at("/type/name").asText().toLowerCase());
         }
 
-        try (Connection connection = DriverManager.getConnection(
-                environment.getProperty("spring.datasource.url"),
-                environment.getProperty("spring.datasource.username"),
-                environment.getProperty("spring.datasource.password"))) {
-
-            String inClause = typeListString.stream()
+        try (Connection connection = dataSource.getConnection()) {
+            String questionMarks = typeListString.stream()
                     .map(t -> "?")
                     .collect(Collectors.joining(","));
-            String selectTypeIds = "SELECT id FROM pokemon_type WHERE type_name IN (" + inClause + ")";
-            PreparedStatement psSelect = connection.prepareStatement(selectTypeIds);
+            String selectTypeIds = "SELECT id FROM pokemon_type WHERE nombre IN (" + questionMarks + ")";
 
+            PreparedStatement psSelect = connection.prepareStatement(selectTypeIds);
             for (int i = 0; i < typeListString.size(); i++) {
                 psSelect.setString(i + 1, typeListString.get(i));
             }
@@ -345,7 +323,7 @@ public class PokemonDataService implements PokemonDataInterface {
                 typeIds.add(rs.getLong("id"));
             }
 
-            String insertRelation = "INSERT INTO pokemon_data_pokemon_type (pokemon_data_id, type_id) VALUES (?, ?)";
+            String insertRelation = "INSERT INTO pokemon_data_pokemon_type (pokemon_data_id, pokemon_type_id) VALUES (?, ?)";
             PreparedStatement psInsert = connection.prepareStatement(insertRelation);
 
             for (Long typeId : typeIds) {
@@ -365,21 +343,23 @@ public class PokemonDataService implements PokemonDataInterface {
 
     @Transactional
     @Modifying
-    public Set<PokemonData> assignPokemonAvailableInSV() {
-        String sqlQuery = "UPDATE pokemon_data SET available_in_sv = true WHERE NAME IN (:names)";
+    public boolean assignPokemonAvailableInSV(PokemonData pokemonData) {
         List<String> availablePokemons = csvFileReader.readFile("csvFiles/avaliableInSv.csv");
+        String updateAvailableSql = "UPDATE pokemon_data SET available_in_sv = ?";
 
-        Query query = entityManager.createNativeQuery(sqlQuery);
-        query.setParameter("names", availablePokemons);
-        query.executeUpdate();
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement preparedStatement = connection.prepareStatement(updateAvailableSql);
+            preparedStatement.setBoolean(1, availablePokemons.contains(pokemonData.getName()));
+            
+            return true;
 
-        String sqlQueryUnavailable = "UPDATE pokemon_data SET available_in_sv = false WHERE NAME NOT IN (:names)";
-        Query querySvUnavailable = entityManager.createNativeQuery(sqlQueryUnavailable);
-        querySvUnavailable.setParameter("names", availablePokemons);
-        querySvUnavailable.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
 
-        return repo.getPokemonAvaliableInSV();
     }
+
 
     public Set<PokemonData> getAllSVPokemon() {
         return repo.getPokemonAvaliableInSV();

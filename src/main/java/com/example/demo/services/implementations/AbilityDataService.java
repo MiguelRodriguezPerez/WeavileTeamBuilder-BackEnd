@@ -1,10 +1,13 @@
 package com.example.demo.services.implementations;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 
-import org.hibernate.Session;
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
@@ -17,17 +20,14 @@ import com.example.demo.repositories.AbilityDataRepository;
 import com.example.demo.services.interfaces.AbilityDataInterface;
 import com.fasterxml.jackson.databind.JsonNode;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
 @Service
 public class AbilityDataService implements AbilityDataInterface {
 
     @Autowired
     AbilityDataRepository repo;
 
-    @PersistenceContext
-    EntityManager entityManager;
+    @Autowired
+    DataSource dataSource;
 
     @Override
     public AbilityData saveAbility(AbilityData ability) {
@@ -104,11 +104,12 @@ public class AbilityDataService implements AbilityDataInterface {
     @Transactional
     @Modifying
     public boolean requestAllAbilitiesToApi() {
-        final int numero_habilidades = 307; // 307
+        final int numero_habilidades = 307; 
         String query = "INSERT INTO ability_data (name,description) VALUES (?, ?)";
 
-        entityManager.unwrap(Session.class).doWork(connection -> {
-            try (PreparedStatement ps = connection.prepareStatement(query)) {
+            try (Connection connection = dataSource.getConnection()) {
+                PreparedStatement ps = connection.prepareStatement(query);
+
                 for (int i = 1; i <= numero_habilidades; i++) {
                     System.out.println("Habilidad " + i);
 
@@ -119,11 +120,16 @@ public class AbilityDataService implements AbilityDataInterface {
                         ps.addBatch();
                     }
                 }
-                ps.executeBatch();
-            }
-        });
 
-        return true;
+                ps.executeBatch();
+                return true;
+            }
+            catch (SQLException ex) {
+                ex.printStackTrace();
+                return false;
+        }
+
+        
     }
 
     @Override
