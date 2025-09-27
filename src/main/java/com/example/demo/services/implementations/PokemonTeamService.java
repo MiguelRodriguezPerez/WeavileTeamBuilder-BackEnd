@@ -8,7 +8,7 @@ import com.example.demo.domain.team.PokemonTeamMember;
 import com.example.demo.services.interfaces.PokemonTeamInterface;
 
 @Service
-public class PokemonTeam_Service implements PokemonTeamInterface {
+public class PokemonTeamService implements PokemonTeamInterface {
 
     @Autowired
     NatureDataService nature_service;

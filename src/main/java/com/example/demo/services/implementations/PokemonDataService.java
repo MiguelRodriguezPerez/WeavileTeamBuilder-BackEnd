@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -345,20 +346,27 @@ public class PokemonDataService implements PokemonDataInterface {
     @Modifying
     public boolean assignPokemonAvailableInSV(PokemonData pokemonData) {
         List<String> availablePokemons = csvFileReader.readFile("csvFiles/avaliableInSv.csv");
-        String updateAvailableSql = "UPDATE pokemon_data SET available_in_sv = ?";
+        availablePokemons.replaceAll(String::toLowerCase);
 
-        try (Connection connection = dataSource.getConnection()) {
-            PreparedStatement preparedStatement = connection.prepareStatement(updateAvailableSql);
-            preparedStatement.setBoolean(1, availablePokemons.contains(pokemonData.getName()));
-            
-            return true;
+        String updateAvailableSql = "UPDATE pokemon_data SET available_in_sv = ? WHERE id = ?";
+
+        try (Connection connection = dataSource.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(updateAvailableSql)) {
+            boolean available = availablePokemons.contains(pokemonData.getName().toLowerCase());
+
+            preparedStatement.setBoolean(1, available);
+            preparedStatement.setLong(2, pokemonData.getId()); // para el WHERE
+
+            int rowsUpdated = preparedStatement.executeUpdate();
+
+            return rowsUpdated > 0;
 
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
-
     }
+
 
 
     public Set<PokemonData> getAllSVPokemon() {
@@ -425,4 +433,6 @@ public class PokemonDataService implements PokemonDataInterface {
                 .build();
     }
 
+
+    
 }
