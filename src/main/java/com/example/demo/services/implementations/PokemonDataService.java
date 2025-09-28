@@ -1,16 +1,20 @@
 package com.example.demo.services.implementations;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.hibernate.Session;
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,18 +22,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.config.ApiRequestManager;
 import com.example.demo.config.CsvFileReader;
 import com.example.demo.config.ImageDownloader;
-import com.example.demo.domain.AbilityData;
-import com.example.demo.domain.movements.MoveData;
 import com.example.demo.domain.pokemon.PokemonData;
+import com.example.demo.domain.pokemon.PokemonType;
 import com.example.demo.dto.pokemon.MissignoGridDto;
 import com.example.demo.dto.pokemon.PokemonDto;
 import com.example.demo.repositories.PokemonDataRepository;
 import com.example.demo.services.interfaces.PokemonDataInterface;
 import com.fasterxml.jackson.databind.JsonNode;
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
 
 @Service
 public class PokemonDataService implements PokemonDataInterface {
@@ -43,11 +42,14 @@ public class PokemonDataService implements PokemonDataInterface {
     @Autowired
     MoveDataService moveData_Service;
 
-    @PersistenceContext
-    EntityManager entityManager;
+    @Autowired
+    DataSource dataSource;
 
     @Autowired
     CsvFileReader csvFileReader;
+
+    @Autowired
+    Environment environment;
 
     @Override
     public PokemonData savePokemon(PokemonData pokemon) {
@@ -77,7 +79,8 @@ public class PokemonDataService implements PokemonDataInterface {
     @Transactional
     @Modifying
     public boolean requestAllPokemonsFromApi() {
-        final int num_pokemon = 1025;
+        // 15:06:13
+        final int num_pokemon = 1025; // 1025
 
         // TODO: Adaptar a inserciones en batch
 
@@ -96,53 +99,49 @@ public class PokemonDataService implements PokemonDataInterface {
     @Transactional
     @Modifying
     public PokemonData savePokemonDataFromJson(JsonNode pokemon_json) {
-        PokemonData tempPokemonData = new PokemonData();
+        PokemonData resultado = new PokemonData();
 
-        tempPokemonData.setName(pokemon_json.get("name").asText());
-        tempPokemonData = this.assignPokemonDataSprites(tempPokemonData, pokemon_json);
-        tempPokemonData = this.assignPokemonDataStats(tempPokemonData, pokemon_json);
+        resultado.setName(pokemon_json.get("name").asText());
+        resultado = this.assignPokemonDataSprites(resultado, pokemon_json);
+        resultado = this.assignPokemonDataStats(resultado, pokemon_json);
 
-        final PokemonData pokemonData = tempPokemonData; // Variable final para usar en la lambda
-
-        final String firstQuery = "INSERT INTO pokemon_data (name, base_hp, base_attack, base_defense"
+        String firstQuery = "INSERT INTO pokemon_data (name, base_hp, base_attack, base_defense"
                 + ", base_special_attack, base_special_defense, base_speed"
                 + ", front_default_sprite, pc_sprite) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        entityManager.unwrap(Session.class).doWork(connection -> {
-            try (PreparedStatement ps = connection.prepareStatement(firstQuery, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection connection = dataSource.getConnection()){
+            PreparedStatement preparedStatement = connection.prepareStatement(firstQuery, Statement.RETURN_GENERATED_KEYS);
 
-                ps.setString(1, pokemonData.getName());
-                ps.setInt(2, pokemonData.getBase_hp());
-                ps.setInt(3, pokemonData.getBase_attack());
-                ps.setInt(4, pokemonData.getBase_defense());
-                ps.setInt(5, pokemonData.getBase_special_attack());
-                ps.setInt(6, pokemonData.getBase_special_defense());
-                ps.setInt(7, pokemonData.getBase_speed());
-                ps.setBytes(8, pokemonData.getFront_default_sprite());
-                ps.setBytes(9, pokemonData.getPc_sprite());
+            preparedStatement.setString(1, resultado.getName());
+            preparedStatement.setInt(2, resultado.getBase_hp());
+            preparedStatement.setInt(3, resultado.getBase_attack());
+            preparedStatement.setInt(4, resultado.getBase_defense());
+            preparedStatement.setInt(5, resultado.getBase_special_attack());
+            preparedStatement.setInt(6, resultado.getBase_special_defense());
+            preparedStatement.setInt(7, resultado.getBase_speed());
+            preparedStatement.setBytes(8, resultado.getFront_default_sprite());
+            preparedStatement.setBytes(9, resultado.getPc_sprite());
 
-                ps.executeUpdate();
+            preparedStatement.executeUpdate();
 
-                try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
-                    if (generatedKeys.next())
-                        pokemonData.setId(generatedKeys.getLong(1)); // Asignamos el ID generado
-                    else
-                        throw new SQLException("Error al obtener el ID generado para pokemon_data");
-                }
+            ResultSet keys = preparedStatement.getGeneratedKeys();
+            keys.next();
+            resultado.setId(keys.getLong(1));
 
-            }
-        });
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
 
-        return pokemonData;
-
+        return resultado;
     }
 
     @Transactional
     public PokemonData createPokemonDataRelations(PokemonData pokemonData, JsonNode pokemon_json) {
 
-        pokemonData = this.assignPokemonDataAbilities(pokemonData, pokemon_json);
-        pokemonData = this.assignPokemonDataMoves(pokemonData, pokemon_json);
-        pokemonData = this.assignPokemonDataTypes(pokemonData, pokemon_json);
+        this.assignPokemonDataAbilities(pokemonData, pokemon_json);
+        this.assignPokemonDataMoves(pokemonData, pokemon_json);
+        this.assignPokemonDataTypes(pokemonData, pokemon_json);
+        this.assignPokemonAvailableInSV(pokemonData);
 
         return pokemonData;
     }
@@ -211,25 +210,43 @@ public class PokemonDataService implements PokemonDataInterface {
     @Modifying
     public PokemonData assignPokemonDataMoves(PokemonData pokemonData, JsonNode pokemon_json) {
         List<String> moveNameList = new ArrayList<>();
+        List<Long> moveIds = new ArrayList<>();
+
         for (JsonNode move_json : pokemon_json.at("/moves")) {
             moveNameList.add(move_json.at("/move/name").asText());
         }
 
-        Set<MoveData> definitiveMoveSet = moveData_Service.getMoveDataSetFromStringList(moveNameList);
+        try (Connection connection = dataSource.getConnection()) {
+            /* Toda esta tontería es para pasarle la colección como argumento a la query */
+            String inClause = moveNameList.stream()
+                    .map(name -> "?")
+                    .collect(Collectors.joining(","));
+            String selectMoveIds = "SELECT id FROM move_data WHERE name IN (" + inClause + ")";
 
-        String sqlQuery = "INSERT INTO `pokemon_data-move_data` (pokemon_data_id, move_data_id) VALUES (?, ?)";
-
-        entityManager.unwrap(Session.class).doWork(connection -> {
-            try (PreparedStatement ps = connection.prepareStatement(sqlQuery)) {
-                for (MoveData move : definitiveMoveSet) {
-                    ps.setLong(1, pokemonData.getId());
-                    ps.setLong(2, move.getId());
-                    ps.addBatch(); // Agregar al batch para optimización
-                }
-
-                ps.executeBatch(); // Ejecutar inserciones en lote
+            PreparedStatement psSelect = connection.prepareStatement(selectMoveIds);
+            for (int i = 0; i < moveNameList.size(); i++) {
+                psSelect.setString(i + 1, moveNameList.get(i));
             }
-        });
+
+            ResultSet rs = psSelect.executeQuery();
+            while (rs.next()) {
+                moveIds.add(rs.getLong("id"));
+            }
+
+            String insertRelation = "INSERT INTO pokemon_data_move_data (pokemon_data_id, move_data_id) VALUES (?, ?)";
+            PreparedStatement psInsert = connection.prepareStatement(insertRelation);
+
+            for (Long moveId : moveIds) {
+                psInsert.setLong(1, pokemonData.getId());
+                psInsert.setLong(2, moveId);
+                psInsert.addBatch();
+            }
+
+            psInsert.executeBatch();
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
 
         return pokemonData;
     }
@@ -237,29 +254,46 @@ public class PokemonDataService implements PokemonDataInterface {
     @Transactional
     @Modifying
     public PokemonData assignPokemonDataAbilities(PokemonData pokemonData, JsonNode pokemon_json) {
-
         List<String> abilityNameList = new ArrayList<>();
+        List<Long> abilityIds = new ArrayList<>();
+
         for (JsonNode ability_json : pokemon_json.get("abilities")) {
             abilityNameList.add(ability_json.at("/ability/name").asText());
         }
 
-        Set<AbilityData> definitiveAbilitySet = abilityData_Service.getAblitySetFromStringList(abilityNameList);
+        try (Connection connection = dataSource.getConnection()) {
+            // Construir IN dinámico
+            String inClause = abilityNameList.stream()
+                    .map(name -> "?")
+                    .collect(Collectors.joining(","));
+            String selectAbilityIds = "SELECT id FROM ability_data WHERE name IN (" + inClause + ")";
 
-        String sqlQuery = "INSERT INTO `pokemon_data-ability_data` (pokemon_data_id, ability_data_id)"
-                + "VALUES (?,?)";
-
-        entityManager.unwrap(Session.class).doWork(connection -> {
-            try (PreparedStatement ps = connection.prepareStatement(sqlQuery)) {
-                for (AbilityData ability : definitiveAbilitySet) {
-                    ps.setLong(1, pokemonData.getId());
-                    ps.setLong(2, ability.getId());
-
-                    ps.addBatch();
-                }
-
-                ps.executeBatch();
+            // Seleccionar IDs de abilities
+            PreparedStatement psSelect = connection.prepareStatement(selectAbilityIds);
+            for (int i = 0; i < abilityNameList.size(); i++) {
+                psSelect.setString(i + 1, abilityNameList.get(i));
             }
-        });
+
+            ResultSet rs = psSelect.executeQuery();
+            while (rs.next()) {
+                abilityIds.add(rs.getLong("id"));
+            }
+
+            // Insertar relación en tabla intermedia
+            String insertRelation = "INSERT INTO pokemon_data_ability_data (pokemon_data_id, ability_data_id) VALUES (?, ?)";
+            PreparedStatement psInsert = connection.prepareStatement(insertRelation);
+
+            for (Long abilityId : abilityIds) {
+                psInsert.setLong(1, pokemonData.getId());
+                psInsert.setLong(2, abilityId);
+                psInsert.addBatch();
+            }
+
+            psInsert.executeBatch();
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
 
         return pokemonData;
     }
@@ -268,42 +302,72 @@ public class PokemonDataService implements PokemonDataInterface {
     @Modifying
     public PokemonData assignPokemonDataTypes(PokemonData pokemonData, JsonNode pokemon_json) {
         List<String> typeListString = new ArrayList<>();
+        List<Long> typeIds = new ArrayList<>();
+
         for (JsonNode current_type : pokemon_json.get("types")) {
-            typeListString.add(current_type.at("/type/name").asText().toUpperCase());
+            typeListString.add(current_type.at("/type/name").asText().toLowerCase());
         }
 
-        String sql = "INSERT INTO pokemon_data_pokemon_type (pokemon_data_id, type_list) VALUES (?, ?)";
+        try (Connection connection = dataSource.getConnection()) {
+            String questionMarks = typeListString.stream()
+                    .map(t -> "?")
+                    .collect(Collectors.joining(","));
+            String selectTypeIds = "SELECT id FROM pokemon_type WHERE nombre IN (" + questionMarks + ")";
 
-        entityManager.unwrap(Session.class).doWork(connection -> {
-            try (PreparedStatement statement = connection.prepareStatement(sql)) {
-                for (String type : typeListString) {
-                    statement.setLong(1, pokemonData.getId());
-                    statement.setString(2, type);
-                    statement.executeUpdate();
-                }
+            PreparedStatement psSelect = connection.prepareStatement(selectTypeIds);
+            for (int i = 0; i < typeListString.size(); i++) {
+                psSelect.setString(i + 1, typeListString.get(i));
             }
 
-        });
+            ResultSet rs = psSelect.executeQuery();
+            while (rs.next()) {
+                typeIds.add(rs.getLong("id"));
+            }
+
+            String insertRelation = "INSERT INTO pokemon_data_pokemon_type (pokemon_data_id, pokemon_type_id) VALUES (?, ?)";
+            PreparedStatement psInsert = connection.prepareStatement(insertRelation);
+
+            for (Long typeId : typeIds) {
+                psInsert.setLong(1, pokemonData.getId());
+                psInsert.setLong(2, typeId);
+                psInsert.addBatch();
+            }
+
+            psInsert.executeBatch();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
         return pokemonData;
     }
 
     @Transactional
     @Modifying
-    public Set<PokemonData> assignPokemonAvailableInSV() {
-        String sqlQuery = "UPDATE pokemon_data SET available_in_sv = true WHERE NAME IN (:names)";
+    public boolean assignPokemonAvailableInSV(PokemonData pokemonData) {
         List<String> availablePokemons = csvFileReader.readFile("csvFiles/avaliableInSv.csv");
+        availablePokemons.replaceAll(String::toLowerCase);
 
-        Query query = entityManager.createNativeQuery(sqlQuery);
-        query.setParameter("names", availablePokemons);
-        query.executeUpdate();
+        String updateAvailableSql = "UPDATE pokemon_data SET available_in_sv = ? WHERE id = ?";
 
-        String sqlQueryUnavailable = "UPDATE pokemon_data SET available_in_sv = false WHERE NAME NOT IN (:names)";
-        Query querySvUnavailable = entityManager.createNativeQuery(sqlQueryUnavailable);
-        querySvUnavailable.setParameter("names", availablePokemons);
-        querySvUnavailable.executeUpdate();
+        try (Connection connection = dataSource.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(updateAvailableSql)) {
+            boolean available = availablePokemons.contains(pokemonData.getName().toLowerCase());
 
-        return repo.getPokemonAvaliableInSV();
+            preparedStatement.setBoolean(1, available);
+            preparedStatement.setLong(2, pokemonData.getId()); // para el WHERE
+
+            int rowsUpdated = preparedStatement.executeUpdate();
+
+            return rowsUpdated > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
+
+
 
     public Set<PokemonData> getAllSVPokemon() {
         return repo.getPokemonAvaliableInSV();
@@ -328,12 +392,11 @@ public class PokemonDataService implements PokemonDataInterface {
                     // necesario)
                     missignoGridDTO.setType_list(pokemonData.getType_list());
                     missignoGridDTO.setAbility_list(
-                        pokemonData.getAbility_list().stream()
-                            .map(ability -> {
-                                return abilityData_Service.convertAbilityEntityToDto(ability);
-                            })
-                            .collect(Collectors.toSet())
-                    );
+                            pokemonData.getAbility_list().stream()
+                                    .map(ability -> {
+                                        return abilityData_Service.convertAbilityEntityToDto(ability);
+                                    })
+                                    .collect(Collectors.toSet()));
 
                     return missignoGridDTO;
                 })
@@ -352,24 +415,20 @@ public class PokemonDataService implements PokemonDataInterface {
                 .base_special_attack(data.getBase_special_attack())
                 .base_special_defense(data.getBase_special_defense())
                 .base_speed(data.getBase_speed())
-                .type_list(
-                    data.getType_list().stream()
-                        .map(Enum::name) // convierte enum a String
-                        .collect(Collectors.toSet())
-                )
+                .type_list(data.getType_list())
                 .ability_list(
-                    data.getAbility_list().stream()
-                        .map(ability -> {
-                            return abilityData_Service.convertAbilityEntityToDto(ability);
-                        }).collect(Collectors.toSet())
-                )
+                        data.getAbility_list().stream()
+                                .map(ability -> {
+                                    return abilityData_Service.convertAbilityEntityToDto(ability);
+                                }).collect(Collectors.toSet()))
                 .move_list(
-                    data.getMove_list().stream()
-                        .map(move -> {
-                            return moveData_Service.convertMoveDataToDto(move);
-                        }).collect(Collectors.toSet())
-                )
+                        data.getMove_list().stream()
+                                .map(move -> {
+                                    return moveData_Service.convertMoveDataToDto(move);
+                                }).collect(Collectors.toSet()))
                 .build();
     }
 
+
+    
 }

@@ -1,9 +1,12 @@
 package com.example.demo.services.implementations;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Set;
 
-import org.hibernate.Session;
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
@@ -17,17 +20,14 @@ import com.example.demo.repositories.ItemDataRepository;
 import com.example.demo.services.interfaces.ItemDataInterface;
 import com.fasterxml.jackson.databind.JsonNode;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
 @Service
 public class ItemDataService implements ItemDataInterface {
 
     @Autowired
     ItemDataRepository repo;
 
-    @PersistenceContext
-    EntityManager entityManager;
+    @Autowired
+    DataSource dataSource;
 
     @Override
     public ItemData saveItemData(ItemData itemData) {
@@ -95,30 +95,35 @@ public class ItemDataService implements ItemDataInterface {
         final int total_items = 1203;
         String sql = "INSERT INTO item_data (name, description, image_sprite) VALUES (?, ?, ?)";
 
-        // Le lleva 17 minutos y medio
+        // Le lleva 6'36''65 
         // TODO: Borrar items abiertamente inútiles
-        entityManager.unwrap(Session.class).doWork(connection -> {
-            try (PreparedStatement ps = connection.prepareStatement(sql)) {
-                for (int i = 1; i <= total_items; i++) {
-                    System.out.println("Objeto actual: " + i);
+       
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            for (int i = 1; i <= total_items; i++) {
+                System.out.println("Objeto actual: " + i);
 
-                    ItemData item = this.requestItemToPokeApi(i);
-                    if (item != null) {
-                        ps.setString(1, item.getName());
-                        ps.setString(2, item.getDescription());
-                        ps.setBytes(3, item.getImage_sprite());
-                        ps.addBatch();
-                    }
-
-                    if (i % 100 == 0)
-                        ps.executeBatch();
+                ItemData item = this.requestItemToPokeApi(i);
+                if (item != null) {
+                    preparedStatement.setString(1, item.getName());
+                    preparedStatement.setString(2, item.getDescription());
+                    preparedStatement.setBytes(3, item.getImage_sprite());
+                    preparedStatement.addBatch();
                 }
-                ps.executeBatch();
-            }
-        });
 
-        return true;
+                if (i % 100 == 0)
+                    preparedStatement.executeBatch();
+            }
+            preparedStatement.executeBatch();
+            return true;
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return false;
+        }
     }
+
+        
 
     @Override
     public Set<ItemDto> getAllItemsAsDto() {

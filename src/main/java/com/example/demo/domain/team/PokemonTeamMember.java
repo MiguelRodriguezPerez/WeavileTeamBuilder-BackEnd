@@ -105,12 +105,17 @@ public class PokemonTeamMember {
     @JoinColumn(name = "itemData_id")
     private ItemData item;
 
-    @ElementCollection
-    @Enumerated(EnumType.STRING)
-    @Size(min = 1, max = 2)
-    private Set<PokemonType> type_list = new HashSet<PokemonType>();
+    @ManyToMany
+    @JoinTable(
+        name="pokemon_team_member_pokemon_type",
+        joinColumns = @JoinColumn(name = "pokemon_team_member_id"),
+        inverseJoinColumns = @JoinColumn(name = "pokemon_type_id")
+    )
+    @JsonManagedReference
+    private Set<PokemonType> team_member_type_list = new HashSet<PokemonType>();
 
-    @Nullable
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "tera_type_id")
     private PokemonType tera_type;
 
     @ManyToOne

@@ -5,9 +5,8 @@ import org.springframework.stereotype.Repository;
 
 import com.example.demo.domain.user.WeavileUser;
 
-
 @Repository
-public interface WeavileUser_Repository extends JpaRepository<WeavileUser,Long> {
-    
+public interface WeavileUserRepository extends JpaRepository<WeavileUser, Long> {
+
     WeavileUser findByUsername(String username);
 }

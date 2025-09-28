@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.domain.team.NatureData;
 import com.example.demo.dto.NatureDto;
 import com.example.demo.services.implementations.NatureDataService;
 
@@ -23,6 +22,7 @@ public class NatureDataController {
 
     @GetMapping("/getNatureByName/{name}")
     public ResponseEntity<NatureDto> getNatureByNameEndpoint(@PathVariable String name) {
+        System.out.println(name+ "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         return new ResponseEntity<>(
             natureDataService.convertNatureDataToDto(natureDataService.getNatureByName(name)), HttpStatus.OK);
     }

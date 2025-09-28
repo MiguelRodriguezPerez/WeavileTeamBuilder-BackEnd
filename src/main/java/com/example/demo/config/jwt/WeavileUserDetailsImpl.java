@@ -8,13 +8,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import com.example.demo.domain.user.WeavileUser;
-import com.example.demo.repositories.WeavileUser_Repository;
+import com.example.demo.repositories.WeavileUserRepository;
 
 @Component
-public class WeavileUserDetailsImpl implements UserDetailsService{
-    
+public class WeavileUserDetailsImpl implements UserDetailsService {
+
     @Autowired
-    WeavileUser_Repository repo;
+    WeavileUserRepository repo;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -22,13 +22,13 @@ public class WeavileUserDetailsImpl implements UserDetailsService{
 
         if (weavileUser != null) {
             return User
-                .withUsername(weavileUser.getUsername())
-                .password(weavileUser.getPassword())
-                .build();
+                    .withUsername(weavileUser.getUsername())
+                    .password(weavileUser.getPassword())
+                    .build();
         }
 
-        else throw new UsernameNotFoundException("WeavileUser " + username + " not found");
+        else
+            throw new UsernameNotFoundException("WeavileUser " + username + " not found");
     }
-
 
 }

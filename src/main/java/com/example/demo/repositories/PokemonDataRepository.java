@@ -1,6 +1,5 @@
 package com.example.demo.repositories;
 
-import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,9 +21,12 @@ public interface PokemonDataRepository extends JpaRepository<PokemonData, Long> 
     Set<PokemonData> getAllPokemonData();
 
     // No esta muy claro que sea más rápida que findByAvailableInSv (EntityManager)
-    /* No puedes solicitar el dto directamente porque este dto contiene colecciones que nacen 
-     * de relaciones con otras entidades. 
-     * Lo normal es lo que estas haciendo, obtener las entidades y convertirlas a dto 
+    /*
+     * No puedes solicitar el dto directamente porque este dto contiene colecciones
+     * que nacen
+     * de relaciones con otras entidades.
+     * Lo normal es lo que estas haciendo, obtener las entidades y convertirlas a
+     * dto
      * en el servicio
      */
     @Query(value = "SELECT * FROM pokemon_data pok WHERE pok.available_in_sv = true", nativeQuery = true)
