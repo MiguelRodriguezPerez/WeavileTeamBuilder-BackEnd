@@ -2,6 +2,7 @@ package com.example.demo.dto.pokemon;
 
 import java.util.Set;
 
+import com.example.demo.domain.pokemon.PokemonType;
 import com.example.demo.dto.MoveDto;
 
 import lombok.Builder;
@@ -32,7 +33,7 @@ public class PokemonDto {
     private int base_special_defense;
     private int base_speed;
 
-    private Set<String> type_list;
+    private Set<PokemonType> type_list;
     private Set<AbilityDto> ability_list;
     private Set<MoveDto> move_list;
 

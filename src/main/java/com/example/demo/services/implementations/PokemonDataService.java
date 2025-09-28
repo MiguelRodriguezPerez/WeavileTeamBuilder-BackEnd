@@ -415,11 +415,7 @@ public class PokemonDataService implements PokemonDataInterface {
                 .base_special_attack(data.getBase_special_attack())
                 .base_special_defense(data.getBase_special_defense())
                 .base_speed(data.getBase_speed())
-                .type_list(
-                        data.getType_list()
-                                .stream()
-                                .map(PokemonType::getNombre)
-                                .collect(Collectors.toSet()))
+                .type_list(data.getType_list())
                 .ability_list(
                         data.getAbility_list().stream()
                                 .map(ability -> {

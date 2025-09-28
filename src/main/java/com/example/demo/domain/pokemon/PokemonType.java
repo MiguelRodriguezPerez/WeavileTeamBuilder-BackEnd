@@ -5,6 +5,8 @@ import java.util.Set;
 import com.example.demo.domain.movements.MoveData;
 import com.example.demo.domain.team.PokemonTeamMember;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,14 +42,19 @@ public class PokemonType {
     @Column(columnDefinition = "MEDIUMBLOB") // Para MySQL
     private byte[] sprite;
 
+    /* POR EL AMOR DE DIOS NO BORRES LOS JSON IGNORE. NUNCA VAS A NECESITAR ESAS COLECCIONES */
+
+    @JsonIgnore
     @JsonBackReference
     @ManyToMany(mappedBy = "type_list", fetch = FetchType.LAZY)
     private Set<PokemonData> pokemon_list = new HashSet<>();
 
+    @JsonIgnore
     @JsonBackReference
     @ManyToMany(mappedBy = "team_member_type_list", fetch = FetchType.LAZY)
     private Set<PokemonTeamMember> pokemon_team_member_list = new HashSet<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "pokemon_type", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<MoveData> move_list = new HashSet<>();
 

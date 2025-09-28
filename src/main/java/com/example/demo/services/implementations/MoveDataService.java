@@ -157,7 +157,7 @@ public class MoveDataService implements MoveDataInterface {
         return MoveDto.builder()
                 .name(moveData.getName())
                 .move_type(moveData.getMove_type().toString())
-                .pokemon_type(moveData.getPokemon_type().getNombre())
+                .pokemon_type(moveData.getPokemon_type())
                 .power(moveData.getPower())
                 .accuracy(moveData.getAccuracy())
                 .description(moveData.getDescription())
