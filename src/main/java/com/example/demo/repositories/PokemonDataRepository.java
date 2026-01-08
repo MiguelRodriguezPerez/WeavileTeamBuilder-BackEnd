@@ -1,5 +1,6 @@
 package com.example.demo.repositories;
 
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,7 +12,7 @@ import com.example.demo.domain.pokemon.PokemonData;
 
 @Repository
 public interface PokemonDataRepository extends JpaRepository<PokemonData, Long> {
-    PokemonData findByName(String name);
+    Optional<PokemonData> findByName(String name);
 
     // Info en el sql del procedure
     @Procedure(name = "deleteAllPokemonProcedure")

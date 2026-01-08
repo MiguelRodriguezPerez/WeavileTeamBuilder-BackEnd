@@ -16,6 +16,7 @@ import com.example.demo.config.ApiRequestManager;
 import com.example.demo.config.ImageDownloader;
 import com.example.demo.domain.ItemData;
 import com.example.demo.dto.ItemDto;
+import com.example.demo.exceptions.ItemNotFoundException;
 import com.example.demo.repositories.ItemDataRepository;
 import com.example.demo.services.interfaces.ItemDataInterface;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -46,7 +47,7 @@ public class ItemDataService implements ItemDataInterface {
 
     @Override
     public ItemData getItemByName(String name) {
-        return repo.findByName(name);
+        return repo.findByName(name).orElseThrow(() -> new ItemNotFoundException(name));
     }
 
     @Override

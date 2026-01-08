@@ -26,6 +26,7 @@ import com.example.demo.domain.pokemon.PokemonData;
 import com.example.demo.domain.pokemon.PokemonType;
 import com.example.demo.dto.pokemon.MissignoGridDto;
 import com.example.demo.dto.pokemon.PokemonDto;
+import com.example.demo.exceptions.PokemonNotFoundException;
 import com.example.demo.repositories.PokemonDataRepository;
 import com.example.demo.services.interfaces.PokemonDataInterface;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -72,7 +73,7 @@ public class PokemonDataService implements PokemonDataInterface {
 
     @Override
     public PokemonData getPokemonByName(String name) {
-        return repo.findByName(name);
+        return repo.findByName(name).orElseThrow(() -> new PokemonNotFoundException(name));
     }
 
     @Override
