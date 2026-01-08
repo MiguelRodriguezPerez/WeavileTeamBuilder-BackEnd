@@ -1,5 +1,6 @@
 package com.example.demo.repositories;
 
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,5 +17,5 @@ public interface NatureDataRepository extends JpaRepository<NatureData, Long> {
     @Query("SELECT new com.example.demo.dto.NatureDto(na.name, na.decreased_stat, na.increased_stat) FROM NatureData na")
     Set<NatureDto> getAllNaturesAsDto();
 
-    NatureData findByName(String name);
+    Optional<NatureData> findByName(String name);
 }

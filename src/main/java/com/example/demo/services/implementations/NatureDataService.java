@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.config.ApiRequestManager;
 import com.example.demo.domain.team.NatureData;
 import com.example.demo.dto.NatureDto;
+import com.example.demo.exceptions.NatureNotFoundException;
 import com.example.demo.repositories.NatureDataRepository;
 import com.example.demo.services.interfaces.NatureDataInterface;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -91,7 +92,7 @@ public class NatureDataService implements NatureDataInterface {
 
     @Override
     public NatureData getNatureByName(String name) {
-        return repo.findByName(name);
+        return repo.findByName(name).orElseThrow(() -> new NatureNotFoundException(name));
     }
 
     @Override

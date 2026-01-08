@@ -147,7 +147,7 @@ public class SecurityConfig {
                 .requestMatchers(
                 "/nonLoggedUsers/**","/pokemonData/**","/natureData/**",
                     "/itemData/allItems","/something_something/**",
-                    "/swagger-ui/**","/v3/api-docs/**","/swagger-ui.html"
+                    "/swagger-ui/**","/v3/api-docs/**","/v3/api-docs.yaml","/swagger-ui.html"
                 ).permitAll()
                 .anyRequest().authenticated());
 

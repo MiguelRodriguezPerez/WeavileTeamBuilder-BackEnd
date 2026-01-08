@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.domain.WeavileErrorResponse;
+import com.example.demo.domain.apiResponses.ApiNotFoundResponse;
 import com.example.demo.dto.ItemDto;
 import com.example.demo.services.implementations.ItemDataService;
 
@@ -56,10 +57,7 @@ public class ItemDataController {
     @Operation(
         operationId = "getItemByName",
         summary = "Get item by name" ,
-        description = "Returns an item using an string as parameter",
-        parameters = {
-            @Parameter(name = "itemName", description = "The item name to search", example = "Choice Band", required = true)
-        }
+        description = "Returns an item using an string as parameter"
     )
     @ApiResponses({
         @ApiResponse(
@@ -68,17 +66,18 @@ public class ItemDataController {
             content = @Content(
                 schema = @Schema(implementation = ItemDto.class)
             )
-        ),
-        @ApiResponse(
-            responseCode = "404",
-            description = "Item not found",
-            content = @Content(
-                schema = @Schema(implementation = WeavileErrorResponse.class)
-            )
         )
     })
+    @ApiNotFoundResponse
     @GetMapping("/getItemByName/{itemName}")
-    public ResponseEntity<ItemDto> getItemByNameEndpoint(@PathVariable String itemName) {
+    public ResponseEntity<ItemDto> getItemByNameEndpoint(
+        @Parameter(
+            name = "itemName", 
+            description = "The item name to search", 
+            example = "Choice Band", 
+            required = true
+        )
+        @PathVariable String itemName) {
         return new ResponseEntity<ItemDto>(
             itemDataService.convertItemDataToDto(
                 itemDataService.getItemByName(itemName)

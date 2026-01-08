@@ -7,16 +7,13 @@ import io.github.cdimascio.dotenv.Dotenv;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.servers.Server;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 @SpringBootApplication
 @OpenAPIDefinition(
 	info = @Info(title = "Weavile Api", version = "1.0.0"),
 	servers = {
-		@Server(url = "http://localhost:9002")
-	},
-	tags = {
-		@Tag(name = "Item", description = "Pokemon item")
+		@Server(url = "http://localhost:9002"),
+		@Server(url = "https://www.weavileteambuilder.com/")
 	}
 )
 public class DemoApplication {
