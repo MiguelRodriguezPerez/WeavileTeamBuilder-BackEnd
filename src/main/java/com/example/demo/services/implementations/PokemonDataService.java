@@ -24,7 +24,7 @@ import com.example.demo.config.CsvFileReader;
 import com.example.demo.config.ImageDownloader;
 import com.example.demo.domain.pokemon.PokemonData;
 import com.example.demo.domain.pokemon.PokemonType;
-import com.example.demo.dto.pokemon.MissignoGridDto;
+import com.example.demo.dto.pokemon.MissignoDto;
 import com.example.demo.dto.pokemon.PokemonDto;
 import com.example.demo.exceptions.PokemonNotFoundException;
 import com.example.demo.repositories.PokemonDataRepository;
@@ -110,8 +110,9 @@ public class PokemonDataService implements PokemonDataInterface {
                 + ", base_special_attack, base_special_defense, base_speed"
                 + ", front_default_sprite, pc_sprite) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        try (Connection connection = dataSource.getConnection()){
-            PreparedStatement preparedStatement = connection.prepareStatement(firstQuery, Statement.RETURN_GENERATED_KEYS);
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement preparedStatement = connection.prepareStatement(firstQuery,
+                    Statement.RETURN_GENERATED_KEYS);
 
             preparedStatement.setString(1, resultado.getName());
             preparedStatement.setInt(2, resultado.getBase_hp());
@@ -352,7 +353,7 @@ public class PokemonDataService implements PokemonDataInterface {
         String updateAvailableSql = "UPDATE pokemon_data SET available_in_sv = ? WHERE id = ?";
 
         try (Connection connection = dataSource.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(updateAvailableSql)) {
+                PreparedStatement preparedStatement = connection.prepareStatement(updateAvailableSql)) {
             boolean available = availablePokemons.contains(pokemonData.getName().toLowerCase());
 
             preparedStatement.setBoolean(1, available);
@@ -368,17 +369,15 @@ public class PokemonDataService implements PokemonDataInterface {
         }
     }
 
-
-
     public Set<PokemonData> getAllSVPokemon() {
         return repo.getPokemonAvaliableInSV();
     }
 
-    public Set<MissignoGridDto> convertToMissignoGridDTO(Set<PokemonData> pokemonDataSet) {
+    public Set<MissignoDto> convertToMissignoGridDTO(Set<PokemonData> pokemonDataSet) {
         // Utilizando Java 8 Streams para la conversión de forma limpia
         return pokemonDataSet.stream()
                 .map(pokemonData -> {
-                    MissignoGridDto missignoGridDTO = new MissignoGridDto();
+                    MissignoDto missignoGridDTO = new MissignoDto();
                     missignoGridDTO.setId(pokemonData.getId());
                     missignoGridDTO.setName(pokemonData.getName());
                     missignoGridDTO.setBase_hp(pokemonData.getBase_hp());
@@ -430,6 +429,4 @@ public class PokemonDataService implements PokemonDataInterface {
                 .build();
     }
 
-
-    
 }
