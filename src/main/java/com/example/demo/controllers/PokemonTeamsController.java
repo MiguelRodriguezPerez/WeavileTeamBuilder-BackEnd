@@ -1,4 +1,4 @@
-package com.example.demo.controllers.nonLoggedUsers;
+package com.example.demo.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,12 +17,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(
-    name = "CRUD Pokemon Teams",
+    name = "PokemonTeam",
     description = "Endpoints related to Pokemon Teams CRUD actions"
 )
 @RestController
 @RequestMapping("/nonLoggedUsers/pokemonTeam")
-public class NonLoggedTeamController {
+public class PokemonTeamsController {
 
     @Autowired
     PokemonTeamService team_service;

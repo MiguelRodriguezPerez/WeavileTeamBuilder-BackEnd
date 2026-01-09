@@ -12,7 +12,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class MissignoGridDto {
+public class MissignoDto {
 
     private Long id;
     private String name;
