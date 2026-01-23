@@ -44,7 +44,7 @@ public class PokemonData {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String pokemon_name;
+    private String name;
 
     private int base_hp;
     private int base_attack;

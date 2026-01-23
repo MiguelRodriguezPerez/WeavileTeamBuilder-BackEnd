@@ -36,7 +36,7 @@ public class PokemonTypeService implements PokemonTypeInterface {
                 System.out.println("Tipo " + i);
                 PokemonType pokemonType = this.requestTypeToApi(i);
 
-                preparedStatement.setString(1, pokemonType.getNombre());
+                preparedStatement.setString(1, pokemonType.getName());
                 preparedStatement.setBytes(2, pokemonType.getSprite());
                 preparedStatement.addBatch();
             }
@@ -54,7 +54,7 @@ public class PokemonTypeService implements PokemonTypeInterface {
         PokemonType pokemonType = new PokemonType();
         JsonNode typeNode = ApiRequestManager.callGetRequest(request);
 
-        pokemonType.setNombre(typeNode.at("/name").asText());
+        pokemonType.setName(typeNode.at("/name").asText());
         pokemonType.setSprite(ImageDownloader.getImage(typeNode.at("/sprites/generation-vii/sun-moon/name_icon").asText()));
 
         return pokemonType;
