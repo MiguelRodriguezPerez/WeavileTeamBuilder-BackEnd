@@ -5,12 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.sql.DataSource;
 
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
@@ -25,9 +23,6 @@ import com.example.demo.repositories.MoveDataRepository;
 import com.example.demo.services.interfaces.MoveDataInterface;
 import com.fasterxml.jackson.databind.JsonNode;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
 @Service
 public class MoveDataService implements MoveDataInterface {
 
@@ -36,9 +31,6 @@ public class MoveDataService implements MoveDataInterface {
 
     @Autowired
     PokemonTypeService pokemonTypeService;
-
-    @PersistenceContext
-    EntityManager entityManager;
 
     @Autowired
     private DataSource dataSource;

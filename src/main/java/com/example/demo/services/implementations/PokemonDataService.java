@@ -6,8 +6,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -24,12 +26,16 @@ import com.example.demo.config.CsvFileReader;
 import com.example.demo.config.ImageDownloader;
 import com.example.demo.domain.pokemon.PokemonData;
 import com.example.demo.domain.pokemon.PokemonType;
+import com.example.demo.dto.pokemon.AbilityDto;
 import com.example.demo.dto.pokemon.MissignoDto;
 import com.example.demo.dto.pokemon.PokemonDto;
 import com.example.demo.exceptions.PokemonNotFoundException;
 import com.example.demo.repositories.PokemonDataRepository;
 import com.example.demo.services.interfaces.PokemonDataInterface;
 import com.fasterxml.jackson.databind.JsonNode;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 @Service
 public class PokemonDataService implements PokemonDataInterface {
@@ -51,6 +57,10 @@ public class PokemonDataService implements PokemonDataInterface {
 
     @Autowired
     Environment environment;
+
+    @PersistenceContext
+    EntityManager entityManager;
+
 
     @Override
     public PokemonData savePokemon(PokemonData pokemon) {
@@ -102,7 +112,7 @@ public class PokemonDataService implements PokemonDataInterface {
     public PokemonData savePokemonDataFromJson(JsonNode pokemon_json) {
         PokemonData resultado = new PokemonData();
 
-        resultado.setName(pokemon_json.get("name").asText());
+        resultado.setPokemon_name(pokemon_json.get("name").asText());
         resultado = this.assignPokemonDataSprites(resultado, pokemon_json);
         resultado = this.assignPokemonDataStats(resultado, pokemon_json);
 
@@ -114,7 +124,7 @@ public class PokemonDataService implements PokemonDataInterface {
             PreparedStatement preparedStatement = connection.prepareStatement(firstQuery,
                     Statement.RETURN_GENERATED_KEYS);
 
-            preparedStatement.setString(1, resultado.getName());
+            preparedStatement.setString(1, resultado.getPokemon_name());
             preparedStatement.setInt(2, resultado.getBase_hp());
             preparedStatement.setInt(3, resultado.getBase_attack());
             preparedStatement.setInt(4, resultado.getBase_defense());
@@ -354,7 +364,7 @@ public class PokemonDataService implements PokemonDataInterface {
 
         try (Connection connection = dataSource.getConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(updateAvailableSql)) {
-            boolean available = availablePokemons.contains(pokemonData.getName().toLowerCase());
+            boolean available = availablePokemons.contains(pokemonData.getPokemon_name().toLowerCase());
 
             preparedStatement.setBoolean(1, available);
             preparedStatement.setLong(2, pokemonData.getId()); // para el WHERE
@@ -369,8 +379,54 @@ public class PokemonDataService implements PokemonDataInterface {
         }
     }
 
-    public Set<PokemonData> getAllSVPokemon() {
-        return repo.getPokemonAvaliableInSV();
+    public Set<MissignoDto> getAllPokemonForMissignoGrid() {
+        Map<Long,MissignoDto> mapResultado = new HashMap<>();
+        String query = "SELECT * FROM pokemon_data pkm" +
+            "LEFT JOIN pokemon_data_ability_data pad ON pad.pokemon_data_id = pkm.id" +
+            "LEFT JOIN ability_data ad ON ad.id = pad.ability_data_id" +
+            "LEFT JOIN pokemon_data_pokemon_type pdpt ON pdpt.pokemon_data_id = pkm.id" +
+            "LEFT JOIN pokemon_type pt ON pt.id = pdpt.pokemon_type_id";
+
+
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement ps = connection.prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+
+            Long id = rs.getLong("id");
+        
+        // 1. Intentamos obtener el Pokémon del mapa, si no existe, lo creamos
+        /* SOLO SIRVE PARA OBTENER LOS DATOS DE UN POKEMÓN PERO NO DESCARTA DATOS DE COLECCIONES COMO HABILIDADES */
+        MissignoDto currentPokemon = mapResultado.computeIfAbsent(id, k -> {
+            try {
+                return MissignoDto.builder()
+                        .id(id)
+                        .name(rs.getString("name"))
+                        .base_hp(rs.getInt("base_hp"))
+                        .base_attack(rs.getInt("base_attack"))
+                        .base_defense(rs.getInt("base_defense"))
+                        .base_special_attack(rs.getInt("base_special_attack"))
+                        .base_special_defense(rs.getInt("base_special_defense"))
+                        .base_speed(rs.getInt("base_speed"))
+                        .pc_sprite(rs.getBytes("pc_sprite"))
+                        .type_list(new HashSet<>())    // Inicializamos las listas
+                        .ability_list(new HashSet<>())
+                        .build();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        if (rs.getString("ability_name") != null) currentPokemon.getAbility_list().add(
+            AbilityDto.builder()
+                .name(rs.getString("ability_namename"))
+                .description(rs.getString("ability_description"))
+                .build()
+        );
+
+        if (rs.getString())
+    };
+
+
     }
 
     public Set<MissignoDto> convertToMissignoGridDTO(Set<PokemonData> pokemonDataSet) {
@@ -379,7 +435,7 @@ public class PokemonDataService implements PokemonDataInterface {
                 .map(pokemonData -> {
                     MissignoDto missignoGridDTO = new MissignoDto();
                     missignoGridDTO.setId(pokemonData.getId());
-                    missignoGridDTO.setName(pokemonData.getName());
+                    missignoGridDTO.setName(pokemonData.getPokemon_name());
                     missignoGridDTO.setBase_hp(pokemonData.getBase_hp());
                     missignoGridDTO.setBase_attack(pokemonData.getBase_attack());
                     missignoGridDTO.setBase_defense(pokemonData.getBase_defense());
@@ -406,7 +462,7 @@ public class PokemonDataService implements PokemonDataInterface {
     @Override
     public PokemonDto convertPokemonDataToDto(PokemonData data) {
         return PokemonDto.builder()
-                .name(data.getName())
+                .name(data.getPokemon_name())
                 .front_default_sprite(data.getFront_default_sprite())
                 .pc_sprite(data.getPc_sprite())
                 .base_hp(data.getBase_hp())
