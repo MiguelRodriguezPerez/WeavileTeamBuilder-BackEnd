@@ -32,14 +32,13 @@ public class PokemonDataController {
     @Autowired
     PokemonDataService pokemonDataService;
 
-    @Operation(operationId = "allSVPokemon", summary = "Retrieve all available pokemon in sv", description = "Returns a list of pokemon data which are available in pokemon sv")
+    @Operation(operationId = "allMissignoGridPokemonDto", summary = "Retrieve all available pokemon for MissignoCard", description = "Returns a list of pokemon data which are available in pokemon sv")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Successful request with all pokemon data", content = @Content(array = @ArraySchema(schema = @Schema(implementation = MissignoDto.class))))
     })
-    @GetMapping("/allSVPokemon")
+    @GetMapping("/allMissignoGridPokemonDto")
     public ResponseEntity<Set<MissignoDto>> getAllSWPokemonEndpoint() {
-        Set<MissignoDto> resultado = pokemonDataService
-                .convertToMissignoGridDTO(pokemonDataService.getAllSVPokemon());
+        Set<MissignoDto> resultado = pokemonDataService.getAllPokemonForMissignoGrid();
         return new ResponseEntity<>(resultado, HttpStatus.OK);
     }
 

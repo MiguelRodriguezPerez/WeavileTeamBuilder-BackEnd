@@ -29,7 +29,9 @@ import com.example.demo.domain.pokemon.PokemonType;
 import com.example.demo.dto.pokemon.AbilityDto;
 import com.example.demo.dto.pokemon.MissignoDto;
 import com.example.demo.dto.pokemon.PokemonDto;
+import com.example.demo.dto.pokemon.PokemonTypeDto;
 import com.example.demo.exceptions.PokemonNotFoundException;
+import com.example.demo.repositories.AbilityDataRepository;
 import com.example.demo.repositories.PokemonDataRepository;
 import com.example.demo.services.interfaces.PokemonDataInterface;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -39,6 +41,8 @@ import jakarta.persistence.PersistenceContext;
 
 @Service
 public class PokemonDataService implements PokemonDataInterface {
+
+    private final AbilityDataRepository abilityDataRepository;
 
     @Autowired
     PokemonDataRepository repo;
@@ -60,6 +64,11 @@ public class PokemonDataService implements PokemonDataInterface {
 
     @PersistenceContext
     EntityManager entityManager;
+
+
+    PokemonDataService(AbilityDataRepository abilityDataRepository) {
+        this.abilityDataRepository = abilityDataRepository;
+    }
 
 
     @Override
@@ -379,102 +388,118 @@ public class PokemonDataService implements PokemonDataInterface {
         }
     }
 
+    /* Esta consulta es horriblemente complicada así que presta atención a los comentarios */
     public Set<MissignoDto> getAllPokemonForMissignoGrid() {
-        Map<Long,MissignoDto> mapResultado = new HashMap<>();
-        // Dale alias a los campos para evitar problemas en las consultas
-        String query = """            
-                SELECT
-                    p.id                AS id,
-                    p.name              AS name,
-                    p.base_hp           AS baseHp,
-                    p.base_attack       AS baseAttack,
-                    p.base_defense      AS baseDefense,
-                    p.base_special_attack AS baseSpecialAttack,
-                    p.base_special_defense AS baseSpecialDefense,
-                    p.base_speed        AS baseSpeed,
-                    p.pc_sprite         AS pcSprite,
-                    ad.name AS abilityName,
-                    pt.name AS pokemonTypeName
 
-                FROM PokemonData p
+        /* En esta consulta te van a llegar varias filas del mismo pokemón con el mismo id. De alguna manera
+        necesitas evitar filas duplicadas. 
+        
+        Un map te permite asignar un MissignoDto a un id key, impidiendo filas/ids duplicados*/
+        Map<Long,MissignoDto> mapQuery = new HashMap<>();
+        Set<MissignoDto> resultado = new HashSet<>();
+        /* Esta consulta es un LEFT JOIN y no un INNER JOIN porque va a haber celdas en las que el tipo o la 
+        habilidad sean nulos. Si te viniera una celda nula con INNER JOIN, la consulta fallaría. 
+        
+        Aún así es buena práctica hacer un LEFT JOIN aunque no esperes datos duplicados.*/
+        String query = """
+                SELECT
+                    p.id                AS pokemon_id,
+                    p.name              AS pokemon_name,
+                    p.base_hp           AS base_hp,
+                    p.base_attack       AS base_attack,
+                    p.base_defense      AS base_defense,
+                    p.base_special_attack AS base_special_attack,
+                    p.base_special_defense AS base_special_defense,
+                    p.base_speed        AS base_speed,
+                    p.pc_sprite         AS pc_sprite,
+                    ad.id AS ability_id,
+                    ad.name AS ability_name,
+                    pt.id AS pokemon_type_id,
+                    pt.sprite AS pokemon_type_sprite
+
+                FROM pokemon_data p 
             """
         +
-            "LEFT JOIN pokemon_data_ability_data pad ON pad.pokemon_data_id = p.id" +
-            "LEFT JOIN ability_data ad ON ad.id = pad.ability_data_id" +
-            "LEFT JOIN pokemon_data_pokemon_type pdpt ON pdpt.pokemon_data_id = p.id" +
-            "LEFT JOIN pokemon_type pt ON pt.id = pdpt.pokemon_type_id";
+            "LEFT JOIN pokemon_data_ability_data pad ON pad.pokemon_data_id = p.id " +
+            "LEFT JOIN ability_data ad ON ad.id = pad.ability_data_id " +
+            "LEFT JOIN pokemon_data_pokemon_type pdpt ON pdpt.pokemon_data_id = p.id " +
+            "LEFT JOIN pokemon_type pt ON pt.id = pdpt.pokemon_type_id ";
 
 
         try (Connection connection = dataSource.getConnection()) {
             PreparedStatement ps = connection.prepareStatement(query);
             ResultSet rs = ps.executeQuery();
 
-            Long id = rs.getLong("id");
-        
-        // 1. Intentamos obtener el Pokémon del mapa, si no existe, lo creamos
-        /* SOLO SIRVE PARA OBTENER LOS DATOS DE UN POKEMÓN PERO NO DESCARTA DATOS DE COLECCIONES COMO HABILIDADES */
-        MissignoDto currentPokemon = mapResultado.computeIfAbsent(id, k -> {
-            try {
-                return MissignoDto.builder()
-                        .id(id)
-                        .name(rs.getString("name"))
-                        .base_hp(rs.getInt("base_hp"))
-                        .base_attack(rs.getInt("base_attack"))
-                        .base_defense(rs.getInt("base_defense"))
-                        .base_special_attack(rs.getInt("base_special_attack"))
-                        .base_special_defense(rs.getInt("base_special_defense"))
-                        .base_speed(rs.getInt("base_speed"))
-                        .pc_sprite(rs.getBytes("pc_sprite"))
-                        .type_list(new HashSet<>())    // Inicializamos las listas
-                        .ability_list(new HashSet<>())
-                        .build();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        });
+            while (rs.next()) {
+                /* Lo primero que haces es obtener el id del pokemón para saber si te viene duplicado o no */
+                Long id = rs.getLong("pokemon_id");
 
-        if (rs.getString("ability_name") != null) currentPokemon.getAbility_list().add(
-            AbilityDto.builder()
-                .name(rs.getString("ability_namename"))
-                .description(rs.getString("ability_description"))
-                .build()
-        );
+                /* mapQuery.computeIfAbsent recibe el id y en base a el, decide si ya has procesado ese pokemón o no. 
+                Si no lo has procesado, creará una nueva entidad y guardará en ella su id, nombre y stats
+                
+                No me preguntes cuando han pasado los resultados de la consulta al map.*/
+                MissignoDto currentPokemon = mapQuery.computeIfAbsent(id, k -> {
+                    try {
+                        return MissignoDto.builder()
+                                .id(id)
+                                .name(rs.getString("pokemon_name"))
+                                .base_hp(rs.getInt("base_hp"))
+                                .base_attack(rs.getInt("base_attack"))
+                                .base_defense(rs.getInt("base_defense"))
+                                .base_special_attack(rs.getInt("base_special_attack"))
+                                .base_special_defense(rs.getInt("base_special_defense"))
+                                .base_speed(rs.getInt("base_speed"))
+                                .pc_sprite(rs.getBytes("pc_sprite"))
+                                .type_list(new HashSet<>())    // Inicializamos las listas
+                                .ability_list(new HashSet<>())
+                                .build();
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
 
-        if (rs.getString())
-    };
+                /* Si el id de la habilidad que obtienes en la consulta no es nulo, lo usarás para crear
+                una nueva entidad */
+                if (rs.getString("ability_id") != null){
+                    AbilityDto currentAbility = AbilityDto.builder()
+                            .id(Long.parseLong(rs.getString("ability_id")))
+                            .name(rs.getString("ability_name"))
+                            // No necesitas la descripción en MissignoCard
+                            .description("")
+                            .build();
+
+                    /* Ahora tienes que averiguar si la entidad construida ya existe en la colección de habilidades
+                    del pokemón que ya estás procesando. Si no existe, la añades.
+                    
+                    La comparación se realiza en base al id de la habilidad consultada*/
+                    if (!currentPokemon.getAbility_list().contains(currentAbility)) 
+                        currentPokemon.getAbility_list().add(currentAbility);
+                }
 
 
+                // Misma lógica que en la habilidad del pokemón
+                if (rs.getString("pokemon_type_id") != null) {
+                    PokemonTypeDto currentType = PokemonTypeDto.builder()
+                                .id(Long.parseLong(rs.getString("pokemon_type_id")))
+                                .name("")
+                                .sprite(rs.getBytes("pokemon_type_sprite"))
+                                .build();
+                    if (!currentPokemon.getType_list().contains(currentType)) {
+                        currentPokemon.getType_list().add(currentType);
+                    }
+                }
+                
+                // Añades el nuevo pokemón a la lista
+                resultado.add(currentPokemon);
+            };
+        }
+        catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        return resultado;
     }
 
-    public Set<MissignoDto> convertToMissignoGridDTO(Set<PokemonData> pokemonDataSet) {
-        // Utilizando Java 8 Streams para la conversión de forma limpia
-        return pokemonDataSet.stream()
-                .map(pokemonData -> {
-                    MissignoDto missignoGridDTO = new MissignoDto();
-                    missignoGridDTO.setId(pokemonData.getId());
-                    missignoGridDTO.setName(pokemonData.getName());
-                    missignoGridDTO.setBase_hp(pokemonData.getBase_hp());
-                    missignoGridDTO.setBase_attack(pokemonData.getBase_attack());
-                    missignoGridDTO.setBase_defense(pokemonData.getBase_defense());
-                    missignoGridDTO.setBase_special_attack(pokemonData.getBase_special_attack());
-                    missignoGridDTO.setBase_special_defense(pokemonData.getBase_special_defense());
-                    missignoGridDTO.setBase_speed(pokemonData.getBase_speed());
-                    missignoGridDTO.setPc_sprite(pokemonData.getPc_sprite());
-
-                    // Convertir las listas de tipo y habilidades a DTOs correspondientes (si es
-                    // necesario)
-                    missignoGridDTO.setType_list(pokemonData.getType_list());
-                    missignoGridDTO.setAbility_list(
-                            pokemonData.getAbility_list().stream()
-                                    .map(ability -> {
-                                        return abilityData_Service.convertAbilityEntityToDto(ability);
-                                    })
-                                    .collect(Collectors.toSet()));
-
-                    return missignoGridDTO;
-                })
-                .collect(Collectors.toSet()); // Devuelve un Set<MissignoGridDTO>
-    }
 
     @Override
     public PokemonDto convertPokemonDataToDto(PokemonData data) {

@@ -74,7 +74,7 @@ public class PokemonTypeService implements PokemonTypeInterface {
 
             return PokemonType.builder()
                     .id(resultSet.getLong("id"))
-                    .nombre(resultSet.getString("nombre"))
+                    .name(resultSet.getString("name"))
                     .build();
         } catch (SQLException ex) {
             ex.printStackTrace();

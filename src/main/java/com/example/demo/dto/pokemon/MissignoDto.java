@@ -31,7 +31,7 @@ public class MissignoDto {
     private byte[] pc_sprite;
 
     // Sospechoso de fallar
-    private Set<PokemonType> type_list = new HashSet<>();
+    private Set<PokemonTypeDto> type_list = new HashSet<>();
     private Set<AbilityDto> ability_list = new HashSet<>();
 
 }

@@ -41,7 +41,7 @@ public class AbilityDataService implements AbilityDataInterface {
 
     @Override
     public AbilityData getAbilityByName(String name) {
-        return repo.findByName(name);
+        return null;
     }
 
     /*
@@ -134,12 +134,12 @@ public class AbilityDataService implements AbilityDataInterface {
 
     @Override
     public Set<AbilityDto> getAllAbilityDto() {
-        return repo.getAllAbilityDto();
+        return null;
     }
 
     @Transactional
     public Set<AbilityData> getAblitySetFromStringList(List<String> abilityList) {
-        return repo.getAblitySetFromStringList(abilityList);
+        return null;
     }
 
     @Override
