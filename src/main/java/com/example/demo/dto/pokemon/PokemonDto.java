@@ -21,6 +21,7 @@ antes de devolverla al cliente y eso no es mantenible ni responsable */
 @Builder
 public class PokemonDto {
 
+    private Long id;
     private String name;
 
     private byte[] pc_sprite;

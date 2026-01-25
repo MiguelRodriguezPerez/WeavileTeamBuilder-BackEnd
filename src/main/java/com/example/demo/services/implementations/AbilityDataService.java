@@ -2,8 +2,9 @@ package com.example.demo.services.implementations;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.sql.DataSource;
@@ -128,25 +129,43 @@ public class AbilityDataService implements AbilityDataInterface {
                 ex.printStackTrace();
                 return false;
         }
-
         
     }
 
-    @Override
-    public Set<AbilityDto> getAllAbilityDto() {
-        return null;
+    public Set<AbilityDto> getAbilitiesByPokemonId (Long pokemonId) {
+        Set<AbilityDto> resultado = new HashSet<>();
+
+        String query = """
+                SELECT 
+                    ab.id AS ability_id,
+                    ab.description AS ability_description,
+                    ab.name AS ability_name
+                FROM ability_data ab
+                INNER JOIN pokemon_data_ability_data pdab ON pdab.ability_data_id = ab.id
+                WHERE pdab.pokemon_data_id = ?
+                """;
+        
+        try (Connection connection = dataSource.getConnection()){
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setLong(1, pokemonId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                resultado.add(
+                    AbilityDto.builder()
+                        .id(rs.getLong("ability_id"))
+                        .name(rs.getString("ability_name"))
+                        .description(rs.getString("ability_description"))
+                        .build()
+                );
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        return resultado;
+
     }
 
-    @Transactional
-    public Set<AbilityData> getAblitySetFromStringList(List<String> abilityList) {
-        return null;
-    }
-
-    @Override
-    public AbilityDto convertAbilityEntityToDto(AbilityData abilityData) {
-        return AbilityDto.builder()
-                .name(abilityData.getName())
-                .description(abilityData.getDescription())
-                .build();
-    }
 }

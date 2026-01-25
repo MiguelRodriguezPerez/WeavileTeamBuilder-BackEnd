@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,50 +24,31 @@ import com.example.demo.config.ApiRequestManager;
 import com.example.demo.config.CsvFileReader;
 import com.example.demo.config.ImageDownloader;
 import com.example.demo.domain.pokemon.PokemonData;
-import com.example.demo.domain.pokemon.PokemonType;
 import com.example.demo.dto.pokemon.AbilityDto;
 import com.example.demo.dto.pokemon.MissignoDto;
 import com.example.demo.dto.pokemon.PokemonDto;
 import com.example.demo.dto.pokemon.PokemonTypeDto;
-import com.example.demo.exceptions.PokemonNotFoundException;
-import com.example.demo.repositories.AbilityDataRepository;
 import com.example.demo.repositories.PokemonDataRepository;
 import com.example.demo.services.interfaces.PokemonDataInterface;
 import com.fasterxml.jackson.databind.JsonNode;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
 @Service
 public class PokemonDataService implements PokemonDataInterface {
-
-    private final AbilityDataRepository abilityDataRepository;
 
     @Autowired
     PokemonDataRepository repo;
 
     @Autowired
-    AbilityDataService abilityData_Service;
+    AbilityDataService abilityDataService;
 
     @Autowired
-    MoveDataService moveData_Service;
+    MoveDataService moveDataService;
 
     @Autowired
     DataSource dataSource;
 
     @Autowired
     CsvFileReader csvFileReader;
-
-    @Autowired
-    Environment environment;
-
-    @PersistenceContext
-    EntityManager entityManager;
-
-
-    PokemonDataService(AbilityDataRepository abilityDataRepository) {
-        this.abilityDataRepository = abilityDataRepository;
-    }
 
 
     @Override
@@ -86,14 +66,51 @@ public class PokemonDataService implements PokemonDataInterface {
         return repo.getAllPokemonData();
     }
 
-    public PokemonData getPokemonById(Long id) {
-        return repo.findById(id).orElse(null);
-    }
 
     @Override
-    public PokemonData getPokemonByName(String name) {
-        return repo.findByName(name).orElseThrow(() -> new PokemonNotFoundException(name));
+    public PokemonDto getPokemonDataById (Long id) {
+        PokemonDto resultado = PokemonDto.builder().build();
+
+        String pokemonDataQuery = """
+                SELECT id, available_in_sv, base_hp, base_attack, base_defense,
+                       base_special_attack, base_special_defense, base_speed,
+                       front_default_sprite, pc_sprite,
+                       name
+                FROM pokemon_data
+                WHERE id = ?
+                """;
+
+        try (Connection connection = dataSource.getConnection()){
+            PreparedStatement ps = connection.prepareStatement(pokemonDataQuery);
+            ps.setLong(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                resultado = PokemonDto.builder()
+                    .id(rs.getLong("id"))
+                    .name(rs.getString("name"))
+                    .base_hp(rs.getInt("base_hp"))
+                    .base_attack(rs.getInt("base_attack"))
+                    .base_defense(rs.getInt("base_defense"))
+                    .base_special_attack(rs.getInt("base_special_attack"))
+                    .base_special_defense(rs.getInt("base_special_defense"))
+                    .base_speed(rs.getInt("base_speed"))
+                    .front_default_sprite(rs.getBytes("front_default_sprite"))
+                    .pc_sprite(rs.getBytes("pc_sprite"))
+                    .build();
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        resultado.setMove_list(moveDataService.getPokemonMovesByPokemonId(id));
+        resultado.setAbility_list(abilityDataService.getAbilitiesByPokemonId(id));
+        System.out.println(resultado);
+        return resultado;
     }
+
+
 
     @Override
     @Transactional
@@ -372,7 +389,7 @@ public class PokemonDataService implements PokemonDataInterface {
         String updateAvailableSql = "UPDATE pokemon_data SET available_in_sv = ? WHERE id = ?";
 
         try (Connection connection = dataSource.getConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement(updateAvailableSql)) {
+            PreparedStatement preparedStatement = connection.prepareStatement(updateAvailableSql)) {
             boolean available = availablePokemons.contains(pokemonData.getName().toLowerCase());
 
             preparedStatement.setBoolean(1, available);
@@ -388,7 +405,11 @@ public class PokemonDataService implements PokemonDataInterface {
         }
     }
 
+    /* No tengo ni idea de si este engendro es mejor que separar tres subconsultas y juntarlo todo.
+    Preguntale a un desarrollador serio cuando te cuadre */
+
     /* Esta consulta es horriblemente complicada así que presta atención a los comentarios */
+    @Override
     public Set<MissignoDto> getAllPokemonForMissignoGrid() {
 
         /* En esta consulta te van a llegar varias filas del mismo pokemón con el mismo id. De alguna manera
@@ -471,7 +492,7 @@ public class PokemonDataService implements PokemonDataInterface {
                     /* Ahora tienes que averiguar si la entidad construida ya existe en la colección de habilidades
                     del pokemón que ya estás procesando. Si no existe, la añades.
                     
-                    La comparación se realiza en base al id de la habilidad consultada*/
+                    La comparación se realiza en base al id de la habilidad consultada */
                     if (!currentPokemon.getAbility_list().contains(currentAbility)) 
                         currentPokemon.getAbility_list().add(currentAbility);
                 }
@@ -498,33 +519,6 @@ public class PokemonDataService implements PokemonDataInterface {
         }
 
         return resultado;
-    }
-
-
-    @Override
-    public PokemonDto convertPokemonDataToDto(PokemonData data) {
-        return PokemonDto.builder()
-                .name(data.getName())
-                .front_default_sprite(data.getFront_default_sprite())
-                .pc_sprite(data.getPc_sprite())
-                .base_hp(data.getBase_hp())
-                .base_attack(data.getBase_attack())
-                .base_defense(data.getBase_defense())
-                .base_special_attack(data.getBase_special_attack())
-                .base_special_defense(data.getBase_special_defense())
-                .base_speed(data.getBase_speed())
-                .type_list(data.getType_list())
-                .ability_list(
-                        data.getAbility_list().stream()
-                                .map(ability -> {
-                                    return abilityData_Service.convertAbilityEntityToDto(ability);
-                                }).collect(Collectors.toSet()))
-                .move_list(
-                        data.getMove_list().stream()
-                                .map(move -> {
-                                    return moveData_Service.convertMoveDataToDto(move);
-                                }).collect(Collectors.toSet()))
-                .build();
     }
 
 }

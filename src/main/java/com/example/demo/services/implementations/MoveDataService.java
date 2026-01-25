@@ -2,8 +2,10 @@ package com.example.demo.services.implementations;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -19,6 +21,7 @@ import com.example.demo.domain.movements.MoveData;
 import com.example.demo.domain.movements.MoveType;
 import com.example.demo.domain.pokemon.PokemonType;
 import com.example.demo.dto.MoveDto;
+import com.example.demo.dto.pokemon.PokemonTypeDto;
 import com.example.demo.repositories.MoveDataRepository;
 import com.example.demo.services.interfaces.MoveDataInterface;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -144,17 +147,62 @@ public class MoveDataService implements MoveDataInterface {
         return repo.getMoveDataSetFromStringList(moveList);
     }
 
-    @Override
-    public MoveDto convertMoveDataToDto(MoveData moveData) {
-        return MoveDto.builder()
-                .name(moveData.getName())
-                .move_type(moveData.getMove_type().toString())
-                .pokemon_type(moveData.getPokemon_type())
-                .power(moveData.getPower())
-                .accuracy(moveData.getAccuracy())
-                .description(moveData.getDescription())
-                .pp(moveData.getPp())
-                .build();
+    public Set<MoveDto> getPokemonMovesByPokemonId (Long pokemonId) {
+        Set<MoveDto> resultado = new HashSet<>();
+
+        String movesQuery = """
+                SELECT
+                    mov.id          AS move_id,
+                    mov.accuracy    AS move_accuracy,
+                    mov.description AS move_description,
+                    mov.move_type   AS move_move_type,
+                    mov.name        AS move_name,
+                    mov.power       AS move_power,
+                    mov.pp          AS move_pp,
+
+                    ty.id           AS type_id,
+                    ty.name         AS type_name,
+                    ty.sprite       AS type_sprite
+                FROM pokemon_data_move_data pdmd
+                INNER JOIN move_data mov ON mov.id = pdmd.move_data_id
+                INNER JOIN pokemon_type ty ON ty.id = mov.pokemon_type_id
+                WHERE pdmd.pokemon_data_id = ?
+                """;
+
+        try (Connection connection = dataSource.getConnection()){
+            PreparedStatement ps = connection.prepareStatement(movesQuery);
+            ps.setLong(1, pokemonId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                resultado.add(
+                    MoveDto.builder()
+                        .id(rs.getLong("move_id"))
+                        .name(rs.getString("move_name"))
+                        .move_type(
+                            MoveType.valueOf(rs.getString("move_move_type"))
+                        )
+                        .power(rs.getInt("move_power"))
+                        .accuracy(rs.getInt("move_accuracy"))
+                        .description(rs.getString("move_description"))
+                        .pp(rs.getInt("move_pp"))
+                        .pokemon_type(
+                            PokemonTypeDto.builder()
+                                .id(rs.getLong("type_id"))
+                                .name(rs.getString("type_name"))
+                                .sprite(rs.getBytes("type_sprite"))
+                                .build()
+                        )
+                        .build()
+                );
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        return resultado;
     }
+
 
 }
