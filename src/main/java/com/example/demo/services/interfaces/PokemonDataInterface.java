@@ -5,7 +5,7 @@ import java.util.Set;
 import com.example.demo.domain.pokemon.PokemonData;
 import com.example.demo.dto.MoveDto;
 import com.example.demo.dto.pokemon.MissignoDto;
-import com.example.demo.dto.pokemon.PokemonDto;
+import com.example.demo.dto.pokemon.PokemonDataDto;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public interface PokemonDataInterface {
@@ -16,7 +16,7 @@ public interface PokemonDataInterface {
 
     Set<PokemonData> getAllPokemonData();
 
-    PokemonDto getPokemonDataById(Long id);
+    PokemonDataDto getPokemonDataById(Long id);
 
     boolean requestAllPokemonsFromApi();
 

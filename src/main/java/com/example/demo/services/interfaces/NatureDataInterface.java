@@ -11,8 +11,7 @@ public interface NatureDataInterface {
     void deleteAllNatureData();
     NatureData requestNatureToPokeApi(int number);
     boolean requestAllNatures();
-    Set<NatureData> getAllNatures();
-    Set<NatureDto> getAllNaturesAsDto();
+    Set<NatureDto> getAllNatures();
     NatureData getNatureByName(String name);
     NatureDto convertNatureDataToDto(NatureData data);
 

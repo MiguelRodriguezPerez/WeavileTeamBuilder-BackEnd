@@ -19,7 +19,7 @@ antes de devolverla al cliente y eso no es mantenible ni responsable */
 @Getter
 @Setter
 @Builder
-public class PokemonDto {
+public class PokemonDataDto {
 
     private Long id;
     private String name;

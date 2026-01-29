@@ -26,7 +26,7 @@ import com.example.demo.config.ImageDownloader;
 import com.example.demo.domain.pokemon.PokemonData;
 import com.example.demo.dto.pokemon.AbilityDto;
 import com.example.demo.dto.pokemon.MissignoDto;
-import com.example.demo.dto.pokemon.PokemonDto;
+import com.example.demo.dto.pokemon.PokemonDataDto;
 import com.example.demo.dto.pokemon.PokemonTypeDto;
 import com.example.demo.repositories.PokemonDataRepository;
 import com.example.demo.services.interfaces.PokemonDataInterface;
@@ -71,8 +71,8 @@ public class PokemonDataService implements PokemonDataInterface {
 
 
     @Override
-    public PokemonDto getPokemonDataById (Long id) {
-        PokemonDto resultado = PokemonDto.builder().build();
+    public PokemonDataDto getPokemonDataById (Long id) {
+        PokemonDataDto resultado = PokemonDataDto.builder().build();
 
         String pokemonDataQuery = """
                 SELECT id, available_in_sv, base_hp, base_attack, base_defense,
@@ -89,7 +89,7 @@ public class PokemonDataService implements PokemonDataInterface {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                resultado = PokemonDto.builder()
+                resultado = PokemonDataDto.builder()
                     .id(rs.getLong("id"))
                     .name(rs.getString("name"))
                     .base_hp(rs.getInt("base_hp"))

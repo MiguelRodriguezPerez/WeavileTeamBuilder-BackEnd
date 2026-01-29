@@ -10,14 +10,14 @@ import com.example.demo.domain.pokemon.PokemonData;
 import com.example.demo.domain.pokemon.PokemonType;
 import com.example.demo.dto.MoveDto;
 import com.example.demo.dto.pokemon.AbilityDto;
-import com.example.demo.dto.pokemon.PokemonDto;
+import com.example.demo.dto.pokemon.PokemonDataDto;
 import com.example.demo.dto.pokemon.PokemonTypeDto;
 
 @Component
 public class PokemonEntitiesMapper {
 
-    public PokemonDto mapPokemonDataToDto(PokemonData data) {
-        return PokemonDto.builder()
+    public PokemonDataDto mapPokemonDataToDto(PokemonData data) {
+        return PokemonDataDto.builder()
                 .id(data.getId())
                 .name(data.getName())
                 .front_default_sprite(data.getFront_default_sprite())

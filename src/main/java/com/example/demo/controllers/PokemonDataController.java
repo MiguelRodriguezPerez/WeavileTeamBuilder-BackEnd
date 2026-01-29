@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.domain.apiResponses.ApiNotFoundResponse;
 import com.example.demo.domain.pokemon.PokemonData;
 import com.example.demo.dto.pokemon.MissignoDto;
-import com.example.demo.dto.pokemon.PokemonDto;
+import com.example.demo.dto.pokemon.PokemonDataDto;
 import com.example.demo.services.implementations.PokemonDataService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -45,11 +45,11 @@ public class PokemonDataController {
     @Operation(operationId = "getPokemonDataById", summary = "Get pokemonData by id using JDBC", 
         description = "Request all data about a pokemom (related entities too) using JDBC by id")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Succesfully retrieved pokemon", content = @Content(contentSchema = @Schema(implementation = PokemonDto.class)))
+            @ApiResponse(responseCode = "200", description = "Succesfully retrieved pokemon", content = @Content(contentSchema = @Schema(implementation = PokemonDataDto.class)))
     })
     @ApiNotFoundResponse
     @GetMapping("/getPokemonById/{id}")
-    public ResponseEntity<PokemonDto> getPokemonDataByNameEndpoint(@PathVariable Long id) {
+    public ResponseEntity<PokemonDataDto> getPokemonDataByNameEndpoint(@PathVariable Long id) {
         return new ResponseEntity<>(pokemonDataService.getPokemonDataById(id), HttpStatus.OK);
     }
 

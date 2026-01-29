@@ -11,6 +11,7 @@ import lombok.Setter;
 @Builder
 public class ItemDto {
 
+    private Long id;
     @Lob // Indica que es un campo grande (BLOB)
     @Column(columnDefinition = "MEDIUMBLOB") // Para MySQL
     private byte[] image_sprite;

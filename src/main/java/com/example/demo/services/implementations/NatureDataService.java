@@ -1,7 +1,13 @@
 package com.example.demo.services.implementations;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.Set;
+
+import javax.sql.DataSource;
 
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +23,7 @@ import com.example.demo.repositories.NatureDataRepository;
 import com.example.demo.services.interfaces.NatureDataInterface;
 import com.fasterxml.jackson.databind.JsonNode;
 
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
@@ -28,6 +35,9 @@ public class NatureDataService implements NatureDataInterface {
 
     @PersistenceContext
     EntityManager entityManager;
+
+    @Autowired
+    DataSource dataSource;
 
     @Override
     public NatureData getNatureDataById(long id) {
@@ -86,8 +96,33 @@ public class NatureDataService implements NatureDataInterface {
     }
 
     @Override
-    public Set<NatureData> getAllNatures() {
-        return repo.getAllNatures();
+    public Set<NatureDto> getAllNatures() {
+        Set<NatureDto> resultado = new HashSet<>();
+        String query = """
+                SELECT id, decreased_stat, increased_stat, name
+                FROM nature_data
+                """;
+        try (Connection connection = dataSource.getConnection()){
+            PreparedStatement ps = connection.prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                resultado.add(
+                    NatureDto.builder()
+                        .id(rs.getLong("id"))
+                        .decreased_stat(rs.getString("decreased_stat"))
+                        .increased_stat(rs.getString("increased_stat"))
+                        .name(rs.getString("name"))
+                        .build()
+                );
+            }
+            
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        return resultado;
+
     }
 
     @Override
@@ -104,10 +139,6 @@ public class NatureDataService implements NatureDataInterface {
                 .build();
     }
 
-    @Override
-    public Set<NatureDto> getAllNaturesAsDto() {
-        return repo.getAllNaturesAsDto();
-    }
 
     
 

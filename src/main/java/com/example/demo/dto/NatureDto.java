@@ -9,6 +9,7 @@ import lombok.Setter;
 @Builder
 public class NatureDto {
     
+    private Long id;
     private String name;
     private String increased_stat;
     private String decreased_stat;
