@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -80,6 +82,40 @@ public class PokemonTypeService implements PokemonTypeInterface {
             ex.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public Set<PokemonType> getPokemonTypesByPokemonDataId(Long id) {
+        Set<PokemonType> resultado = new HashSet<>();
+
+        String query = """
+            SELECT pt.id, pt.name, pt.sprite
+            FROM pokemon_data_pokemon_type pdpt
+            INNER JOIN pokemon_type pt ON pdpt.pokemon_type_id = pt.id
+            WHERE pdpt.pokemon_data_id = ?
+        """;
+
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setLong(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                resultado.add(
+                    PokemonType.builder()
+                        .id(rs.getLong("id"))
+                        .name(rs.getString("name"))
+                        .sprite(rs.getBytes("sprite"))
+                        .build()
+                );
+            }
+
+        }
+        catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        return resultado;
     }
 
 }

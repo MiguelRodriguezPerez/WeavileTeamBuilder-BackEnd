@@ -45,6 +45,9 @@ public class PokemonDataService implements PokemonDataInterface {
     MoveDataService moveDataService;
 
     @Autowired
+    PokemonTypeService pokemonTypeService;
+
+    @Autowired
     DataSource dataSource;
 
     @Autowired
@@ -106,7 +109,8 @@ public class PokemonDataService implements PokemonDataInterface {
 
         resultado.setMove_list(moveDataService.getPokemonMovesByPokemonId(id));
         resultado.setAbility_list(abilityDataService.getAbilitiesByPokemonId(id));
-        System.out.println(resultado);
+        resultado.setType_list(pokemonTypeService.getPokemonTypesByPokemonDataId(id));
+
         return resultado;
     }
 
@@ -436,6 +440,7 @@ public class PokemonDataService implements PokemonDataInterface {
                     ad.id AS ability_id,
                     ad.name AS ability_name,
                     pt.id AS pokemon_type_id,
+                    pt.name AS pokemon_type_name,
                     pt.sprite AS pokemon_type_sprite
 
                 FROM pokemon_data p 
@@ -502,7 +507,7 @@ public class PokemonDataService implements PokemonDataInterface {
                 if (rs.getString("pokemon_type_id") != null) {
                     PokemonTypeDto currentType = PokemonTypeDto.builder()
                                 .id(Long.parseLong(rs.getString("pokemon_type_id")))
-                                .name("")
+                                .name(rs.getString("pokemon_type_name"))
                                 .sprite(rs.getBytes("pokemon_type_sprite"))
                                 .build();
                     if (!currentPokemon.getType_list().contains(currentType)) {
