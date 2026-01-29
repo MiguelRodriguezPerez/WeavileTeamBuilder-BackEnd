@@ -14,10 +14,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.micrometer.common.lang.Nullable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -29,6 +26,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /*Esta entidad representa un posible pokemón en un equipo */
 
@@ -39,7 +37,10 @@ public class PokemonTeamMember {
 
     @GeneratedValue
     @Id
-    private Long id;
+    private int team_index_id;
+
+    /* Este id referencia al id del pokemon_data que contiene los datos del miembro */
+    private int pokemon_data_id;
 
     private String name;
 
