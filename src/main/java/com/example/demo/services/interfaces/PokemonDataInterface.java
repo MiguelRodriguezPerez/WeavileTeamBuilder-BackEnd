@@ -30,6 +30,6 @@ public interface PokemonDataInterface {
 
     PokemonData assignPokemonDataTypes(PokemonData pokemonData, JsonNode pokemon_json);
 
-    Set<MissignoDto> getAllPokemonForMissignoGrid();
+    Set<MissignoDto> getAllPokemonForMissignoGridAvailableInSV();
 
 }

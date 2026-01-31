@@ -414,8 +414,7 @@ public class PokemonDataService implements PokemonDataInterface {
 
     /* Esta consulta es horriblemente complicada así que presta atención a los comentarios */
     @Override
-    public Set<MissignoDto> getAllPokemonForMissignoGrid() {
-
+    public Set<MissignoDto> getAllPokemonForMissignoGridAvailableInSV() {
         /* En esta consulta te van a llegar varias filas del mismo pokemón con el mismo id. De alguna manera
         necesitas evitar filas duplicadas. 
         
@@ -449,7 +448,13 @@ public class PokemonDataService implements PokemonDataInterface {
             "LEFT JOIN pokemon_data_ability_data pad ON pad.pokemon_data_id = p.id " +
             "LEFT JOIN ability_data ad ON ad.id = pad.ability_data_id " +
             "LEFT JOIN pokemon_data_pokemon_type pdpt ON pdpt.pokemon_data_id = p.id " +
-            "LEFT JOIN pokemon_type pt ON pt.id = pdpt.pokemon_type_id ";
+            "LEFT JOIN pokemon_type pt ON pt.id = pdpt.pokemon_type_id "
+
+        /* NOTA: Para persistir todos los pokemón en el navegador necesitas usar indexedDB.
+        Esto es porque todos los registros pesan 5.3MB que excede el limite de localStorage.
+        
+        TODO: Implementar indexedDB en React */
+        + "WHERE p.available_in_sv = 1";
 
 
         try (Connection connection = dataSource.getConnection()) {
