@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -36,7 +38,7 @@ public class PokemonTypeService implements PokemonTypeInterface {
                 System.out.println("Tipo " + i);
                 PokemonType pokemonType = this.requestTypeToApi(i);
 
-                preparedStatement.setString(1, pokemonType.getNombre());
+                preparedStatement.setString(1, pokemonType.getName());
                 preparedStatement.setBytes(2, pokemonType.getSprite());
                 preparedStatement.addBatch();
             }
@@ -54,7 +56,7 @@ public class PokemonTypeService implements PokemonTypeInterface {
         PokemonType pokemonType = new PokemonType();
         JsonNode typeNode = ApiRequestManager.callGetRequest(request);
 
-        pokemonType.setNombre(typeNode.at("/name").asText());
+        pokemonType.setName(typeNode.at("/name").asText());
         pokemonType.setSprite(ImageDownloader.getImage(typeNode.at("/sprites/generation-vii/sun-moon/name_icon").asText()));
 
         return pokemonType;
@@ -74,12 +76,46 @@ public class PokemonTypeService implements PokemonTypeInterface {
 
             return PokemonType.builder()
                     .id(resultSet.getLong("id"))
-                    .nombre(resultSet.getString("nombre"))
+                    .name(resultSet.getString("name"))
                     .build();
         } catch (SQLException ex) {
             ex.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public Set<PokemonType> getPokemonTypesByPokemonDataId(Long id) {
+        Set<PokemonType> resultado = new HashSet<>();
+
+        String query = """
+            SELECT pt.id, pt.name, pt.sprite
+            FROM pokemon_data_pokemon_type pdpt
+            INNER JOIN pokemon_type pt ON pdpt.pokemon_type_id = pt.id
+            WHERE pdpt.pokemon_data_id = ?
+        """;
+
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setLong(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                resultado.add(
+                    PokemonType.builder()
+                        .id(rs.getLong("id"))
+                        .name(rs.getString("name"))
+                        .sprite(rs.getBytes("sprite"))
+                        .build()
+                );
+            }
+
+        }
+        catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        return resultado;
     }
 
 }

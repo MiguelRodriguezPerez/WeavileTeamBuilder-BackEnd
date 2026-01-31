@@ -6,15 +6,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,10 +24,10 @@ import com.example.demo.config.ApiRequestManager;
 import com.example.demo.config.CsvFileReader;
 import com.example.demo.config.ImageDownloader;
 import com.example.demo.domain.pokemon.PokemonData;
-import com.example.demo.domain.pokemon.PokemonType;
+import com.example.demo.dto.pokemon.AbilityDto;
 import com.example.demo.dto.pokemon.MissignoDto;
-import com.example.demo.dto.pokemon.PokemonDto;
-import com.example.demo.exceptions.PokemonNotFoundException;
+import com.example.demo.dto.pokemon.PokemonDataDto;
+import com.example.demo.dto.pokemon.PokemonTypeDto;
 import com.example.demo.repositories.PokemonDataRepository;
 import com.example.demo.services.interfaces.PokemonDataInterface;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -38,10 +39,13 @@ public class PokemonDataService implements PokemonDataInterface {
     PokemonDataRepository repo;
 
     @Autowired
-    AbilityDataService abilityData_Service;
+    AbilityDataService abilityDataService;
 
     @Autowired
-    MoveDataService moveData_Service;
+    MoveDataService moveDataService;
+
+    @Autowired
+    PokemonTypeService pokemonTypeService;
 
     @Autowired
     DataSource dataSource;
@@ -49,8 +53,6 @@ public class PokemonDataService implements PokemonDataInterface {
     @Autowired
     CsvFileReader csvFileReader;
 
-    @Autowired
-    Environment environment;
 
     @Override
     public PokemonData savePokemon(PokemonData pokemon) {
@@ -67,14 +69,52 @@ public class PokemonDataService implements PokemonDataInterface {
         return repo.getAllPokemonData();
     }
 
-    public PokemonData getPokemonById(Long id) {
-        return repo.findById(id).orElse(null);
-    }
 
     @Override
-    public PokemonData getPokemonByName(String name) {
-        return repo.findByName(name).orElseThrow(() -> new PokemonNotFoundException(name));
+    public PokemonDataDto getPokemonDataById (Long id) {
+        PokemonDataDto resultado = PokemonDataDto.builder().build();
+
+        String pokemonDataQuery = """
+                SELECT id, available_in_sv, base_hp, base_attack, base_defense,
+                       base_special_attack, base_special_defense, base_speed,
+                       front_default_sprite, pc_sprite,
+                       name
+                FROM pokemon_data
+                WHERE id = ?
+                """;
+
+        try (Connection connection = dataSource.getConnection()){
+            PreparedStatement ps = connection.prepareStatement(pokemonDataQuery);
+            ps.setLong(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                resultado = PokemonDataDto.builder()
+                    .id(rs.getLong("id"))
+                    .name(rs.getString("name"))
+                    .base_hp(rs.getInt("base_hp"))
+                    .base_attack(rs.getInt("base_attack"))
+                    .base_defense(rs.getInt("base_defense"))
+                    .base_special_attack(rs.getInt("base_special_attack"))
+                    .base_special_defense(rs.getInt("base_special_defense"))
+                    .base_speed(rs.getInt("base_speed"))
+                    .front_default_sprite(rs.getBytes("front_default_sprite"))
+                    .pc_sprite(rs.getBytes("pc_sprite"))
+                    .build();
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        resultado.setMove_list(moveDataService.getPokemonMovesByPokemonId(id));
+        resultado.setAbility_list(abilityDataService.getAbilitiesByPokemonId(id));
+        resultado.setType_list(pokemonTypeService.getPokemonTypesByPokemonDataId(id));
+
+        return resultado;
     }
+
+
 
     @Override
     @Transactional
@@ -353,7 +393,7 @@ public class PokemonDataService implements PokemonDataInterface {
         String updateAvailableSql = "UPDATE pokemon_data SET available_in_sv = ? WHERE id = ?";
 
         try (Connection connection = dataSource.getConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement(updateAvailableSql)) {
+            PreparedStatement preparedStatement = connection.prepareStatement(updateAvailableSql)) {
             boolean available = availablePokemons.contains(pokemonData.getName().toLowerCase());
 
             preparedStatement.setBoolean(1, available);
@@ -369,64 +409,126 @@ public class PokemonDataService implements PokemonDataInterface {
         }
     }
 
-    public Set<PokemonData> getAllSVPokemon() {
-        return repo.getPokemonAvaliableInSV();
-    }
+    /* No tengo ni idea de si este engendro es mejor que separar tres subconsultas y juntarlo todo.
+    Preguntale a un desarrollador serio cuando te cuadre */
 
-    public Set<MissignoDto> convertToMissignoGridDTO(Set<PokemonData> pokemonDataSet) {
-        // Utilizando Java 8 Streams para la conversión de forma limpia
-        return pokemonDataSet.stream()
-                .map(pokemonData -> {
-                    MissignoDto missignoGridDTO = new MissignoDto();
-                    missignoGridDTO.setId(pokemonData.getId());
-                    missignoGridDTO.setName(pokemonData.getName());
-                    missignoGridDTO.setBase_hp(pokemonData.getBase_hp());
-                    missignoGridDTO.setBase_attack(pokemonData.getBase_attack());
-                    missignoGridDTO.setBase_defense(pokemonData.getBase_defense());
-                    missignoGridDTO.setBase_special_attack(pokemonData.getBase_special_attack());
-                    missignoGridDTO.setBase_special_defense(pokemonData.getBase_special_defense());
-                    missignoGridDTO.setBase_speed(pokemonData.getBase_speed());
-                    missignoGridDTO.setPc_sprite(pokemonData.getPc_sprite());
-
-                    // Convertir las listas de tipo y habilidades a DTOs correspondientes (si es
-                    // necesario)
-                    missignoGridDTO.setType_list(pokemonData.getType_list());
-                    missignoGridDTO.setAbility_list(
-                            pokemonData.getAbility_list().stream()
-                                    .map(ability -> {
-                                        return abilityData_Service.convertAbilityEntityToDto(ability);
-                                    })
-                                    .collect(Collectors.toSet()));
-
-                    return missignoGridDTO;
-                })
-                .collect(Collectors.toSet()); // Devuelve un Set<MissignoGridDTO>
-    }
-
+    /* Esta consulta es horriblemente complicada así que presta atención a los comentarios */
     @Override
-    public PokemonDto convertPokemonDataToDto(PokemonData data) {
-        return PokemonDto.builder()
-                .name(data.getName())
-                .front_default_sprite(data.getFront_default_sprite())
-                .pc_sprite(data.getPc_sprite())
-                .base_hp(data.getBase_hp())
-                .base_attack(data.getBase_attack())
-                .base_defense(data.getBase_defense())
-                .base_special_attack(data.getBase_special_attack())
-                .base_special_defense(data.getBase_special_defense())
-                .base_speed(data.getBase_speed())
-                .type_list(data.getType_list())
-                .ability_list(
-                        data.getAbility_list().stream()
-                                .map(ability -> {
-                                    return abilityData_Service.convertAbilityEntityToDto(ability);
-                                }).collect(Collectors.toSet()))
-                .move_list(
-                        data.getMove_list().stream()
-                                .map(move -> {
-                                    return moveData_Service.convertMoveDataToDto(move);
-                                }).collect(Collectors.toSet()))
-                .build();
+    public Set<MissignoDto> getAllPokemonForMissignoGridAvailableInSV() {
+        /* En esta consulta te van a llegar varias filas del mismo pokemón con el mismo id. De alguna manera
+        necesitas evitar filas duplicadas. 
+        
+        Un map te permite asignar un MissignoDto a un id key, impidiendo filas/ids duplicados*/
+        Map<Long,MissignoDto> mapQuery = new HashMap<>();
+        Set<MissignoDto> resultado = new HashSet<>();
+        /* Esta consulta es un LEFT JOIN y no un INNER JOIN porque va a haber celdas en las que el tipo o la 
+        habilidad sean nulos. Si te viniera una celda nula con INNER JOIN, la consulta fallaría. 
+        
+        Aún así es buena práctica hacer un LEFT JOIN aunque no esperes datos duplicados.*/
+        String query = """
+                SELECT
+                    p.id                AS pokemon_id,
+                    p.name              AS pokemon_name,
+                    p.base_hp           AS base_hp,
+                    p.base_attack       AS base_attack,
+                    p.base_defense      AS base_defense,
+                    p.base_special_attack AS base_special_attack,
+                    p.base_special_defense AS base_special_defense,
+                    p.base_speed        AS base_speed,
+                    p.pc_sprite         AS pc_sprite,
+                    ad.id AS ability_id,
+                    ad.name AS ability_name,
+                    pt.id AS pokemon_type_id,
+                    pt.name AS pokemon_type_name,
+                    pt.sprite AS pokemon_type_sprite
+
+                FROM pokemon_data p 
+            """
+        +
+            "LEFT JOIN pokemon_data_ability_data pad ON pad.pokemon_data_id = p.id " +
+            "LEFT JOIN ability_data ad ON ad.id = pad.ability_data_id " +
+            "LEFT JOIN pokemon_data_pokemon_type pdpt ON pdpt.pokemon_data_id = p.id " +
+            "LEFT JOIN pokemon_type pt ON pt.id = pdpt.pokemon_type_id "
+
+        /* NOTA: Para persistir todos los pokemón en el navegador necesitas usar indexedDB.
+        Esto es porque todos los registros pesan 5.3MB que excede el limite de localStorage.
+        
+        TODO: Implementar indexedDB en React */
+        + "WHERE p.available_in_sv = 1";
+
+
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement ps = connection.prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                /* Lo primero que haces es obtener el id del pokemón para saber si te viene duplicado o no */
+                Long id = rs.getLong("pokemon_id");
+
+                /* mapQuery.computeIfAbsent recibe el id y en base a el, decide si ya has procesado ese pokemón o no. 
+                Si no lo has procesado, creará una nueva entidad y guardará en ella su id, nombre y stats
+                
+                No me preguntes cuando han pasado los resultados de la consulta al map.*/
+                MissignoDto currentPokemon = mapQuery.computeIfAbsent(id, k -> {
+                    try {
+                        return MissignoDto.builder()
+                                .id(id)
+                                .name(rs.getString("pokemon_name"))
+                                .base_hp(rs.getInt("base_hp"))
+                                .base_attack(rs.getInt("base_attack"))
+                                .base_defense(rs.getInt("base_defense"))
+                                .base_special_attack(rs.getInt("base_special_attack"))
+                                .base_special_defense(rs.getInt("base_special_defense"))
+                                .base_speed(rs.getInt("base_speed"))
+                                .pc_sprite(rs.getBytes("pc_sprite"))
+                                .type_list(new HashSet<>())    // Inicializamos las listas
+                                .ability_list(new HashSet<>())
+                                .build();
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+
+                /* Si el id de la habilidad que obtienes en la consulta no es nulo, lo usarás para crear
+                una nueva entidad */
+                if (rs.getString("ability_id") != null){
+                    AbilityDto currentAbility = AbilityDto.builder()
+                            .id(Long.parseLong(rs.getString("ability_id")))
+                            .name(rs.getString("ability_name"))
+                            // No necesitas la descripción en MissignoCard
+                            .description("")
+                            .build();
+
+                    /* Ahora tienes que averiguar si la entidad construida ya existe en la colección de habilidades
+                    del pokemón que ya estás procesando. Si no existe, la añades.
+                    
+                    La comparación se realiza en base al id de la habilidad consultada */
+                    if (!currentPokemon.getAbility_list().contains(currentAbility)) 
+                        currentPokemon.getAbility_list().add(currentAbility);
+                }
+
+
+                // Misma lógica que en la habilidad del pokemón
+                if (rs.getString("pokemon_type_id") != null) {
+                    PokemonTypeDto currentType = PokemonTypeDto.builder()
+                                .id(Long.parseLong(rs.getString("pokemon_type_id")))
+                                .name(rs.getString("pokemon_type_name"))
+                                .sprite(rs.getBytes("pokemon_type_sprite"))
+                                .build();
+                    if (!currentPokemon.getType_list().contains(currentType)) {
+                        currentPokemon.getType_list().add(currentType);
+                    }
+                }
+                
+                // Añades el nuevo pokemón a la lista
+                resultado.add(currentPokemon);
+            };
+        }
+        catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        return resultado;
     }
 
 }

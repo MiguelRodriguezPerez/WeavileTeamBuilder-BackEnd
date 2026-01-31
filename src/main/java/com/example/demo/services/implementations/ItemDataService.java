@@ -2,7 +2,9 @@ package com.example.demo.services.implementations;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.sql.DataSource;
@@ -128,7 +130,32 @@ public class ItemDataService implements ItemDataInterface {
 
     @Override
     public Set<ItemDto> getAllItemsAsDto() {
-        return repo.findAllItemDataDto();
+        Set<ItemDto> resultado = new HashSet<>();
+        String query = """
+                SELECT id, description, image_sprite, name
+                FROM item_data
+                """;
+        
+        try (Connection connection = dataSource.getConnection()){
+            PreparedStatement ps = connection.prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                resultado.add(
+                    ItemDto.builder()
+                        .id(rs.getLong("id"))
+                        .description(rs.getString("description"))
+                        .name(rs.getString("name"))
+                        .image_sprite(rs.getBytes("image_sprite"))
+                        .build()
+                );
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        return resultado;
     }
 
     @Override

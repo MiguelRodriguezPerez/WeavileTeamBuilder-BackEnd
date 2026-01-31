@@ -26,7 +26,8 @@ public class PokemonTeamService implements PokemonTeamInterface {
              * para que el cliente no tenga problemas para manipularlo. Sospechoso de fallar
              */
 
-            member.setId((long) i);
+            member.setTeam_index_id(i);
+            member.setPokemon_data_id(0);
             member.setNature(nature_service.getNatureByName("hardy"));
             team.getTeamMembers().add(member);
         }

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.domain.apiResponses.ApiNotFoundResponse;
 import com.example.demo.domain.pokemon.PokemonData;
 import com.example.demo.dto.pokemon.MissignoDto;
-import com.example.demo.dto.pokemon.PokemonDto;
+import com.example.demo.dto.pokemon.PokemonDataDto;
 import com.example.demo.services.implementations.PokemonDataService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,26 +32,30 @@ public class PokemonDataController {
     @Autowired
     PokemonDataService pokemonDataService;
 
-    @Operation(operationId = "allSVPokemon", summary = "Retrieve all available pokemon in sv", description = "Returns a list of pokemon data which are available in pokemon sv")
+    @Operation(
+        operationId = "allMissignoGridPokemonDtoAvaliableInSV", 
+        summary = "Retrieve all available pokemon for MissignoCard avaliable in SV", 
+        description = "Returns a list of pokemon data which are available in pokemon sv")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Successful request with all pokemon data", content = @Content(array = @ArraySchema(schema = @Schema(implementation = MissignoDto.class))))
+            @ApiResponse(responseCode = "200", description = "Successful request with all pokemon data in SV", content = @Content(array = @ArraySchema(schema = @Schema(implementation = MissignoDto.class))))
     })
-    @GetMapping("/allSVPokemon")
-    public ResponseEntity<Set<MissignoDto>> getAllSWPokemonEndpoint() {
-        Set<MissignoDto> resultado = pokemonDataService
-                .convertToMissignoGridDTO(pokemonDataService.getAllSVPokemon());
+    @GetMapping("/allMissignoGridPokemonDtoInSV")
+    public ResponseEntity<Set<MissignoDto>> getAllPokemonAvaliableInSVEndpoint() {
+        Set<MissignoDto> resultado = pokemonDataService.getAllPokemonForMissignoGridAvailableInSV();
         return new ResponseEntity<>(resultado, HttpStatus.OK);
     }
 
-    @Operation(operationId = "getPokemonByName", summary = "Get pokemonData by name", description = "Request a certain pokemonData by name")
+
+
+    @Operation(operationId = "getPokemonDataById", summary = "Get pokemonData by id using JDBC", 
+        description = "Request all data about a pokemom (related entities too) using JDBC by id")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Succesfully retrieved pokemon", content = @Content(contentSchema = @Schema(implementation = PokemonData.class)))
+            @ApiResponse(responseCode = "200", description = "Succesfully retrieved pokemon", content = @Content(contentSchema = @Schema(implementation = PokemonDataDto.class)))
     })
     @ApiNotFoundResponse
-    @GetMapping("/getPokemonByName/{name}")
-    public ResponseEntity<PokemonDto> getPokemonDataByNameEndpoint(@PathVariable String name) {
-        PokemonDto dto = pokemonDataService.convertPokemonDataToDto(pokemonDataService.getPokemonByName(name));
-        return new ResponseEntity<>(dto, HttpStatus.OK);
+    @GetMapping("/getPokemonById/{id}")
+    public ResponseEntity<PokemonDataDto> getPokemonDataByNameEndpoint(@PathVariable Long id) {
+        return new ResponseEntity<>(pokemonDataService.getPokemonDataById(id), HttpStatus.OK);
     }
 
 }

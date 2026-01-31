@@ -71,7 +71,7 @@ public class NatureDataController {
     })
     @GetMapping("/getAllNatures")
     public ResponseEntity<Set<NatureDto>> getAllNaturesEndpoint() {
-        return new ResponseEntity<Set<NatureDto>>(natureDataService.getAllNaturesAsDto(), HttpStatus.OK);
+        return new ResponseEntity<Set<NatureDto>>(natureDataService.getAllNatures(), HttpStatus.OK);
     }
 
 }

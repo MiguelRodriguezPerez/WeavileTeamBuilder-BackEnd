@@ -3,7 +3,9 @@ package com.example.demo.services.interfaces;
 import java.util.Set;
 
 import com.example.demo.domain.pokemon.PokemonData;
-import com.example.demo.dto.pokemon.PokemonDto;
+import com.example.demo.dto.MoveDto;
+import com.example.demo.dto.pokemon.MissignoDto;
+import com.example.demo.dto.pokemon.PokemonDataDto;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public interface PokemonDataInterface {
@@ -14,9 +16,7 @@ public interface PokemonDataInterface {
 
     Set<PokemonData> getAllPokemonData();
 
-    PokemonData getPokemonByName(String name);
-
-    PokemonDto convertPokemonDataToDto(PokemonData data);
+    PokemonDataDto getPokemonDataById(Long id);
 
     boolean requestAllPokemonsFromApi();
 
@@ -29,5 +29,7 @@ public interface PokemonDataInterface {
     PokemonData assignPokemonDataSprites(PokemonData pokemonData, JsonNode pokemon_json);
 
     PokemonData assignPokemonDataTypes(PokemonData pokemonData, JsonNode pokemon_json);
+
+    Set<MissignoDto> getAllPokemonForMissignoGridAvailableInSV();
 
 }

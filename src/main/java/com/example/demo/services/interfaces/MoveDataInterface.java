@@ -17,6 +17,6 @@ public interface MoveDataInterface {
 
     boolean requestAndSaveAllMovesFromApi();
 
-    MoveDto convertMoveDataToDto(MoveData moveData);
+    Set<MoveDto> getPokemonMovesByPokemonId (Long pokemonId);
 
 }

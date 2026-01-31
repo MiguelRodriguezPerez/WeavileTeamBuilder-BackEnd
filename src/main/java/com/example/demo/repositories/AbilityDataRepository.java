@@ -15,12 +15,12 @@ import com.example.demo.dto.pokemon.AbilityDto;
 @Repository
 public interface AbilityDataRepository extends JpaRepository<AbilityData, Long> {
 
-    AbilityData findByName(String name);
+    // AbilityData findByName(String name);
 
-    @Query("SELECT new com.example.demo.dto.pokemon.AbilityDto(ad.name,ad.description) FROM AbilityData ad")
-    Set<AbilityDto> getAllAbilityDto();
+    // @Query("SELECT new com.example.demo.dto.pokemon.AbilityDto(ad.name,ad.description) FROM AbilityData ad")
+    // Set<AbilityDto> getAllAbilityDto();
 
-    @Transactional
-    @Query(value = "SELECT * FROM ability_data WHERE name IN :names", nativeQuery = true)
-    Set<AbilityData> getAblitySetFromStringList(@Param("names") List<String> names);
+    // @Transactional
+    // @Query(value = "SELECT * FROM ability_data WHERE name IN :names", nativeQuery = true)
+    // Set<AbilityData> getAblitySetFromStringList(@Param("names") List<String> names);
 }
