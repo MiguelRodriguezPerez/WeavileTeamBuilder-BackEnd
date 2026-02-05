@@ -39,11 +39,6 @@ public class PokemonType {
     private Long id;
 
     private String name;
-
-    @Lob // Indica que es un campo grande (BLOB)
-    @Column(columnDefinition = "MEDIUMBLOB") // Para MySQL
-    private byte[] sprite;
-
     /* POR EL AMOR DE DIOS NO BORRES LOS JSON IGNORE. NUNCA VAS A NECESITAR ESAS COLECCIONES */
 
     @JsonIgnore

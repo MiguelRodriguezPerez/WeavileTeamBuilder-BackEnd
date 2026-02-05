@@ -16,12 +16,6 @@ import lombok.Setter;
 @Builder
 @EqualsAndHashCode(of = "id")
 public class PokemonTypeDto {
-    
     private Long id;
-
     private String name;
-
-    @Lob // Indica que es un campo grande (BLOB)
-    @Column(columnDefinition = "MEDIUMBLOB") // Para MySQL
-    private byte[] sprite;
 }

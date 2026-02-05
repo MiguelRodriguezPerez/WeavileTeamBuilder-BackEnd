@@ -190,7 +190,6 @@ public class MoveDataService implements MoveDataInterface {
                             PokemonTypeDto.builder()
                                 .id(rs.getLong("type_id"))
                                 .name(rs.getString("type_name"))
-                                .sprite(rs.getBytes("type_sprite"))
                                 .build()
                         )
                         .build()

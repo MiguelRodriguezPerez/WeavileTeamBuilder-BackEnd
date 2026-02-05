@@ -448,13 +448,14 @@ public class PokemonDataService implements PokemonDataInterface {
             "LEFT JOIN pokemon_data_ability_data pad ON pad.pokemon_data_id = p.id " +
             "LEFT JOIN ability_data ad ON ad.id = pad.ability_data_id " +
             "LEFT JOIN pokemon_data_pokemon_type pdpt ON pdpt.pokemon_data_id = p.id " +
-            "LEFT JOIN pokemon_type pt ON pt.id = pdpt.pokemon_type_id "
+            "LEFT JOIN pokemon_type pt ON pt.id = pdpt.pokemon_type_id ";
 
         /* NOTA: Para persistir todos los pokemón en el navegador necesitas usar indexedDB.
         Esto es porque todos los registros pesan 5.3MB que excede el limite de localStorage.
         
         TODO: Implementar indexedDB en React */
-        + "WHERE p.available_in_sv = 1";
+        // + "WHERE p.available_in_sv = 1"
+        
 
 
         try (Connection connection = dataSource.getConnection()) {
@@ -513,7 +514,6 @@ public class PokemonDataService implements PokemonDataInterface {
                     PokemonTypeDto currentType = PokemonTypeDto.builder()
                                 .id(Long.parseLong(rs.getString("pokemon_type_id")))
                                 .name(rs.getString("pokemon_type_name"))
-                                .sprite(rs.getBytes("pokemon_type_sprite"))
                                 .build();
                     if (!currentPokemon.getType_list().contains(currentType)) {
                         currentPokemon.getType_list().add(currentType);
