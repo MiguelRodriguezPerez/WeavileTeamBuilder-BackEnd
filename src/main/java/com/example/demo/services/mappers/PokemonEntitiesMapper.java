@@ -70,7 +70,6 @@ public class PokemonEntitiesMapper {
         return PokemonTypeDto.builder()
             .id(type.getId())
             .name(type.getName())
-            .sprite(type.getSprite())
             .build();
     }
 

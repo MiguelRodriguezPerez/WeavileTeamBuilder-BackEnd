@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.config.ApiRequestManager;
-import com.example.demo.config.ImageDownloader;
 import com.example.demo.domain.pokemon.PokemonType;
 import com.example.demo.services.interfaces.PokemonTypeInterface;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -39,7 +38,6 @@ public class PokemonTypeService implements PokemonTypeInterface {
                 PokemonType pokemonType = this.requestTypeToApi(i);
 
                 preparedStatement.setString(1, pokemonType.getName());
-                preparedStatement.setBytes(2, pokemonType.getSprite());
                 preparedStatement.addBatch();
             }
 
@@ -57,7 +55,6 @@ public class PokemonTypeService implements PokemonTypeInterface {
         JsonNode typeNode = ApiRequestManager.callGetRequest(request);
 
         pokemonType.setName(typeNode.at("/name").asText());
-        pokemonType.setSprite(ImageDownloader.getImage(typeNode.at("/sprites/generation-vii/sun-moon/name_icon").asText()));
 
         return pokemonType;
     }
@@ -105,7 +102,6 @@ public class PokemonTypeService implements PokemonTypeInterface {
                     PokemonType.builder()
                         .id(rs.getLong("id"))
                         .name(rs.getString("name"))
-                        .sprite(rs.getBytes("sprite"))
                         .build()
                 );
             }
